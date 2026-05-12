@@ -76,16 +76,17 @@ const CONFIG = {
   GOOGLE_API_KEY:   "AIzaSyD9F3cdkBs4274bmJgcaUSRmrsDHx5abRk",
   SALES_SHEET_ID:   "1jGy9ixB9HMQn-_4MsZGDxkS427BxXH0sdqfkqHrm99o",
   PENDING_SHEET_ID: "1JHmxkiazFuBDJqLwkyJxImnxHBM7UqxxNhDqqZH6ao4",
-  RLS_SHEET_ID:     "eOWllWzUKXvtO0jGE1gH6Y",
+  RLS_SHEET_ID:     "14XfbVf4Bw93NdnYrqSM3-eOWllWzUKXvtO0jGE1gH6Y",
   ANTHROPIC_KEY:    "YOUR_ANTHROPIC_KEY"
 };
 </script>
 <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
 <script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
 <script>
 (function waitForLibs() {
-  if (!window.React || !window.ReactDOM || !window.Recharts) {
+  if (!window.React || !window.ReactDOM || !window.PropTypes || !window.Recharts) {
     return setTimeout(waitForLibs, 60);
   }
   startApp();
