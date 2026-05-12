@@ -8,299 +8,254 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.8.0/Recharts.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ██████████████████████████████████████████████████████████████
+   ██                                                          ██
+   ██   EBC SALES DASHBOARD — CONFIGURATION                   ██
+   ██   Fill in ONLY these 5 values. Nothing else to change.  ██
+   ██                                                          ██
+   ██████████████████████████████████████████████████████████████
+═══════════════════════════════════════════════════════════════ */
+
+const CONFIG = {
+  // 1. Google Sheets API Key (from Google Cloud Console)
+  GOOGLE_API_KEY: "AIzaSyD9F3cdkBs4274bmJgcaUSRmrsDHx5abRk",
+
+  // 2. Sales View sheet ID (the long code from the sheet URL)
+  SALES_SHEET_ID: "1jGy9ixB9HMQn-_4MsZGDxkS427BxXH0sdqfkqHrm99o",
+
+  // 3. Pending Sales sheet ID
+  PENDING_SHEET_ID: "1JHmxkiazFuBDJqLwkyJxImnxHBM7UqxxNhDqqZH6ao4",
+
+  // 4. RLS Config sheet ID
+  RLS_SHEET_ID: "14XfbVf4Bw93NdnYrqSM3-eOWllWzUKXvtO0jGE1gH6Y",
+
+  // 5. Anthropic API Key (for AI Insights tab) — can add later
+  ANTHROPIC_KEY: "YOUR_ANTHROPIC_KEY",
+};
+
+/* ════════════════════════════════════════════════════════════
+   DO NOT EDIT ANYTHING BELOW THIS LINE
+════════════════════════════════════════════════════════════ */
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --blue:#1565C0;--blue2:#1976D2;--blue3:#42A5F5;--blue-l:#E3F2FD;--blue-ll:#F0F7FF;
+  --blue:#1565C0;--blue2:#1976D2;--blue-l:#E3F2FD;--blue-ll:#F0F7FF;
   --red:#C62828;--red2:#D32F2F;--red-l:#FFEBEE;
   --bg:#F4F6FA;--card:#FFFFFF;--border:#E0E7EF;
   --text:#0F1C2E;--muted:#4A5568;--subtle:#8898AA;
   --green:#1B7E4C;--green-l:#E6F5EC;
   --amber:#B45309;--amber-l:#FEF3C7;
   --shadow:0 1px 4px rgba(15,28,46,.07),0 4px 16px rgba(15,28,46,.06);
-  --shadow-lg:0 8px 32px rgba(21,101,192,.12);
 }
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-print-color-adjust:exact;print-color-adjust:exact}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
-::-webkit-scrollbar-track{background:transparent}
 input,select,button,textarea{font-family:'Plus Jakarta Sans',sans-serif}
-
-/* ── Layout ── */
 .page{max-width:1480px;margin:0 auto;padding:20px 16px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .grid6{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 @media(max-width:1100px){.grid6{grid-template-columns:repeat(3,1fr)}.grid5{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:760px){.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}.grid4{grid-template-columns:1fr 1fr}.grid5{grid-template-columns:1fr 1fr}.grid6{grid-template-columns:1fr 1fr}}
-@media(max-width:480px){.grid3{grid-template-columns:1fr}.grid4{grid-template-columns:1fr 1fr}.hide-xs{display:none!important}}
-
-/* ── Cards ── */
+@media(max-width:760px){.grid2{grid-template-columns:1fr}.grid4{grid-template-columns:1fr 1fr}.grid5{grid-template-columns:1fr 1fr}.grid6{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.grid4{grid-template-columns:1fr 1fr}}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
 .card-flush{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
-
-/* ── KPI Cards ── */
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-color,var(--blue2))}
 .kpi-label{font-size:10px;font-weight:700;color:var(--subtle);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
 .kpi-val{font-family:'DM Serif Display',serif;font-size:26px;color:var(--kpi-color,var(--text));line-height:1}
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:5px;font-weight:500}
 .kpi-icon{position:absolute;top:14px;right:16px;font-size:20px;opacity:.15}
-
-/* ── Buttons ── */
 .btn{padding:8px 16px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:none;display:inline-flex;align-items:center;gap:5px}
 .btn-blue{background:var(--blue2);color:#fff}.btn-blue:hover{background:var(--blue)}
 .btn-outline{background:transparent;color:var(--blue2);border:1.5px solid var(--blue2)}.btn-outline:hover{background:var(--blue-l)}
 .btn-red{background:var(--red2);color:#fff}.btn-red:hover{background:var(--red)}
 .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{background:var(--bg)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-
-/* ── Badges ── */
-.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.03em}
-.badge-blue{background:var(--blue-l);color:var(--blue)}
-.badge-red{background:var(--red-l);color:var(--red2)}
-.badge-green{background:var(--green-l);color:var(--green)}
-.badge-amber{background:var(--amber-l);color:var(--amber)}
-.badge-gray{background:#F1F5F9;color:var(--muted)}
-
-/* ── Table ── */
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.badge-blue{background:var(--blue-l);color:var(--blue)}.badge-red{background:var(--red-l);color:var(--red2)}
+.badge-green{background:var(--green-l);color:var(--green)}.badge-gray{background:#F1F5F9;color:var(--muted)}
 .tbl{width:100%;border-collapse:collapse;font-size:12px}
 .tbl th{padding:9px 11px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--subtle);border-bottom:2px solid var(--border);background:#FAFBFD;white-space:nowrap;text-transform:uppercase}
 .tbl td{padding:9px 11px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap}
 .tbl tbody tr:last-child td{border-bottom:none}
 .tbl tbody tr:hover td{background:#F7FAFF}
-
-/* ── Filters ── */
 .slicer{padding:7px 11px;border:1.5px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);font-size:12px;font-weight:500;cursor:pointer;outline:none;transition:border-color .15s}
 .slicer:focus,.slicer:hover{border-color:var(--blue2)}
-
-/* ── Tabs ── */
 .tab-btn{padding:10px 18px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-bottom:2.5px solid transparent;transition:all .2s;white-space:nowrap}
 .tab-btn.active{color:var(--blue2);border-bottom-color:var(--blue2)}
-.tab-btn:hover:not(.active){color:var(--text)}
-
-/* ── Dim buttons ── */
 .dim-btn{padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
 .dim-btn.active{background:var(--blue-l);color:var(--blue);border-color:var(--blue2)}
-
-/* ── AI alerts ── */
 .ai-alert{border-radius:10px;padding:11px 14px;margin-bottom:9px;font-size:12.5px;line-height:1.6;border-left:3px solid}
 .ai-warn{background:var(--amber-l);border-color:#D97706;color:#78350F}
 .ai-danger{background:var(--red-l);border-color:var(--red2);color:#7F1D1D}
 .ai-info{background:var(--blue-l);border-color:var(--blue2);color:#1E40AF}
 .ai-good{background:var(--green-l);border-color:var(--green);color:#14532D}
-
-/* ── Chat ── */
-.chat-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:85%;margin-bottom:8px;animation:fadeUp .25s ease}
-.chat-user{background:var(--blue2);color:#fff;margin-left:auto;border-bottom-right-radius:3px}
-.chat-ai{background:#F1F5F9;color:var(--text);border-bottom-left-radius:3px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
-/* ── Spinner ── */
+.chat-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:85%;margin-bottom:8px}
 .spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue2);border-radius:50%;animation:rot .6s linear infinite;display:inline-block;flex-shrink:0}
 @keyframes rot{to{transform:rotate(360deg)}}
-
-/* ── Section titles ── */
 .st{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px}
-.st-sub{font-size:11px;color:var(--muted);font-weight:400;margin-left:6px}
-
-/* ── Print ── */
-@media print{
-  #main-app{display:none!important}
-  #print-area{display:block!important}
-  body{background:#fff}
-}
+/* Loading overlay */
+.loading-screen{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
+.big-spin{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--blue2);border-radius:50%;animation:rot .8s linear infinite}
+@media print{#main-app{display:none!important}#print-area{display:block!important}body{background:#fff}}
 #print-area{display:none}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script>
-const {createElement:h,useState,useMemo,useRef,useEffect,useCallback}=React;
-const {ResponsiveContainer,ComposedChart,BarChart,Bar,LineChart,Line,XAxis,YAxis,CartesianGrid,Tooltip,Legend,Cell,PieChart,Pie}=Recharts;
+const {createElement:h,useState,useMemo,useRef,useEffect}=React;
+const {ResponsiveContainer,ComposedChart,BarChart,Bar,LineChart,Line,XAxis,YAxis,CartesianGrid,Tooltip,Cell}=Recharts;
 
-/* ═══════════════════════════════════════════════
-   BRAND
-═══════════════════════════════════════════════ */
 const B={
   blue:"#1976D2",blueD:"#1565C0",blueL:"#E3F2FD",blueLL:"#F0F7FF",
   red:"#D32F2F",redD:"#C62828",redL:"#FFEBEE",
   text:"#0F1C2E",muted:"#4A5568",subtle:"#8898AA",
   border:"#E0E7EF",bg:"#F4F6FA",card:"#FFFFFF",
-  green:"#1B7E4C",greenL:"#E6F5EC",
-  amber:"#B45309",amberL:"#FEF3C7",
-  orange:"#C2410C",
+  green:"#1B7E4C",greenL:"#E6F5EC",amber:"#B45309",amberL:"#FEF3C7",
   pal:["#1976D2","#C62828","#0288D1","#2E7D32","#6A1B9A","#E65100","#00695C","#AD1457","#1565C0","#558B2F"],
 };
 
 /* ═══════════════════════════════════════════════
-   SEED RANDOM
+   GOOGLE SHEETS FETCH
 ═══════════════════════════════════════════════ */
-let _s=0xF3A7;
-const rng=()=>{_s=Math.imul(_s^(_s>>>15),_s|1);_s^=_s+Math.imul(_s^(_s>>>7),_s|61);return((_s^(_s>>>14))>>>0)/4294967296};
-const pick=a=>a[Math.floor(rng()*a.length)];
-
-/* ═══════════════════════════════════════════════
-   MOCK DATA — SALES VIEW
-═══════════════════════════════════════════════ */
-const PRODUCTS=[
-  {name:"Sol-30",family:"Solvents",base:"Mineral"},
-  {name:"Sol-40",family:"Solvents",base:"Mineral"},
-  {name:"Sol-50",family:"Solvents",base:"Bio-based"},
-  {name:"Penetrol-55",family:"Auxiliaries",base:"Synthetic"},
-  {name:"Auxilane-200",family:"Auxiliaries",base:"Aqueous"},
-  {name:"Auxilane-300",family:"Auxiliaries",base:"Aqueous"},
-  {name:"Softener-NE",family:"Softeners",base:"Bio-based"},
-  {name:"Softener-GX",family:"Softeners",base:"Synthetic"},
-  {name:"Defoamer-AX",family:"Binders",base:"Aqueous"},
-  {name:"TexBind-400",family:"Binders",base:"Synthetic"},
-  {name:"ChromoFix-R",family:"Fixatives",base:"Synthetic"},
-  {name:"LeathoBase-K",family:"Leather Chem.",base:"Mineral"},
-  {name:"PaperCoat-X",family:"Coating",base:"Aqueous"},
-  {name:"PaperCoat-Z",family:"Coating",base:"Synthetic"},
-];
-const CUSTOMERS=["ESCO Textiles","Al-Nile Leather","CairoCoat Ltd","DeltaPaper Co.","SinaiChem","MedCoat Egypt","AlexTex Group","SuezIndustries","GizaLeather","KuwaitChem Imp.","TunisTextile","MarocChim","NileDelta Corp","SuezPaper","RedSeaChem"];
-const COUNTRIES=["Egypt","Saudi Arabia","UAE","Nigeria","Tunisia","Morocco","Turkey","Sudan","Kuwait","Jordan","Libya","Algeria"];
-const MARKETS=["Textile","Leather","Paper","Coating","Industrial"];
-const TAWJEH=["محلي","تصدير - خليج","تصدير - أفريقيا","تصدير - أوروبا"];
-const CUST_TYPES=["Industrial","Commercial","Government","Distributor"];
-const MANAGERS=["Ahmed Hassan","Sara Mohamed","Khaled Ibrahim"];
-const SALESPERSONS=["Omar Mahmoud","Nour Ali","Rania Samir","Youssef Kamel","Dina Fouad"];
-const CURRENCIES=["EGP","USD","USD","EGP","EUR"];
-const PAYMENT=["30 Days Net","60 Days Net","Cash on Delivery","45 Days Net","LC 90 Days"];
-
-function makeDate(maxDaysAgo,base){
-  const d=new Date(base||new Date(2026,4,4));
-  d.setDate(d.getDate()-Math.floor(rng()*maxDaysAgo));
-  return d.toISOString().slice(0,10);
-}
-
-// Build sales: group orders (some customers buy multiple products per order)
-const SALES_DATA=[];
-let orderCounter=1000;
-CUSTOMERS.forEach(cust=>{
-  const numOrders=Math.floor(rng()*6)+2;
-  for(let o=0;o<numOrders;o++){
-    const oDate=makeDate(400);
-    const dDate=new Date(oDate);dDate.setDate(dDate.getDate()+Math.floor(rng()*25)+5);
-    const numProds=Math.floor(rng()*3)+1;
-    const mgr=pick(MANAGERS);const sp=pick(SALESPERSONS);
-    const curr=pick(CURRENCIES);const country=pick(COUNTRIES);
-    const market=pick(MARKETS);const tawjeh=pick(TAWJEH);
-    const custType=pick(CUST_TYPES);
-    const erpNum=`ERP-${10000+orderCounter}`;
-    orderCounter++;
-    const usedProds=new Set();
-    for(let p=0;p<numProds;p++){
-      let prod;do{prod=pick(PRODUCTS);}while(usedProds.has(prod.name)&&usedProds.size<PRODUCTS.length);
-      usedProds.add(prod.name);
-      const qty=Math.round((rng()*15000+1000)/100)*100;
-      const salesPrice=+(rng()*28+7).toFixed(2);
-      const totInv=+(qty*salesPrice).toFixed(2);
-      const rate=curr==="EGP"?1:+(rng()*1.5+49).toFixed(2);
-      const priceMod=+(rng()*600-200).toFixed(2);
-      const totVAT=+(totInv*rate*1.14+priceMod).toFixed(2);
-      const invNo=`INV-${20000+SALES_DATA.length}`;
-      SALES_DATA.push({
-        orderNo:`ORD-${erpNum}`,orderDate:oDate,deliveryDate:dDate.toISOString().slice(0,10),
-        year:new Date(oDate).getFullYear(),erpNum,invNo,
-        customer:cust,country,custCode:`C${300+CUSTOMERS.indexOf(cust)}`,
-        custType,market,tawjeh,
-        product:prod.name,family:prod.family,base:prod.base,
-        salesPrice,qty,totalInv:totInv,currency:curr,rate,
-        priceMod,totalValVAT:totVAT,
-        paymentTerms:pick(PAYMENT),salesManager:mgr,salesperson:sp,remarks:"",
-      });
-    }
-  }
-});
-
-/* ═══════════════════════════════════════════════
-   MOCK DATA — PENDING SALES
-═══════════════════════════════════════════════ */
-const STATUSES=["Pending Approval","In Production","Ready to Ship","Partial Delivery","On Hold","Awaiting Payment"];
-const PENDING_DATA=[];
-for(let i=0;i<52;i++){
-  const prod=pick(PRODUCTS);const curr=pick(CURRENCIES);
-  const reqQty=Math.round((rng()*22000+3000)/500)*500;
-  const delQty=Math.floor(rng()*0.65*reqQty/500)*500;
-  const remQty=reqQty-delQty;
-  const priceExVAT=+(rng()*32+8).toFixed(2);
-  const priceInVAT=+(priceExVAT*1.14).toFixed(2);
-  const rate=curr==="EGP"?1:+(rng()*1.5+49).toFixed(2);
-  const totNoVAT=+(reqQty*priceExVAT*rate).toFixed(2);
-  const remAmt=+(remQty*priceExVAT*rate).toFixed(2);
-  const totWithVAT=+(reqQty*priceInVAT).toFixed(2);
-  const mgr=pick(MANAGERS);const sp=pick(SALESPERSONS);
-  const cust=pick(CUSTOMERS);
-  PENDING_DATA.push({
-    id:i+1,base:prod.base,region:pick(["Cairo","Alexandria","Delta","Upper Egypt","Gulf","Export"]),
-    custType:pick(CUST_TYPES),family:prod.family,salesManager:mgr,salesMan:sp,
-    serNo:`SER-${5000+i}`,custCode:`C${310+i}`,oracleCode:`ORC-${7000+i}`,
-    orderDate:makeDate(180),customer:cust,country:pick(COUNTRIES),
-    incoterm:pick(["FOB","CIF","EXW","DDP","CPT"]),
-    product:prod.name,reqQty,delQty,remQty,
-    priceExVAT,priceInVAT,currency:curr,rate,
-    totNoVAT,remAmt,totWithVAT,
-    status:pick(STATUSES),paymentTerms:pick(PAYMENT),remarks:"",
+async function fetchSheet(sheetId, sheetName) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetName)}?key=${CONFIG.GOOGLE_API_KEY}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Sheet "${sheetName}" fetch failed: ${res.status}`);
+  const data = await res.json();
+  const rows = data.values || [];
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.trim());
+  return rows.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? row[i] : ""; });
+    return obj;
   });
 }
 
 /* ═══════════════════════════════════════════════
-   USERS / RLS
+   DATA NORMALIZER — maps your exact column names
 ═══════════════════════════════════════════════ */
-const USERS={
-  "manager@ebc.com":{name:"Ahmed Hassan",role:"manager",rep:null,title:"Sales Director"},
-  "sara@ebc.com":{name:"Sara Mohamed",role:"rep",rep:"Sara Mohamed",title:"Sales Manager"},
-  "khaled@ebc.com":{name:"Khaled Ibrahim",role:"rep",rep:"Khaled Ibrahim",title:"Sales Manager"},
-  "omar@ebc.com":{name:"Omar Mahmoud",role:"rep",rep:"Omar Mahmoud",title:"Salesperson"},
-};
+function normalizeSalesRow(r) {
+  return {
+    orderNo:        r["Order - No"] || "",
+    orderDate:      r["Order date"] || "",
+    deliveryDate:   r["Delivery Date"] || "",
+    year:           r["Year"] || "",
+    erpNum:         r["ERP Num."] || "",
+    invNo:          r["Inv. No."] || "",
+    customer:       r["Customer Name"] || "",
+    country:        r["Country"] || "",
+    custCode:       r["Customer Code"] || "",
+    custType:       r["Customer Type"] || "",
+    market:         r["Market"] || "",
+    tawjeh:         r["التوجيه"] || "",
+    product:        r["Product Name"] || "",
+    family:         r["Family"] || "",
+    base:           r["Base"] || "",
+    salesPrice:     parseFloat(r["Sales Price"]) || 0,
+    qty:            parseFloat(r["Qty. (kg.)"]) || 0,
+    totalInv:       parseFloat(r["Total Sales Inv"]) || 0,
+    currency:       r["Currency"] || "",
+    rate:           parseFloat(r["Rate"]) || 1,
+    priceMod:       parseFloat(r["Price Modification EGP"]) || 0,
+    totalValVAT:    parseFloat(r["Total Val. EGP + VAT"]) || 0,
+    paymentTerms:   r["Payment Terms"] || "",
+    salesManager:   r["Sales Manager"] || "",
+    salesperson:    r["Salesperson"] || "",
+    remarks:        r["Remarks"] || "",
+  };
+}
+
+function normalizePendingRow(r) {
+  return {
+    base:           r["Base"] || "",
+    region:         r["Region"] || "",
+    custType:       r["Customer Type"] || "",
+    family:         r["Family"] || "",
+    salesManager:   r["Sales Manager"] || "",
+    salesMan:       r["Sales Man"] || "",
+    serNo:          r["Ser. No."] || "",
+    custCode:       r["Customer Code"] || "",
+    oracleCode:     r["Oracle / Code"] || "",
+    orderDate:      r["Order Date"] || "",
+    customer:       r["Customer"] || "",
+    country:        r["Country"] || "",
+    incoterm:       r["Incoterm"] || "",
+    product:        r["Product"] || "",
+    reqQty:         parseFloat(r["Total Requested Qty. (K.G)"]) || 0,
+    delQty:         parseFloat(r["Del. Qty. (K.G)"]) || 0,
+    remQty:         parseFloat(r["Remaining Qty. (K.G)"]) || 0,
+    priceExVAT:     parseFloat(r["Price Excluding(VAT)"]) || 0,
+    priceInVAT:     parseFloat(r["Price Including (VAT)"]) || 0,
+    currency:       r["Currency"] || "",
+    rate:           parseFloat(r["Rate"]) || 1,
+    totNoVAT:       parseFloat(r["Total Price without VAT (EGP)"]) || 0,
+    remAmt:         parseFloat(r["Remaining Amount without VAT (EGP)"]) || 0,
+    totWithVAT:     parseFloat(r["Total Price With VAT (All Currencies)"]) || 0,
+    status:         r["Status / Order"] || "",
+    paymentTerms:   r["Payment Terms"] || "",
+    remarks:        r["Remarks"] || "",
+  };
+}
+
+function normalizeRLSRow(r) {
+  return {
+    email:    (r["email"] || "").toLowerCase().trim(),
+    name:     r["name"] || "",
+    role:     (r["role"] || "rep").toLowerCase().trim(),
+    rep_name: r["rep_name"] || "",
+  };
+}
 
 /* ═══════════════════════════════════════════════
    UTILS
 ═══════════════════════════════════════════════ */
-const num=(n,d=0)=>n==null?"—":new Intl.NumberFormat("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}).format(n);
+const num=(n,d=0)=>n==null?"—":new Intl.NumberFormat("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round(n*(10**d))/(10**d));
 const fmtK=(n)=>n==null?"—":n>=1e6?num(n/1e6,1)+"M":n>=1e3?num(n/1e3,1)+"K":num(n);
-const fmtDate=(s)=>s?new Date(s).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"}):"—";
+const fmtDate=(s)=>{if(!s)return"—";const d=new Date(s);return isNaN(d)?"—":d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"})};
 const MON_NAMES=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* ═══════════════════════════════════════════════
-   CALC KPIs
+   KPI CALCULATIONS
 ═══════════════════════════════════════════════ */
-function calcSalesKPIs(rows){
-  const totalQty=rows.reduce((s,r)=>s+r.qty,0);
-  // Total Val EGP EXCLUDING VAT = totalValVAT / 1.14
-  const totalValExVAT=rows.reduce((s,r)=>s+(r.totalValVAT/1.14),0);
-  // Avg Price/KG — METHOD: avg of per-order (totalInv*rate / qty), then average those
-  const orderAvgs=rows.map(r=>r.qty>0?(r.totalInv*r.rate)/r.qty:0).filter(v=>v>0);
-  const avgPricePerOrder=orderAvgs.length?orderAvgs.reduce((a,b)=>a+b,0)/orderAvgs.length:0;
-  // Also weighted for reference
-  const avgPriceWeighted=totalQty>0?totalValExVAT/totalQty:0;
-  // Total ORDERS: unique (customer + orderDate)
-  const orderKeys=new Set(rows.map(r=>`${r.customer}||${r.orderDate}`));
-  const totalOrders=orderKeys.size;
+function calcSalesKPIs(rows) {
+  const totalQty = rows.reduce((s,r)=>s+r.qty, 0);
+  const totalValExVAT = rows.reduce((s,r)=>s+(r.totalValVAT/1.14), 0);
+  // Average of per-order averages (your preferred method)
+  const orderAvgs = rows.map(r=>r.qty>0?(r.totalInv*r.rate)/r.qty:0).filter(v=>v>0);
+  const avgPricePerOrder = orderAvgs.length ? orderAvgs.reduce((a,b)=>a+b,0)/orderAvgs.length : 0;
+  // Weighted average for reference
+  const avgPriceWeighted = totalQty > 0 ? totalValExVAT/totalQty : 0;
+  // Total orders = unique (Customer Name + Order date)
+  const orderKeys = new Set(rows.map(r=>`${r.customer}||${r.orderDate}`));
+  const totalOrders = orderKeys.size;
   // Best selling product by qty
-  const prodQty={};rows.forEach(r=>{prodQty[r.product]=(prodQty[r.product]||0)+r.qty});
-  const best=Object.entries(prodQty).sort((a,b)=>b[1]-a[1])[0];
-  return{totalQty,totalValExVAT,avgPricePerOrder,avgPriceWeighted,totalOrders,
-    bestProduct:best?best[0]:"—",bestProductQty:best?best[1]:0};
+  const prodQty = {};
+  rows.forEach(r=>{ prodQty[r.product] = (prodQty[r.product]||0) + r.qty; });
+  const best = Object.entries(prodQty).sort((a,b)=>b[1]-a[1])[0];
+  return { totalQty, totalValExVAT, avgPricePerOrder, avgPriceWeighted, totalOrders,
+    bestProduct: best?best[0]:"—", bestProductQty: best?best[1]:0 };
 }
-function calcPendingKPIs(rows){
-  const totalRemQty=rows.reduce((s,r)=>s+r.remQty,0);
-  const totalRemAmt=rows.reduce((s,r)=>s+r.remAmt,0);
-  const totalReqAmt=rows.reduce((s,r)=>s+r.totNoVAT,0);
-  // Avg price per order method
-  const orderAvgs=rows.map(r=>r.reqQty>0?r.totNoVAT/r.reqQty:0).filter(v=>v>0);
-  const avgPrice=orderAvgs.length?orderAvgs.reduce((a,b)=>a+b,0)/orderAvgs.length:0;
-  return{totalRemQty,totalRemAmt,totalReqAmt,avgPrice,totalOrders:rows.length};
+
+function calcPendingKPIs(rows) {
+  const totalRemQty = rows.reduce((s,r)=>s+r.remQty, 0);
+  const totalRemAmt = rows.reduce((s,r)=>s+r.remAmt, 0);
+  const orderAvgs = rows.map(r=>r.reqQty>0?r.totNoVAT/r.reqQty:0).filter(v=>v>0);
+  const avgPrice = orderAvgs.length ? orderAvgs.reduce((a,b)=>a+b,0)/orderAvgs.length : 0;
+  return { totalRemQty, totalRemAmt, avgPrice, totalOrders: rows.length };
 }
 
 /* ═══════════════════════════════════════════════
-   CHART DATA HELPERS
+   CHART HELPERS
 ═══════════════════════════════════════════════ */
-function getDimData(rows,dim){
+function getDimData(rows, dim) {
   const KEY={salesManager:"salesManager",salesperson:"salesperson",base:"base",market:"market",family:"family",tawjeh:"tawjeh"};
   const k=KEY[dim]||"salesManager";
   const m={};
@@ -311,136 +266,102 @@ function getDimData(rows,dim){
     m[key].qty+=r.qty;
   });
   return Object.values(m).sort((a,b)=>b.sales-a.sales).slice(0,10)
-    .map(d=>({...d,sales:Math.round(d.sales),qty:Math.round(d.qty),
-      shortName:d.name.length>14?d.name.slice(0,14)+"…":d.name}));
+    .map(d=>({...d,sales:Math.round(d.sales),qty:Math.round(d.qty),shortName:d.name.length>13?d.name.slice(0,13)+"…":d.name}));
 }
-function getCountryData(rows){
+function getCountryData(rows) {
   const m={};
-  rows.forEach(r=>{
-    if(!m[r.country])m[r.country]={country:r.country,sales:0,qty:0};
-    m[r.country].sales+=r.totalValVAT/1.14;
-    m[r.country].qty+=r.qty;
-  });
-  return Object.values(m).sort((a,b)=>b.sales-a.sales).slice(0,10)
-    .map(d=>({...d,sales:Math.round(d.sales),qty:Math.round(d.qty)}));
+  rows.forEach(r=>{if(!m[r.country])m[r.country]={country:r.country,sales:0};m[r.country].sales+=r.totalValVAT/1.14;});
+  return Object.values(m).sort((a,b)=>b.sales-a.sales).slice(0,10).map(d=>({...d,sales:Math.round(d.sales)}));
 }
-function getPriceTrendData(rows){
+function getPriceTrendData(rows) {
   const fams=[...new Set(rows.map(r=>r.family))].slice(0,5);
   const mo={};
   rows.forEach(r=>{
+    if(!r.deliveryDate)return;
     const k=r.deliveryDate.slice(0,7);
     if(!mo[k])mo[k]={mo:new Date(k+"-01").toLocaleDateString("en-US",{month:"short",year:"2-digit"}),raw:k};
-    if(!mo[k][r.family+"_s"])mo[k][r.family+"_s"]=0;
-    if(!mo[k][r.family+"_q"])mo[k][r.family+"_q"]=0;
-    mo[k][r.family+"_s"]+=r.totalInv*r.rate;
-    mo[k][r.family+"_q"]+=r.qty;
+    fams.forEach(f=>{if(r.family===f){mo[k][f+"_s"]=(mo[k][f+"_s"]||0)+r.totalInv*r.rate;mo[k][f+"_q"]=(mo[k][f+"_q"]||0)+r.qty;}});
   });
   const data=Object.values(mo).sort((a,b)=>a.raw.localeCompare(b.raw))
-    .map(row=>{
-      const out={mo:row.mo};
-      fams.forEach(f=>{out[f]=row[f+"_q"]>0?+(row[f+"_s"]/row[f+"_q"]).toFixed(2):null});
-      return out;
-    });
+    .map(row=>{const out={mo:row.mo};fams.forEach(f=>{out[f]=row[f+"_q"]>0?+(row[f+"_s"]/row[f+"_q"]).toFixed(2):null});return out;});
   return{data,fams};
 }
-function getPendCustData(rows){
+function getPendCustData(rows) {
   const m={};
-  rows.forEach(r=>{
-    const k=r.customer;
-    if(!m[k])m[k]={name:k.split(" ").slice(0,2).join(" "),remQty:0,remAmt:0};
-    m[k].remQty+=r.remQty;m[k].remAmt+=r.remAmt;
-  });
-  return Object.values(m).sort((a,b)=>b.remAmt-a.remAmt).slice(0,9)
-    .map(d=>({...d,remQty:Math.round(d.remQty),remAmt:Math.round(d.remAmt)}));
+  rows.forEach(r=>{const k=r.customer;if(!m[k])m[k]={name:k.split(" ").slice(0,2).join(" "),remQty:0,remAmt:0};m[k].remQty+=r.remQty;m[k].remAmt+=r.remAmt;});
+  return Object.values(m).sort((a,b)=>b.remAmt-a.remAmt).slice(0,9).map(d=>({...d,remQty:Math.round(d.remQty),remAmt:Math.round(d.remAmt)}));
 }
-function getPendFamData(rows){
+function getPendFamData(rows) {
   const m={};
-  rows.forEach(r=>{
-    if(!m[r.family])m[r.family]={family:r.family,remQty:0,remAmt:0};
-    m[r.family].remQty+=r.remQty;m[r.family].remAmt+=r.remAmt;
-  });
-  return Object.values(m).sort((a,b)=>b.remAmt-a.remAmt)
-    .map(d=>({...d,remQty:Math.round(d.remQty),remAmt:Math.round(d.remAmt)}));
+  rows.forEach(r=>{if(!m[r.family])m[r.family]={family:r.family,remQty:0,remAmt:0};m[r.family].remQty+=r.remQty;m[r.family].remAmt+=r.remAmt;});
+  return Object.values(m).sort((a,b)=>b.remAmt-a.remAmt).map(d=>({...d,remQty:Math.round(d.remQty),remAmt:Math.round(d.remAmt)}));
 }
 
 /* ═══════════════════════════════════════════════
-   SHARED TOOLTIP
+   TOOLTIP
 ═══════════════════════════════════════════════ */
-function ChartTip({active,payload,label}){
+const TipComp=({active,payload,label})=>{
   if(!active||!payload?.length)return null;
   return h("div",{style:{background:"#fff",border:`1px solid ${B.border}`,borderRadius:10,padding:"10px 14px",fontSize:12,boxShadow:"0 4px 20px rgba(0,0,0,.1)"}},
     label&&h("p",{style:{color:B.subtle,fontSize:11,marginBottom:6,fontWeight:600}},label),
-    payload.map((p,i)=>h("p",{key:i,style:{color:p.color,fontWeight:700,marginBottom:2}},
-      `${p.name}: ${fmtK(p.value)}`))
+    payload.map((p,i)=>h("p",{key:i,style:{color:p.color||B.blue,fontWeight:700,marginBottom:2}},`${p.name}: ${fmtK(p.value)}`))
   );
-}
+};
 
 /* ═══════════════════════════════════════════════
-   EBC LOGO COMPONENT
+   EBC LOGO
 ═══════════════════════════════════════════════ */
 function EBCLogo({size="md"}){
-  const sz={sm:{badge:26,text:12,sub:9},md:{badge:36,text:15,sub:9.5},lg:{badge:48,text:20,sub:11}}[size]||{badge:36,text:15,sub:9.5};
+  const sz={sm:{b:28,t:12,s:9},md:{b:36,t:15,s:9.5},lg:{b:48,t:20,s:11}}[size];
   return h("div",{style:{display:"flex",alignItems:"center",gap:10}},
-    h("div",{style:{width:sz.badge,height:sz.badge,borderRadius:Math.round(sz.badge*.22),
-      background:`linear-gradient(140deg,${B.blue},${B.red})`,display:"flex",alignItems:"center",
-      justifyContent:"center",color:"#fff",fontSize:Math.round(sz.badge*.44),fontWeight:800,
-      flexShrink:0,boxShadow:`0 4px 12px rgba(25,118,210,.25)`}},"E"),
+    h("div",{style:{width:sz.b,height:sz.b,borderRadius:Math.round(sz.b*.22),background:`linear-gradient(140deg,${B.blue},${B.red})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:Math.round(sz.b*.44),fontWeight:800,flexShrink:0,boxShadow:`0 4px 12px rgba(25,118,210,.25)`}},"E"),
     h("div",null,
-      h("div",{style:{fontSize:sz.text,fontWeight:800,lineHeight:1.15}},
-        h("span",{style:{color:B.blue}},"Egyptian "),
-        h("span",{style:{color:B.red}},"British Co.")),
-      h("div",{style:{fontSize:sz.sub,color:B.subtle,fontWeight:500,letterSpacing:".02em"}},"Specialty Chemicals & Auxiliaries"))
+      h("div",{style:{fontSize:sz.t,fontWeight:800,lineHeight:1.15}},
+        h("span",{style:{color:B.blue}},"Egyptian "),h("span",{style:{color:B.red}},"British Co.")),
+      h("div",{style:{fontSize:sz.s,color:B.subtle,fontWeight:500}},"Specialty Chemicals & Auxiliaries")
+    )
   );
 }
 
 /* ═══════════════════════════════════════════════
    LOGIN
 ═══════════════════════════════════════════════ */
-function Login({onLogin}){
-  const [email,setEmail]=useState("manager@ebc.com");
+function Login({onLogin, rlsUsers}){
+  const [email,setEmail]=useState("");
   const [err,setErr]=useState("");
   const [loading,setLoading]=useState(false);
+
   const attempt=()=>{
     setLoading(true);setErr("");
-    setTimeout(()=>{
-      const u=USERS[email.trim().toLowerCase()];
-      if(u)onLogin({...u,email:email.trim().toLowerCase()});
-      else setErr("No account found. Check your email or contact your admin.");
-      setLoading(false);
-    },600);
+    const e=email.trim().toLowerCase();
+    const u=rlsUsers.find(u=>u.email===e);
+    if(u){onLogin({...u,email:e});}
+    else{setErr("No account found. Check your email or contact your admin.");}
+    setLoading(false);
   };
-  return h("div",{style:{minHeight:"100vh",background:`linear-gradient(135deg,${B.blueLL} 0%,#FFF8F8 50%,#F4F6FA 100%)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20,fontFamily:"'Plus Jakarta Sans',sans-serif"}},
-    // background orbs
-    h("div",{style:{position:"fixed",top:-150,right:-100,width:500,height:500,borderRadius:"50%",background:`radial-gradient(${B.blue}15,transparent 70%)`,pointerEvents:"none"}}),
-    h("div",{style:{position:"fixed",bottom:-80,left:-60,width:380,height:380,borderRadius:"50%",background:`radial-gradient(${B.red}10,transparent 70%)`,pointerEvents:"none"}}),
-    h("div",{style:{width:"100%",maxWidth:430,position:"relative",zIndex:1}},
-      // Header logo
-      h("div",{style:{textAlign:"center",marginBottom:24}},
+
+  return h("div",{style:{minHeight:"100vh",background:`linear-gradient(135deg,${B.blueLL} 0%,#FFF8F8 60%,${B.bg} 100%)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
+    h("div",{style:{position:"fixed",top:-150,right:-100,width:500,height:500,borderRadius:"50%",background:`radial-gradient(${B.blue}12,transparent 70%)`,pointerEvents:"none"}}),
+    h("div",{style:{position:"fixed",bottom:-80,left:-60,width:380,height:380,borderRadius:"50%",background:`radial-gradient(${B.red}08,transparent 70%)`,pointerEvents:"none"}}),
+    h("div",{style:{width:"100%",maxWidth:420,position:"relative",zIndex:1}},
+      h("div",{style:{textAlign:"center",marginBottom:22}},
         h("div",{style:{display:"inline-flex",alignItems:"center",gap:12,background:"#fff",padding:"12px 24px",borderRadius:14,border:`1px solid ${B.border}`,boxShadow:"0 2px 16px rgba(0,0,0,.07)"}},
-          h(EBCLogo,{size:"md"}))
-      ),
-      // Card
+          h(EBCLogo,{size:"md"}))),
       h("div",{style:{background:"#fff",border:`1px solid ${B.border}`,borderRadius:18,padding:"36px 32px",boxShadow:"0 12px 48px rgba(21,101,192,.1)"}},
         h("div",{style:{textAlign:"center",marginBottom:28}},
-          h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:26,color:B.text,marginBottom:6}},"Sales Intelligence Portal"),
+          h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:24,color:B.text,marginBottom:6}},"Sales Intelligence Portal"),
           h("p",{style:{fontSize:13,color:B.muted}},"Sign in with your work email to continue")),
         h("label",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em",display:"block",marginBottom:8}},"WORK EMAIL"),
-        h("input",{type:"email",value:email,placeholder:"you@ebc.com",
+        h("input",{type:"email",value:email,placeholder:"yourname@yourcompany.com",
           onChange:e=>{setEmail(e.target.value);setErr("");},
           onKeyDown:e=>{if(e.key==="Enter")attempt();},
-          style:{width:"100%",padding:"12px 15px",border:`1.5px solid ${err?B.red:B.border}`,borderRadius:10,fontSize:14,color:B.text,outline:"none",marginBottom:err?8:20,transition:"border-color .15s"}}),
+          style:{width:"100%",padding:"12px 15px",border:`1.5px solid ${err?B.red:B.border}`,borderRadius:10,fontSize:14,color:B.text,outline:"none",marginBottom:err?8:20}}),
         err&&h("p",{style:{color:B.red,fontSize:12,marginBottom:14}},err),
         h("button",{onClick:attempt,disabled:!email.trim()||loading,className:"btn btn-blue",
-          style:{width:"100%",padding:13,fontSize:14,justifyContent:"center",borderRadius:10,marginBottom:22}},
+          style:{width:"100%",padding:13,fontSize:14,justifyContent:"center",borderRadius:10,marginBottom:16}},
           loading?"Verifying…":"Access Dashboard →"),
-        h("div",{style:{background:B.blueLL,borderRadius:10,border:`1px solid ${B.border}`,padding:"14px 16px"}},
-          h("p",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".07em",marginBottom:10}},"DEMO ACCOUNTS"),
-          h("div",{style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}},
-            Object.entries(USERS).map(([e,u])=>
-              h("button",{key:e,onClick:()=>{setEmail(e);setErr("");},
-                style:{padding:"4px 11px",borderRadius:7,border:`1px solid ${B.border}`,background:"#fff",color:B.muted,fontSize:11,cursor:"pointer",fontWeight:600}},
-                u.role==="manager"?"👑 ":"",(e.split("@")[0])))),
-          h("p",{style:{fontSize:10,color:B.subtle,lineHeight:1.5}},"👑 Manager → sees all data · Reps → see only their own records (RLS)")
+        h("div",{style:{background:B.blueLL,borderRadius:10,border:`1px solid ${B.border}`,padding:"12px 16px",fontSize:11.5,color:B.muted,lineHeight:1.6}},
+          "🔒 Access is controlled by your admin. Your Outlook email determines what data you can see."
         )
       )
     )
@@ -448,31 +369,18 @@ function Login({onLogin}){
 }
 
 /* ═══════════════════════════════════════════════
-   CUSTOM TOOLTIP COMPONENTS
-═══════════════════════════════════════════════ */
-const TipComp=({active,payload,label})=>{
-  if(!active||!payload?.length)return null;
-  return h("div",{style:{background:"#fff",border:`1px solid ${B.border}`,borderRadius:10,padding:"10px 14px",fontSize:12,boxShadow:"0 4px 20px rgba(0,0,0,.1)"}},
-    label&&h("p",{style:{color:B.subtle,fontSize:11,marginBottom:6,fontWeight:600}},label),
-    payload.map((p,i)=>h("p",{key:i,style:{color:p.color||B.blue,fontWeight:700,marginBottom:2}},
-      `${p.name}: ${fmtK(p.value)}`))
-  );
-};
-
-/* ═══════════════════════════════════════════════
    HEADER
 ═══════════════════════════════════════════════ */
-function Header({user,onLogout}){
+function Header({user,onLogout,lastSync}){
   return h("header",{style:{background:"#fff",borderBottom:`1px solid ${B.border}`,padding:"0 20px",position:"sticky",top:0,zIndex:200,boxShadow:"0 1px 8px rgba(0,0,0,.06)"}},
     h("div",{style:{maxWidth:1480,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",height:58}},
       h(EBCLogo,{size:"md"}),
       h("div",{style:{display:"flex",alignItems:"center",gap:12}},
+        lastSync&&h("div",{className:"hide-xs",style:{fontSize:11,color:B.subtle}},`Last sync: ${lastSync}`),
         h("div",{style:{textAlign:"right"}},
           h("div",{style:{fontSize:13,fontWeight:700,color:B.text}},user.name),
-          h("div",{style:{fontSize:10,color:B.subtle,fontWeight:500}},
-            user.role==="manager"?"👑 Full Access — All Data":"🔒 Rep View (RLS Active)")),
-        h("div",{style:{width:34,height:34,borderRadius:9,background:`linear-gradient(135deg,${B.blue},${B.red})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:800}},
-          user.name[0]),
+          h("div",{style:{fontSize:10,color:B.subtle}},user.role==="manager"?"👑 Full Access":"🔒 Rep View (RLS)")),
+        h("div",{style:{width:34,height:34,borderRadius:9,background:`linear-gradient(135deg,${B.blue},${B.red})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:800}},user.name[0]),
         h("button",{onClick:onLogout,className:"btn btn-ghost",style:{fontSize:11}},"Sign out")
       )
     )
@@ -482,8 +390,8 @@ function Header({user,onLogout}){
 /* ═══════════════════════════════════════════════
    SALES TAB
 ═══════════════════════════════════════════════ */
-function SalesTab({user}){
-  const base=useMemo(()=>user.role==="manager"?SALES_DATA:SALES_DATA.filter(r=>r.salesManager===user.rep||r.salesperson===user.rep),[user]);
+function SalesTab({user,salesData}){
+  const base=useMemo(()=>user.role==="manager"?salesData:salesData.filter(r=>r.salesManager===user.rep_name||r.salesperson===user.rep_name),[user,salesData]);
   const [fDelivYear,setFDelivYear]=useState("all");
   const [fDelivMonth,setFDelivMonth]=useState("all");
   const [fCustomer,setFCustomer]=useState("all");
@@ -492,8 +400,8 @@ function SalesTab({user}){
   const [dim,setDim]=useState("salesManager");
 
   const rows=useMemo(()=>base.filter(r=>{
-    if(fDelivYear!=="all"&&new Date(r.deliveryDate).getFullYear()!==+fDelivYear)return false;
-    if(fDelivMonth!=="all"&&new Date(r.deliveryDate).getMonth()+1!==+fDelivMonth)return false;
+    if(fDelivYear!=="all"&&(r.deliveryDate||"").slice(0,4)!==fDelivYear)return false;
+    if(fDelivMonth!=="all"){const m=new Date(r.deliveryDate).getMonth()+1;if(isNaN(m)||String(m)!==fDelivMonth)return false;}
     if(fCustomer!=="all"&&r.customer!==fCustomer)return false;
     if(fProduct!=="all"&&r.product!==fProduct)return false;
     if(fFamily!=="all"&&r.family!==fFamily)return false;
@@ -505,50 +413,41 @@ function SalesTab({user}){
   const countryData=useMemo(()=>getCountryData(rows),[rows]);
   const {data:trendData,fams:trendFams}=useMemo(()=>getPriceTrendData(rows),[rows]);
 
-  const years=[...new Set(base.map(r=>new Date(r.deliveryDate).getFullYear()))].sort();
-  const months=[...new Set(base.map(r=>new Date(r.deliveryDate).getMonth()+1))].sort((a,b)=>a-b);
-  const customers=[...new Set(base.map(r=>r.customer))].sort();
-  const products=[...new Set(base.map(r=>r.product))].sort();
-  const families=[...new Set(base.map(r=>r.family))].sort();
-
-  const reset=()=>{setFDelivYear("all");setFDelivMonth("all");setFCustomer("all");setFProduct("all");setFFamily("all");};
-  const statusColor=c=>({salesManager:B.blue,salesperson:"#7C3AED",base:"#0891B2",market:"#059669",family:B.red,tawjeh:"#D97706"}[c]||B.blue);
+  const years=[...new Set(base.map(r=>(r.deliveryDate||"").slice(0,4)).filter(Boolean))].sort().reverse();
+  const months=[...new Set(base.map(r=>{const d=new Date(r.deliveryDate);return isNaN(d)?null:d.getMonth()+1;}).filter(Boolean))].sort((a,b)=>a-b);
+  const customers=[...new Set(base.map(r=>r.customer).filter(Boolean))].sort();
+  const products=[...new Set(base.map(r=>r.product).filter(Boolean))].sort();
+  const families=[...new Set(base.map(r=>r.family).filter(Boolean))].sort();
 
   const DIMS=[["salesManager","Sales Mgr"],["salesperson","Salesperson"],["base","Base"],["market","Market"],["family","Family"],["tawjeh","التوجيه"]];
+  const statusC={Pending:B.amber,"In Production":B.blue,"Ready to Ship":B.green,"Partial Delivery":"#0891B2","On Hold":B.red};
 
   return h("div",null,
     // Page header
     h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
       h("div",null,
         h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:24,color:B.text}},"Sales Dashboard"),
-        h("p",{style:{fontSize:11.5,color:B.muted,marginTop:3}},"Auto-synced from Google Drive · Sales View workbook · Last update: May 4, 2026, 4:30 PM")),
-      h("div",{style:{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}},
-        h("span",{style:{fontSize:11,fontWeight:700,background:B.blueL,color:B.blue,padding:"5px 12px",borderRadius:20}},
-          `${rows.length} rows · ${kpi.totalOrders} orders`),
-        user.role==="rep"&&h("span",{style:{fontSize:11,fontWeight:700,background:B.redL,color:B.red,padding:"5px 12px",borderRadius:20}},"🔒 RLS: Your data only")
-      )
+        h("p",{style:{fontSize:11.5,color:B.muted,marginTop:3}},"Live data from Google Drive · Sales View workbook")),
+      h("div",{style:{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}},
+        h("span",{style:{fontSize:11,fontWeight:700,background:B.blueL,color:B.blue,padding:"5px 12px",borderRadius:20}},`${rows.length} rows · ${kpi.totalOrders} orders`),
+        user.role==="rep"&&h("span",{style:{fontSize:11,fontWeight:700,background:B.redL,color:B.red,padding:"5px 12px",borderRadius:20}},"🔒 RLS Active"))
     ),
 
     // SLICERS
     h("div",{className:"card",style:{marginBottom:14,padding:"14px 18px"}},
       h("div",{style:{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center"}},
-        h("span",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em"}},"\uD83D\uDD0D FILTERS"),
+        h("span",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em"}},"🔍 FILTERS"),
         h("select",{className:"slicer",value:fDelivYear,onChange:e=>setFDelivYear(e.target.value)},
-          h("option",{value:"all"},"All Years"),
-          years.map(y=>h("option",{key:y,value:y},y))),
+          h("option",{value:"all"},"All Years"),years.map(y=>h("option",{key:y,value:y},y))),
         h("select",{className:"slicer",value:fDelivMonth,onChange:e=>setFDelivMonth(e.target.value)},
-          h("option",{value:"all"},"All Months"),
-          months.map(m=>h("option",{key:m,value:m},MON_NAMES[m]))),
+          h("option",{value:"all"},"All Months"),months.map(m=>h("option",{key:m,value:String(m)},MON_NAMES[m]))),
         h("select",{className:"slicer",value:fCustomer,onChange:e=>setFCustomer(e.target.value)},
-          h("option",{value:"all"},"All Customers"),
-          customers.map(c=>h("option",{key:c,value:c},c))),
+          h("option",{value:"all"},"All Customers"),customers.map(c=>h("option",{key:c,value:c},c))),
         h("select",{className:"slicer",value:fProduct,onChange:e=>setFProduct(e.target.value)},
-          h("option",{value:"all"},"All Products"),
-          products.map(p=>h("option",{key:p,value:p},p))),
+          h("option",{value:"all"},"All Products"),products.map(p=>h("option",{key:p,value:p},p))),
         h("select",{className:"slicer",value:fFamily,onChange:e=>setFFamily(e.target.value)},
-          h("option",{value:"all"},"All Families"),
-          families.map(f=>h("option",{key:f,value:f},f))),
-        h("button",{className:"btn btn-ghost",style:{fontSize:11},onClick:reset},"Reset All")
+          h("option",{value:"all"},"All Families"),families.map(f=>h("option",{key:f,value:f},f))),
+        h("button",{className:"btn btn-ghost",style:{fontSize:11},onClick:()=>{setFDelivYear("all");setFDelivMonth("all");setFCustomer("all");setFProduct("all");setFFamily("all");}},"Reset All")
       )
     ),
 
@@ -567,7 +466,7 @@ function SalesTab({user}){
       h("div",{className:"kpi",style:{"--kpi-color":B.green}},
         h("div",{className:"kpi-icon"},"📊"),
         h("div",{className:"kpi-label"},"Avg Price / KG"),
-        h("div",{className:"kpi-val",style:{fontSize:22}},num(kpi.avgPricePerOrder,2)+" EGP"),
+        h("div",{className:"kpi-val",style:{fontSize:20}},num(kpi.avgPricePerOrder,2)+" EGP"),
         h("div",{className:"kpi-sub"},`Weighted: ${num(kpi.avgPriceWeighted,2)} EGP`)),
       h("div",{className:"kpi",style:{"--kpi-color":"#7C3AED"}},
         h("div",{className:"kpi-icon"},"📋"),
@@ -577,11 +476,11 @@ function SalesTab({user}){
       h("div",{className:"kpi",style:{"--kpi-color":B.red}},
         h("div",{className:"kpi-icon"},"⭐"),
         h("div",{className:"kpi-label"},"Best Selling Product"),
-        h("div",{style:{fontSize:16,fontWeight:800,color:B.red,marginTop:6,lineHeight:1.2}},kpi.bestProduct),
+        h("div",{style:{fontSize:15,fontWeight:800,color:B.red,marginTop:6,lineHeight:1.3}},kpi.bestProduct),
         h("div",{className:"kpi-sub"},fmtK(kpi.bestProductQty)+" KG")),
       h("div",{className:"kpi",style:{"--kpi-color":B.amber}},
         h("div",{className:"kpi-icon"},"📦"),
-        h("div",{className:"kpi-label"},"Total Rows"),
+        h("div",{className:"kpi-label"},"Filtered Rows"),
         h("div",{className:"kpi-val"},num(rows.length)),
         h("div",{className:"kpi-sub"},"Product line items"))
     ),
@@ -590,27 +489,22 @@ function SalesTab({user}){
     h("div",{className:"card",style:{marginBottom:14}},
       h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:14}},
         h("div",null,
-          h("div",{className:"st",style:{marginBottom:0}},"Sales & Qty by Dimension",
-            h("span",{className:"st-sub"},"Switch dimension below")),
-          h("p",{style:{fontSize:11,color:B.muted,marginTop:3}},"Blue bars = Sales (EGP ex-VAT) · Red bars = Qty (KG) — dual axis")),
+          h("div",{className:"st",style:{marginBottom:2}},"Sales & Qty by Dimension"),
+          h("p",{style:{fontSize:11,color:B.muted}},"Blue = Sales EGP (left axis) · Red = Qty KG (right axis)")),
         h("div",{style:{display:"flex",flexWrap:"wrap",gap:5}},
-          DIMS.map(([k,l])=>h("button",{key:k,className:`dim-btn${dim===k?" active":""}`,
-            onClick:()=>setDim(k),style:dim===k?{background:B.blueL,color:B.blue,borderColor:B.blue}:{}},[l])))
+          DIMS.map(([k,l])=>h("button",{key:k,className:`dim-btn${dim===k?" active":""}`,onClick:()=>setDim(k)},l)))
       ),
       h(ResponsiveContainer,{width:"100%",height:260},
         h(ComposedChart,{data:dimData,margin:{top:5,right:20,bottom:5,left:10}},
           h(CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),
-          h(XAxis,{dataKey:"shortName",tick:{fill:B.subtle,fontSize:10,fontFamily:"'Plus Jakarta Sans',sans-serif"},axisLine:false,tickLine:false}),
+          h(XAxis,{dataKey:"shortName",tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),
           h(YAxis,{yAxisId:"l",tickFormatter:fmtK,tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false,width:48}),
           h(YAxis,{yAxisId:"r",orientation:"right",tickFormatter:fmtK,tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false,width:48}),
           h(Tooltip,{content:h(TipComp)}),
           h(Bar,{yAxisId:"l",dataKey:"sales",name:"Sales (EGP)",fill:B.blue,radius:[5,5,0,0],barSize:20}),
           h(Bar,{yAxisId:"r",dataKey:"qty",name:"Qty (KG)",fill:B.red,fillOpacity:.75,radius:[5,5,0,0],barSize:14})
         )
-      ),
-      h("div",{style:{display:"flex",gap:18,marginTop:8,fontSize:11,color:B.muted,flexWrap:"wrap"}},
-        h("span",{style:{display:"flex",alignItems:"center",gap:5}},h("span",{style:{width:12,height:12,background:B.blue,display:"inline-block",borderRadius:3}})," Sales EGP (ex-VAT) — Left axis"),
-        h("span",{style:{display:"flex",alignItems:"center",gap:5}},h("span",{style:{width:12,height:12,background:B.red,display:"inline-block",borderRadius:3,opacity:.75}})," Qty KG — Right axis"))
+      )
     ),
 
     // COUNTRY + PRICE TREND
@@ -648,16 +542,16 @@ function SalesTab({user}){
     // DATA TABLE
     h("div",{className:"card-flush"},
       h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 20px",borderBottom:`1px solid ${B.border}`}},
-        h("div",{className:"st",style:{marginBottom:0}},"Sales Order Details",
-          h("span",{className:"st-sub"},`showing ${Math.min(rows.length,15)} of ${rows.length}`)),
+        h("div",{className:"st",style:{marginBottom:0}},"Sales Order Detail"),
         h("span",{className:"badge badge-blue"},rows.length+" records")),
       h("div",{style:{overflowX:"auto"}},
         h("table",{className:"tbl"},
           h("thead",null,h("tr",null,
-            ["Order No","Order Date","Delivery Date","Customer","Country","Product","Family","Qty (KG)","Sales Price","Total Inv","Val EGP+VAT","Cur.","Sales Mgr","Salesperson","Mkt","التوجيه"].map(c=>h("th",{key:c},c))
+            ["Order No","Order Date","Delivery Date","Customer","Country","Product","Family","Base","Qty (KG)","Sales Price","Total Inv","Val EGP+VAT","Currency","Sales Mgr","Salesperson","Market","التوجيه"].map(c=>h("th",{key:c},c))
           )),
           h("tbody",null,
-            rows.slice(0,15).map((r,i)=>h("tr",{key:i},
+            rows.length===0?h("tr",null,h("td",{colSpan:17,style:{textAlign:"center",padding:40,color:B.subtle}},"No records match current filters")):
+            rows.slice(0,20).map((r,i)=>h("tr",{key:i},
               h("td",{style:{fontWeight:600,color:B.blue}},r.orderNo),
               h("td",null,fmtDate(r.orderDate)),
               h("td",null,fmtDate(r.deliveryDate)),
@@ -665,17 +559,17 @@ function SalesTab({user}){
               h("td",null,r.country),
               h("td",null,r.product),
               h("td",null,h("span",{className:"badge badge-blue"},r.family)),
+              h("td",null,r.base),
               h("td",{style:{fontWeight:700,color:B.blue}},fmtK(r.qty)),
               h("td",null,num(r.salesPrice,2)),
               h("td",null,fmtK(r.totalInv)),
               h("td",{style:{fontWeight:700}},fmtK(r.totalValVAT)),
               h("td",null,r.currency),
-              h("td",{style:{color:B.muted}},r.salesManager.split(" ")[0]),
-              h("td",{style:{color:B.muted}},r.salesperson.split(" ")[0]),
+              h("td",{style:{color:B.muted}},r.salesManager),
+              h("td",{style:{color:B.muted}},r.salesperson),
               h("td",null,r.market),
               h("td",null,r.tawjeh)
-            )),
-            rows.length===0&&h("tr",null,h("td",{colSpan:16,style:{textAlign:"center",padding:40,color:B.subtle}},"No records match current filters"))
+            ))
           )
         )
       )
@@ -686,8 +580,8 @@ function SalesTab({user}){
 /* ═══════════════════════════════════════════════
    PENDING TAB
 ═══════════════════════════════════════════════ */
-function PendingTab({user}){
-  const base=useMemo(()=>user.role==="manager"?PENDING_DATA:PENDING_DATA.filter(r=>r.salesManager===user.rep||r.salesMan===user.rep),[user]);
+function PendingTab({user,pendingData}){
+  const base=useMemo(()=>user.role==="manager"?pendingData:pendingData.filter(r=>r.salesManager===user.rep_name||r.salesMan===user.rep_name),[user,pendingData]);
   const [fFamily,setFFamily]=useState("all");
   const [fProduct,setFProduct]=useState("all");
   const [fStatus,setFStatus]=useState("all");
@@ -703,91 +597,64 @@ function PendingTab({user}){
   const custData=useMemo(()=>getPendCustData(rows),[rows]);
   const famData=useMemo(()=>getPendFamData(rows),[rows]);
 
-  const families=[...new Set(base.map(r=>r.family))].sort();
-  const products=[...new Set(base.map(r=>r.product))].sort();
-  const statuses=[...new Set(base.map(r=>r.status))].sort();
-
-  const statusColor={
-    "Pending Approval":B.amber,"In Production":B.blue,"Ready to Ship":B.green,
-    "Partial Delivery":"#0891B2","On Hold":B.red,"Awaiting Payment":"#7C3AED"
-  };
+  const families=[...new Set(base.map(r=>r.family).filter(Boolean))].sort();
+  const products=[...new Set(base.map(r=>r.product).filter(Boolean))].sort();
+  const statuses=[...new Set(base.map(r=>r.status).filter(Boolean))].sort();
+  const statusColor={"Pending Approval":B.amber,"In Production":B.blue,"Ready to Ship":B.green,"Partial Delivery":"#0891B2","On Hold":B.red,"Awaiting Payment":"#7C3AED"};
 
   const handlePrint=()=>{
-    const printArea=document.getElementById("print-area");
-    const tbody=document.getElementById("print-tbody");
-    if(tbody){
-      tbody.innerHTML=rows.map(r=>`
-        <tr>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF">${fmtDate(r.orderDate)}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF;font-weight:600">${r.customer}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF">${r.country}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF">${r.product}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF">${r.family}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF;text-align:right">${num(r.reqQty)}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF;text-align:right">${num(r.delQty)}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF;text-align:right;color:#C62828;font-weight:700">${num(r.remQty)}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF;text-align:right">${num(r.priceExVAT,2)} ${r.currency}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF;text-align:right;font-weight:700">${num(r.remAmt)}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF">${r.status}</td>
-          <td style="padding:6px 8px;border:1px solid #E0E7EF">${r.paymentTerms}</td>
-        </tr>`).join("");
-    }
-    printArea.style.display="block";
-    window.print();
-    setTimeout(()=>{printArea.style.display="none";},1500);
+    const pa=document.getElementById("print-area");
+    const tb=document.getElementById("print-tbody");
+    if(tb){tb.innerHTML=rows.map(r=>`<tr>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF">${fmtDate(r.orderDate)}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF;font-weight:600">${r.customer}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF">${r.country}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF">${r.product}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF">${r.family}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF;text-align:right">${num(r.reqQty)}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF;text-align:right">${num(r.delQty)}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF;text-align:right;color:#C62828;font-weight:700">${num(r.remQty)}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF;text-align:right">${num(r.priceExVAT,2)} ${r.currency}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF;text-align:right;font-weight:700">${num(r.remAmt)}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF">${r.status}</td>
+      <td style="padding:5px 7px;border:1px solid #E0E7EF">${r.paymentTerms}</td>
+    </tr>`).join("");}
+    pa.style.display="block";window.print();setTimeout(()=>{pa.style.display="none";},1500);
   };
 
   return h("div",null,
-    // Header
     h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
       h("div",null,
         h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:24,color:B.text}},"Pending Sales Orders"),
         h("p",{style:{fontSize:11.5,color:B.muted,marginTop:3}},"Live from Google Drive · Pending Sales workbook")),
       h("button",{className:"btn btn-red",onClick:handlePrint},"🖨️ Export PDF")
     ),
-
-    // Slicers
     h("div",{className:"card",style:{marginBottom:14,padding:"14px 18px"}},
       h("div",{style:{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center"}},
-        h("span",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em"}},"\uD83D\uDD0D FILTERS"),
+        h("span",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em"}},"🔍 FILTERS"),
         h("select",{className:"slicer",value:fFamily,onChange:e=>setFFamily(e.target.value)},
-          h("option",{value:"all"},"All Families"),
-          families.map(f=>h("option",{key:f,value:f},f))),
+          h("option",{value:"all"},"All Families"),families.map(f=>h("option",{key:f,value:f},f))),
         h("select",{className:"slicer",value:fProduct,onChange:e=>setFProduct(e.target.value)},
-          h("option",{value:"all"},"All Products"),
-          products.map(p=>h("option",{key:p,value:p},p))),
+          h("option",{value:"all"},"All Products"),products.map(p=>h("option",{key:p,value:p},p))),
         h("select",{className:"slicer",value:fStatus,onChange:e=>setFStatus(e.target.value)},
-          h("option",{value:"all"},"All Statuses"),
-          statuses.map(s=>h("option",{key:s,value:s},s))),
+          h("option",{value:"all"},"All Statuses"),statuses.map(s=>h("option",{key:s,value:s},s))),
         h("button",{className:"btn btn-ghost",style:{fontSize:11},onClick:()=>{setFFamily("all");setFProduct("all");setFStatus("all");}},"Reset")
       )
     ),
-
-    // KPIs
     h("div",{className:"grid4",style:{marginBottom:14}},
       h("div",{className:"kpi",style:{"--kpi-color":B.red}},
-        h("div",{className:"kpi-icon"},"⏳"),
-        h("div",{className:"kpi-label"},"Total Remaining Amount"),
-        h("div",{className:"kpi-val"},fmtK(kpi.totalRemAmt)),
-        h("div",{className:"kpi-sub"},"EGP excl. VAT")),
+        h("div",{className:"kpi-icon"},"⏳"),h("div",{className:"kpi-label"},"Total Remaining Amount"),
+        h("div",{className:"kpi-val"},fmtK(kpi.totalRemAmt)),h("div",{className:"kpi-sub"},"EGP excl. VAT")),
       h("div",{className:"kpi",style:{"--kpi-color":B.blue}},
-        h("div",{className:"kpi-icon"},"📦"),
-        h("div",{className:"kpi-label"},"Total Remaining Qty"),
-        h("div",{className:"kpi-val"},fmtK(kpi.totalRemQty)),
-        h("div",{className:"kpi-sub"},"KG pending delivery")),
+        h("div",{className:"kpi-icon"},"📦"),h("div",{className:"kpi-label"},"Total Remaining Qty"),
+        h("div",{className:"kpi-val"},fmtK(kpi.totalRemQty)),h("div",{className:"kpi-sub"},"KG pending delivery")),
       h("div",{className:"kpi",style:{"--kpi-color":B.green}},
-        h("div",{className:"kpi-icon"},"💲"),
-        h("div",{className:"kpi-label"},"Avg Price / KG"),
-        h("div",{className:"kpi-val"},num(kpi.avgPrice,2)),
-        h("div",{className:"kpi-sub"},"Per-order average method")),
+        h("div",{className:"kpi-icon"},"💲"),h("div",{className:"kpi-label"},"Avg Price / KG"),
+        h("div",{className:"kpi-val"},num(kpi.avgPrice,2)),h("div",{className:"kpi-sub"},"Per-order avg method")),
       h("div",{className:"kpi",style:{"--kpi-color":"#7C3AED"}},
-        h("div",{className:"kpi-icon"},"📋"),
-        h("div",{className:"kpi-label"},"Open Orders"),
-        h("div",{className:"kpi-val"},num(kpi.totalOrders)),
-        h("div",{className:"kpi-sub"},"Pending fulfillment"))
+        h("div",{className:"kpi-icon"},"📋"),h("div",{className:"kpi-label"},"Open Orders"),
+        h("div",{className:"kpi-val"},num(kpi.totalOrders)),h("div",{className:"kpi-sub"},"Pending fulfillment"))
     ),
-
-    // Charts
     h("div",{className:"grid2",style:{marginBottom:14}},
       h("div",{className:"card"},
         h("div",{className:"st"},"Customer — Remaining Qty & Amount"),
@@ -801,10 +668,7 @@ function PendingTab({user}){
             h(Bar,{yAxisId:"r",dataKey:"remAmt",name:"Rem. Amount (EGP)",fill:B.red,fillOpacity:.85,radius:[5,5,0,0],barSize:16}),
             h(Bar,{yAxisId:"l",dataKey:"remQty",name:"Rem. Qty (KG)",fill:B.blue,fillOpacity:.7,radius:[5,5,0,0],barSize:11})
           )
-        ),
-        h("div",{style:{display:"flex",gap:14,marginTop:6,fontSize:11,color:B.muted}},
-          h("span",{style:{display:"flex",alignItems:"center",gap:4}},h("span",{style:{width:10,height:10,background:B.red,display:"inline-block",borderRadius:2}})," Amount (EGP)"),
-          h("span",{style:{display:"flex",alignItems:"center",gap:4}},h("span",{style:{width:10,height:10,background:B.blue,display:"inline-block",borderRadius:2,opacity:.7}})," Qty (KG)"))
+        )
       ),
       h("div",{className:"card"},
         h("div",{className:"st"},"Family — Remaining Qty & Amount"),
@@ -821,8 +685,6 @@ function PendingTab({user}){
         )
       )
     ),
-
-    // Table
     h("div",{className:"card-flush"},
       h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 20px",borderBottom:`1px solid ${B.border}`}},
         h("div",{className:"st",style:{marginBottom:0}},"Pending Orders Detail"),
@@ -833,26 +695,23 @@ function PendingTab({user}){
             ["Ser No","Order Date","Customer","Country","Product","Family","Req Qty","Del Qty","Rem Qty","Price ex-VAT","Rem Amt (EGP)","Status","Payment","Incoterm"].map(c=>h("th",{key:c},c))
           )),
           h("tbody",null,
-            rows.map((r,i)=>{
-              const sc=statusColor[r.status]||B.muted;
-              return h("tr",{key:i},
-                h("td",{style:{color:B.muted,fontSize:11}},r.serNo),
-                h("td",null,fmtDate(r.orderDate)),
-                h("td",{style:{fontWeight:600}},r.customer),
-                h("td",null,r.country),
-                h("td",null,r.product),
-                h("td",null,h("span",{className:"badge badge-blue"},r.family)),
-                h("td",{style:{color:B.muted}},fmtK(r.reqQty)),
-                h("td",{style:{color:B.green,fontWeight:600}},fmtK(r.delQty)),
-                h("td",{style:{color:B.red,fontWeight:700}},fmtK(r.remQty)),
-                h("td",null,`${num(r.priceExVAT,2)} ${r.currency}`),
-                h("td",{style:{fontWeight:700}},fmtK(r.remAmt)),
-                h("td",null,h("span",{style:{background:sc+"18",color:sc,padding:"3px 9px",borderRadius:20,fontSize:10,fontWeight:700,whiteSpace:"nowrap"}},r.status)),
-                h("td",{style:{color:B.muted,fontSize:11}},r.paymentTerms),
-                h("td",{style:{color:B.muted}},r.incoterm)
-              );
-            }),
-            rows.length===0&&h("tr",null,h("td",{colSpan:14,style:{textAlign:"center",padding:40,color:B.subtle}},"No pending orders match filters"))
+            rows.length===0?h("tr",null,h("td",{colSpan:14,style:{textAlign:"center",padding:40,color:B.subtle}},"No pending orders match filters")):
+            rows.map((r,i)=>{const sc=statusColor[r.status]||B.muted;return h("tr",{key:i},
+              h("td",{style:{color:B.muted,fontSize:11}},r.serNo),
+              h("td",null,fmtDate(r.orderDate)),
+              h("td",{style:{fontWeight:600}},r.customer),
+              h("td",null,r.country),
+              h("td",null,r.product),
+              h("td",null,h("span",{className:"badge badge-blue"},r.family)),
+              h("td",{style:{color:B.muted}},fmtK(r.reqQty)),
+              h("td",{style:{color:B.green,fontWeight:600}},fmtK(r.delQty)),
+              h("td",{style:{color:B.red,fontWeight:700}},fmtK(r.remQty)),
+              h("td",null,`${num(r.priceExVAT,2)} ${r.currency}`),
+              h("td",{style:{fontWeight:700}},fmtK(r.remAmt)),
+              h("td",null,h("span",{style:{background:sc+"18",color:sc,padding:"3px 9px",borderRadius:20,fontSize:10,fontWeight:700,whiteSpace:"nowrap"}},r.status)),
+              h("td",{style:{color:B.muted,fontSize:11}},r.paymentTerms),
+              h("td",{style:{color:B.muted}},r.incoterm)
+            );})
           )
         )
       )
@@ -863,185 +722,147 @@ function PendingTab({user}){
 /* ═══════════════════════════════════════════════
    AI TAB
 ═══════════════════════════════════════════════ */
-function AITab({user}){
-  const salesRows=useMemo(()=>user.role==="manager"?SALES_DATA:SALES_DATA.filter(r=>r.salesManager===user.rep||r.salesperson===user.rep),[user]);
-  const pendRows=useMemo(()=>user.role==="manager"?PENDING_DATA:PENDING_DATA.filter(r=>r.salesManager===user.rep||r.salesMan===user.rep),[user]);
-  const sKPI=useMemo(()=>calcSalesKPIs(salesRows),[salesRows]);
-  const pKPI=useMemo(()=>calcPendingKPIs(pendRows),[pendRows]);
+function AITab({user,salesData,pendingData}){
+  const sRows=useMemo(()=>user.role==="manager"?salesData:salesData.filter(r=>r.salesManager===user.rep_name||r.salesperson===user.rep_name),[user,salesData]);
+  const pRows=useMemo(()=>user.role==="manager"?pendingData:pendingData.filter(r=>r.salesManager===user.rep_name||r.salesMan===user.rep_name),[user,pendingData]);
+  const sKPI=useMemo(()=>calcSalesKPIs(sRows),[sRows]);
+  const pKPI=useMemo(()=>calcPendingKPIs(pRows),[pRows]);
 
-  const [summary,setSummary]=useState("");const [sumLoading,setSumLoading]=useState(false);
-  const [alerts,setAlerts]=useState([]);const [alertLoading,setAlertLoading]=useState(false);
-  const [risks,setRisks]=useState([]);const [riskLoading,setRiskLoading]=useState(false);
-  const [forecast,setForecast]=useState(null);const [foreLoading,setForeLoading]=useState(false);
-  const [digest,setDigest]=useState("");const [digLoading,setDigLoading]=useState(false);
+  const [summary,setSummary]=useState("");const [sumL,setSumL]=useState(false);
+  const [alerts,setAlerts]=useState([]);const [altL,setAltL]=useState(false);
+  const [risks,setRisks]=useState([]);const [rskL,setRskL]=useState(false);
+  const [forecast,setForecast]=useState(null);const [forL,setForL]=useState(false);
+  const [digest,setDigest]=useState("");const [digL,setDigL]=useState(false);
   const [copied,setCopied]=useState(false);
-  const [messages,setMessages]=useState([]);const [chatLoading,setChatLoading]=useState(false);
-  const [chatInput,setChatInput]=useState("");
+  const [msgs,setMsgs]=useState([]);const [chatL,setChatL]=useState(false);
+  const [chatIn,setChatIn]=useState("");
   const chatRef=useRef(null);
 
+  const hasKey=CONFIG.ANTHROPIC_KEY&&CONFIG.ANTHROPIC_KEY!=="YOUR_ANTHROPIC_KEY";
+
   const ctx=`Egyptian British Co. — Specialty Chemicals & Auxiliaries.
-Sales summary: ${salesRows.length} line items, ${sKPI.totalOrders} unique orders.
-Total Qty: ${fmtK(sKPI.totalQty)} KG. Total Val (ex-VAT): ${fmtK(sKPI.totalValExVAT)} EGP.
-Avg Price/KG (per-order avg): ${num(sKPI.avgPricePerOrder,2)} EGP. Weighted avg: ${num(sKPI.avgPriceWeighted,2)} EGP.
-Best product: ${sKPI.bestProduct} (${fmtK(sKPI.bestProductQty)} KG).
-Pending: ${pendRows.length} orders. Remaining Qty: ${fmtK(pKPI.totalRemQty)} KG. Remaining Amt: ${fmtK(pKPI.totalRemAmt)} EGP.
-Top customers: ${[...new Set(salesRows.map(r=>r.customer))].slice(0,6).join(", ")}.
-Families: ${[...new Set(salesRows.map(r=>r.family))].join(", ")}.
-Products: ${[...new Set(salesRows.map(r=>r.product))].slice(0,8).join(", ")}.
-Markets: ${[...new Set(salesRows.map(r=>r.market))].join(", ")}.
-Countries: ${[...new Set(salesRows.map(r=>r.country))].slice(0,8).join(", ")}.`;
+Sales: ${sRows.length} rows, ${sKPI.totalOrders} orders. Qty: ${fmtK(sKPI.totalQty)} KG. Val (ex-VAT): ${fmtK(sKPI.totalValExVAT)} EGP.
+Avg Price/KG: ${num(sKPI.avgPricePerOrder,2)} EGP. Best product: ${sKPI.bestProduct} (${fmtK(sKPI.bestProductQty)} KG).
+Pending: ${pRows.length} orders. Rem Qty: ${fmtK(pKPI.totalRemQty)} KG. Rem Amt: ${fmtK(pKPI.totalRemAmt)} EGP.
+Customers: ${[...new Set(sRows.map(r=>r.customer))].slice(0,6).join(", ")}.
+Families: ${[...new Set(sRows.map(r=>r.family))].join(", ")}.
+Markets: ${[...new Set(sRows.map(r=>r.market))].join(", ")}.
+Countries: ${[...new Set(sRows.map(r=>r.country))].slice(0,8).join(", ")}.`;
 
-  const claude=async(prompt,system)=>{
-    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
-        system:system||"You are a senior sales analytics advisor for Egyptian British Co., a specialty chemicals and auxiliaries company. Be precise, professional, and data-driven. Use EGP for currency. Keep responses concise.",
-        messages:[{role:"user",content:prompt}]})});
-    const d=await r.json();
-    return d.content?.[0]?.text||"No response received.";
+  const claude=async(prompt,sys)=>{
+    if(!hasKey)return"⚠️ Anthropic API key not configured yet. Add your key to the CONFIG section at the top of index.html.";
+    try{
+      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":CONFIG.ANTHROPIC_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+          system:sys||"You are a senior sales analytics advisor for Egyptian British Co., a specialty chemicals company. Be precise, professional, and data-driven. Use EGP for currency.",
+          messages:[{role:"user",content:prompt}]})});
+      const d=await r.json();
+      if(d.error)return"Error: "+d.error.message;
+      return d.content?.[0]?.text||"No response.";
+    }catch(e){return"Error: "+e.message;}
   };
 
-  const genSummary=async()=>{setSumLoading(true);const r=await claude(`Write a 4-sentence professional performance summary for the sales team. Use specific numbers. Start with the headline metric. Context:\n${ctx}`);setSummary(r);setSumLoading(false);};
-  const genAlerts=async()=>{
-    setAlertLoading(true);
-    const r=await claude(`Identify 4 specific anomalies, risks, or insights from this sales data. Format EXACTLY as:\nTYPE|MESSAGE\nWhere TYPE is one of: warn, danger, info, good\nContext:\n${ctx}`,"Return only the formatted lines. No intro, no conclusion.");
-    const parsed=r.split("\n").filter(l=>l.includes("|")).map(l=>{const[t,...rest]=l.split("|");return{type:t.trim().toLowerCase(),msg:rest.join("|").trim()};});
-    setAlerts(parsed.length?parsed:[{type:"info",msg:r}]);
-    setAlertLoading(false);
-  };
-  const genRisks=async()=>{
-    setRiskLoading(true);
-    const pCtx=`Pending orders data: ${pendRows.length} open orders. Total remaining: ${fmtK(pKPI.totalRemAmt)} EGP, ${fmtK(pKPI.totalRemQty)} KG. Statuses: ${[...new Set(pendRows.map(r=>r.status))].join(", ")}. Top customers with pending: ${[...new Set(pendRows.map(r=>r.customer))].slice(0,5).join(", ")}.`;
-    const r=await claude(`Identify 4 specific risks or urgent items in these pending orders. Format EXACTLY as:\nTYPE|MESSAGE\nWhere TYPE is: warn, danger, info, or good.\nData:\n${pCtx}`,"Return only formatted lines. No extra text.");
-    const parsed=r.split("\n").filter(l=>l.includes("|")).map(l=>{const[t,...rest]=l.split("|");return{type:t.trim().toLowerCase(),msg:rest.join("|").trim()};});
-    setRisks(parsed.length?parsed:[{type:"warn",msg:r}]);
-    setRiskLoading(false);
-  };
-  const genForecast=async()=>{
-    setForeLoading(true);
-    const r=await claude(`Based on this sales context, provide a next-month revenue forecast. Return ONLY valid JSON:\n{"value":"XXM or XXXK","confidence":"XX%","trend":"up/flat/down","notes":"2 sentence explanation"}\nContext:\n${ctx}`,"Return only valid JSON. No markdown, no extra text.");
-    try{const j=JSON.parse(r.replace(/```json|```/g,"").trim());setForecast(j);}
-    catch{setForecast({value:"~"+fmtK(sKPI.totalValExVAT*0.95),confidence:"65%",trend:"flat",notes:r.slice(0,150)});}
-    setForeLoading(false);
-  };
-  const genDigest=async()=>{
-    setDigLoading(true);
-    const r=await claude(`Write a weekly sales digest for Egyptian British Co. to share with the team. Professional, clear, under 180 words. Include: key metrics this period, top performers, notable trends, and 2 action points. Use this data:\n${ctx}`,"Write as plain text suitable for email or messaging. No markdown headers.");
-    setDigest(r);setDigLoading(false);
-  };
-  const sendChat=async()=>{
-    const msg=chatInput.trim();if(!msg||chatLoading)return;
-    setChatInput("");
-    setMessages(prev=>[...prev,{role:"user",content:msg}]);
-    setChatLoading(true);
-    const r=await claude(`Answer this question about the sales data. Be specific with numbers. Max 3 sentences.\nQuestion: ${msg}\nData context:\n${ctx}`,"You are a sales data analyst for Egyptian British Co. Answer concisely with specific numbers. Max 3 sentences.");
-    setMessages(prev=>[...prev,{role:"ai",content:r}]);
-    setChatLoading(false);
-  };
-  useEffect(()=>{if(chatRef.current)chatRef.current.scrollTop=chatRef.current.scrollHeight;},[messages,chatLoading]);
+  const genSummary=async()=>{setSumL(true);const r=await claude(`Write a 4-sentence professional performance summary. Use specific numbers. Data:\n${ctx}`);setSummary(r);setSumL(false);};
+  const genAlerts=async()=>{setAltL(true);const r=await claude(`Identify 4 anomalies or insights. Format EXACTLY:\nTYPE|MESSAGE (TYPE: warn/danger/info/good)\nData:\n${ctx}`,"Return only formatted lines, nothing else.");const p=r.split("\n").filter(l=>l.includes("|")).map(l=>{const[t,...m]=l.split("|");return{type:t.trim().toLowerCase(),msg:m.join("|").trim()};});setAlerts(p.length?p:[{type:"info",msg:r}]);setAltL(false);};
+  const genRisks=async()=>{setRskL(true);const r=await claude(`Identify 4 risks in pending orders. Format EXACTLY:\nTYPE|MESSAGE (TYPE: warn/danger/info/good)\nData: ${pRows.length} orders, ${fmtK(pKPI.totalRemAmt)} EGP remaining, ${fmtK(pKPI.totalRemQty)} KG.`,"Return only formatted lines, nothing else.");const p=r.split("\n").filter(l=>l.includes("|")).map(l=>{const[t,...m]=l.split("|");return{type:t.trim().toLowerCase(),msg:m.join("|").trim()};});setRisks(p.length?p:[{type:"warn",msg:r}]);setRskL(false);};
+  const genForecast=async()=>{setForL(true);const r=await claude(`Forecast next month revenue. Return ONLY JSON: {"value":"XXM","confidence":"XX%","trend":"up/flat/down","notes":"2 sentences"}\nData:\n${ctx}`,"Return only valid JSON, no markdown.");try{const j=JSON.parse(r.replace(/```json|```/g,"").trim());setForecast(j);}catch{setForecast({value:"N/A",confidence:"—",trend:"flat",notes:r.slice(0,150)});}setForL(false);};
+  const genDigest=async()=>{setDigL(true);const r=await claude(`Write a weekly digest for EBC team. Under 180 words. Plain text for email/WhatsApp. Include key metrics, highlights, 2 action points.\nData:\n${ctx}`,"Plain text only. No markdown headers.");setDigest(r);setDigL(false);};
+  const sendChat=async()=>{const msg=chatIn.trim();if(!msg||chatL)return;setChatIn("");setMsgs(p=>[...p,{role:"user",content:msg}]);setChatL(true);const r=await claude(`Answer concisely (max 3 sentences) with specific numbers.\nQuestion: ${msg}\nData:\n${ctx}`,"Sales data analyst for EBC. Max 3 sentences with numbers.");setMsgs(p=>[...p,{role:"ai",content:r}]);setChatL(false);};
+  useEffect(()=>{if(chatRef.current)chatRef.current.scrollTop=chatRef.current.scrollHeight;},[msgs,chatL]);
 
-  const QUICK_Qs=["Who is the top salesperson?","Which family has the highest avg price/KG?","What is the largest pending customer?","Compare Cairo vs export performance"];
-
-  const AIPanelHeader=({title,sub,onGen,loading,btnLabel="Generate"})=>
+  const Panel=({title,sub,onGen,loading,label="Generate"})=>
     h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},
-      h("div",null,
-        h("div",{className:"st",style:{marginBottom:2}},title),
-        h("p",{style:{fontSize:11,color:B.muted}},sub)),
+      h("div",null,h("div",{className:"st",style:{marginBottom:2}},title),h("p",{style:{fontSize:11,color:B.muted}},sub)),
       h("button",{className:"btn btn-outline",onClick:onGen,disabled:loading,style:{fontSize:11,minWidth:90}},
-        loading?h("span",{style:{display:"flex",alignItems:"center",gap:6}},h("span",{className:"spin"}),"…"):btnLabel)
+        loading?h("span",{style:{display:"flex",alignItems:"center",gap:6}},h("span",{className:"spin"}),"…"):label)
     );
+
+  if(!hasKey)return h("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:400,gap:16,padding:40}},
+    h("div",{style:{fontSize:48}},"🤖"),
+    h("h2",{style:{fontFamily:"'DM Serif Display',serif",fontSize:22}},"AI Insights"),
+    h("div",{style:{background:B.amberL,border:`1px solid #FDE68A`,borderRadius:14,padding:"20px 28px",maxWidth:480,textAlign:"center",fontSize:14,color:"#78350F",lineHeight:1.7}},
+      h("strong",null,"Anthropic API key not configured yet."),h("br"),
+      "Open ",h("code",null,"index.html")," in Notepad and add your Anthropic key to the ",h("code",null,"CONFIG.ANTHROPIC_KEY")," field at the top of the file. You can do this after testing everything else first."
+    )
+  );
 
   return h("div",null,
     h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
-      h("div",null,
-        h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:24,color:B.text}},"AI Insights"),
-        h("p",{style:{fontSize:11.5,color:B.muted,marginTop:3}},"Powered by Claude AI · Analyzing your live EBC sales & pending data")),
-      h("button",{className:"btn btn-blue",onClick:()=>{genSummary();genAlerts();genRisks();genForecast();}},
-        "↻ Refresh All")
+      h("div",null,h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:24,color:B.text}},"AI Insights"),
+        h("p",{style:{fontSize:11.5,color:B.muted,marginTop:3}},"Powered by Claude AI · Analyzing your live EBC data")),
+      h("button",{className:"btn btn-blue",onClick:()=>{genSummary();genAlerts();genRisks();genForecast();}},"↻ Refresh All")
     ),
-
-    // Row 1: Summary full width
     h("div",{className:"card",style:{marginBottom:14}},
-      h(AIPanelHeader,{title:"📋 Performance Summary",sub:"Auto-generated narrative from your current sales data",onGen:genSummary,loading:sumLoading,btnLabel:"Generate"}),
+      h(Panel,{title:"📋 Performance Summary",sub:"Auto-generated from your current sales data",onGen:genSummary,loading:sumL}),
       h("div",{style:{minHeight:72,background:B.blueLL,borderRadius:10,border:`1px solid ${B.border}`,padding:"14px 16px",fontSize:13,lineHeight:1.8,color:B.text}},
-        sumLoading?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted}},h("span",{className:"spin"}),"Generating summary…"):
-        summary||h("span",{style:{color:B.subtle}},"Click Generate to create an AI-powered summary of your sales performance.")
+        sumL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted}},h("span",{className:"spin"}),"Generating…"):
+        summary||h("span",{style:{color:B.subtle}},"Click Generate to create a performance summary.")
       )
     ),
-
-    // Row 2: Anomalies + Pending Risks
     h("div",{className:"grid2",style:{marginBottom:14}},
       h("div",{className:"card"},
-        h(AIPanelHeader,{title:"⚠️ Anomaly Detection",sub:"Unusual patterns flagged automatically",onGen:genAlerts,loading:alertLoading,btnLabel:"Detect"}),
-        alertLoading?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Scanning data…"):
+        h(Panel,{title:"⚠️ Anomaly Detection",sub:"Unusual patterns flagged automatically",onGen:genAlerts,loading:altL,label:"Detect"}),
+        altL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Scanning…"):
         alerts.length?h("div",null,alerts.map((a,i)=>h("div",{key:i,className:`ai-alert ai-${a.type}`},a.msg))):
-        h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Detect to scan for anomalies, unusual patterns, or notable trends in your sales data.")
+        h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Detect to scan for anomalies.")
       ),
       h("div",{className:"card"},
-        h(AIPanelHeader,{title:"🚨 Pending Orders Risk",sub:"High-priority items needing attention",onGen:genRisks,loading:riskLoading,btnLabel:"Analyze"}),
-        riskLoading?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Analyzing pending orders…"):
+        h(Panel,{title:"🚨 Pending Orders Risk",sub:"High-priority items needing attention",onGen:genRisks,loading:rskL,label:"Analyze"}),
+        rskL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Analyzing…"):
         risks.length?h("div",null,risks.map((r,i)=>h("div",{key:i,className:`ai-alert ai-${r.type}`},r.msg))):
-        h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Analyze to identify high-value delayed orders and at-risk pending shipments.")
+        h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Analyze to flag urgent pending items.")
       )
     ),
-
-    // Row 3: Forecast + Digest
     h("div",{className:"grid2",style:{marginBottom:14}},
       h("div",{className:"card"},
-        h(AIPanelHeader,{title:"📈 Next Month Forecast",sub:"AI-driven revenue projection",onGen:genForecast,loading:foreLoading,btnLabel:"Forecast"}),
-        foreLoading?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Building forecast model…"):
+        h(Panel,{title:"📈 Next Month Forecast",sub:"AI-driven revenue projection",onGen:genForecast,loading:forL,label:"Forecast"}),
+        forL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Building forecast…"):
         forecast?h("div",null,
           h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:12}},
-            h("div",{style:{background:B.blueL,borderRadius:10,padding:"12px 14px",textAlign:"center"}},
+            h("div",{style:{background:B.blueL,borderRadius:10,padding:"12px",textAlign:"center"}},
               h("div",{style:{fontSize:10,fontWeight:700,color:B.blue,letterSpacing:".07em",marginBottom:4}},"FORECAST"),
               h("div",{style:{fontSize:22,fontWeight:800,color:B.blue,fontFamily:"'DM Serif Display',serif"}},forecast.value)),
-            h("div",{style:{background:B.greenL,borderRadius:10,padding:"12px 14px",textAlign:"center"}},
+            h("div",{style:{background:B.greenL,borderRadius:10,padding:"12px",textAlign:"center"}},
               h("div",{style:{fontSize:10,fontWeight:700,color:B.green,letterSpacing:".07em",marginBottom:4}},"CONFIDENCE"),
               h("div",{style:{fontSize:22,fontWeight:800,color:B.green,fontFamily:"'DM Serif Display',serif"}},forecast.confidence)),
-            h("div",{style:{background:forecast.trend==="up"?B.greenL:forecast.trend==="down"?B.redL:B.blueLL,borderRadius:10,padding:"12px 14px",textAlign:"center"}},
+            h("div",{style:{background:B.blueLL,borderRadius:10,padding:"12px",textAlign:"center"}},
               h("div",{style:{fontSize:10,fontWeight:700,color:B.muted,letterSpacing:".07em",marginBottom:4}},"TREND"),
-              h("div",{style:{fontSize:22,fontWeight:800,color:B.text}},forecast.trend==="up"?"↑":forecast.trend==="down"?"↓":"→"))
+              h("div",{style:{fontSize:22,fontWeight:800}},forecast.trend==="up"?"↑":forecast.trend==="down"?"↓":"→"))
           ),
           h("p",{style:{fontSize:12.5,color:B.muted,lineHeight:1.7}},forecast.notes)
-        ):
-        h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Forecast to project next month's revenue based on historical trends and current pipeline.")
+        ):h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Forecast to project next month's revenue.")
       ),
       h("div",{className:"card"},
         h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},
-          h("div",null,
-            h("div",{className:"st",style:{marginBottom:2}},"📨 Weekly Digest"),
-            h("p",{style:{fontSize:11,color:B.muted}},"Ready to copy & paste into email or WhatsApp")),
+          h("div",null,h("div",{className:"st",style:{marginBottom:2}},"📨 Weekly Digest"),h("p",{style:{fontSize:11,color:B.muted}},"Copy & paste into email or WhatsApp")),
           h("div",{style:{display:"flex",gap:6}},
             digest&&h("button",{className:"btn btn-ghost",onClick:()=>{navigator.clipboard.writeText(digest);setCopied(true);setTimeout(()=>setCopied(false),2000);},style:{fontSize:11}},copied?"✓ Copied!":"📋 Copy"),
-            h("button",{className:"btn btn-outline",onClick:genDigest,disabled:digLoading,style:{fontSize:11}},
-              digLoading?h("span",{style:{display:"flex",alignItems:"center",gap:6}},h("span",{className:"spin"}),"…"):"Generate")
-          )
+            h("button",{className:"btn btn-outline",onClick:genDigest,disabled:digL,style:{fontSize:11}},digL?h("span",{style:{display:"flex",alignItems:"center",gap:6}},h("span",{className:"spin"}),"…"):"Generate"))
         ),
         h("div",{style:{minHeight:130,background:"#FAFBFD",borderRadius:10,border:`1px solid ${B.border}`,padding:"13px 15px",fontSize:12.5,lineHeight:1.8,color:B.text,whiteSpace:"pre-wrap",overflowY:"auto",maxHeight:200}},
-          digLoading?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted}},h("span",{className:"spin"}),"Drafting digest…"):
-          digest||h("span",{style:{color:B.subtle}},"Click Generate to draft a professional weekly summary ready to share with your team.")
+          digL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted}},h("span",{className:"spin"}),"Drafting digest…"):
+          digest||h("span",{style:{color:B.subtle}},"Click Generate to draft a weekly summary.")
         )
       )
     ),
-
-    // Row 4: Ask Your Data
     h("div",{className:"card"},
       h("div",{className:"st",style:{marginBottom:4}},"💬 Ask Your Data"),
-      h("p",{style:{fontSize:11.5,color:B.muted,marginBottom:14}},`Ask anything about your sales data in plain language. Examples: "Who is my top rep in Egypt?" · "Which family has highest price/KG?" · "What's the status of pending Textile orders?"`),
-      h("div",{ref:chatRef,style:{maxHeight:300,overflowY:"auto",marginBottom:12,padding:"4px 0",scrollBehavior:"smooth"}},
-        messages.length===0&&!chatLoading&&h("div",{style:{textAlign:"center",padding:"28px 0",color:B.subtle,fontSize:13}},"Ask a question below to get instant AI-powered answers from your data"),
-        messages.map((m,i)=>h("div",{key:i,className:`chat-bubble chat-${m.role}`,style:m.role==="user"?{marginLeft:"auto",background:B.blue,color:"#fff"}:{background:"#F1F5F9",color:B.text}},m.content)),
-        chatLoading&&h("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"10px 0",color:B.muted,fontSize:13}},h("span",{className:"spin"}),"Analyzing your data…")
+      h("p",{style:{fontSize:11.5,color:B.muted,marginBottom:14}},"Ask anything in plain language — \"Who is my top rep?\" · \"Which family has the highest price/KG?\" · \"What's pending in Textile?\""),
+      h("div",{ref:chatRef,style:{maxHeight:280,overflowY:"auto",marginBottom:12,padding:"4px 0"}},
+        msgs.length===0&&!chatL&&h("div",{style:{textAlign:"center",padding:"28px 0",color:B.subtle,fontSize:13}},"Ask a question below to get instant AI-powered answers"),
+        msgs.map((m,i)=>h("div",{key:i,className:"chat-bubble",style:m.role==="user"?{marginLeft:"auto",background:B.blue,color:"#fff"}:{background:"#F1F5F9",color:B.text}},m.content)),
+        chatL&&h("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"10px 0",color:B.muted,fontSize:13}},h("span",{className:"spin"}),"Analyzing…")
       ),
       h("div",{style:{display:"flex",gap:8,marginBottom:10}},
-        h("input",{value:chatInput,onChange:e=>setChatInput(e.target.value),onKeyDown:e=>{if(e.key==="Enter")sendChat();},
+        h("input",{value:chatIn,onChange:e=>setChatIn(e.target.value),onKeyDown:e=>{if(e.key==="Enter")sendChat();},
           placeholder:"e.g. Which region has the highest avg price per KG?",
           style:{flex:1,padding:"10px 14px",border:`1.5px solid ${B.border}`,borderRadius:10,fontSize:13,color:B.text,outline:"none"}}),
-        h("button",{className:"btn btn-blue",onClick:sendChat,disabled:chatLoading||!chatInput.trim(),style:{whiteSpace:"nowrap",padding:"10px 18px"}},"Send →")
+        h("button",{className:"btn btn-blue",onClick:sendChat,disabled:chatL||!chatIn.trim(),style:{whiteSpace:"nowrap",padding:"10px 18px"}},"Send →")
       ),
       h("div",{style:{display:"flex",flexWrap:"wrap",gap:6}},
-        QUICK_Qs.map(q=>h("button",{key:q,onClick:()=>{setChatInput(q);},
-          style:{padding:"5px 12px",borderRadius:7,border:`1px solid ${B.border}`,background:B.blueLL,color:B.blue,fontSize:11,cursor:"pointer",fontWeight:600}},q))
+        ["Who is the top salesperson?","Which family has highest price/KG?","Largest pending customer?","Top selling product this year?"].map(q=>
+          h("button",{key:q,onClick:()=>setChatIn(q),style:{padding:"5px 12px",borderRadius:7,border:`1px solid ${B.border}`,background:B.blueLL,color:B.blue,fontSize:11,cursor:"pointer",fontWeight:600}},q))
       )
     )
   );
@@ -1052,22 +873,22 @@ Countries: ${[...new Set(salesRows.map(r=>r.country))].slice(0,8).join(", ")}.`;
 ═══════════════════════════════════════════════ */
 function PrintArea(){
   return h("div",{id:"print-area",style:{display:"none",padding:24,fontFamily:"'Plus Jakarta Sans',sans-serif"}},
-    h("div",{style:{display:"flex",alignItems:"center",gap:14,marginBottom:20,borderBottom:`2px solid ${B.border}`,paddingBottom:16}},
-      h("div",{style:{width:40,height:40,borderRadius:10,background:`linear-gradient(135deg,${B.blue},${B.red})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:18,fontWeight:800}},"E"),
+    h("div",{style:{display:"flex",alignItems:"center",gap:14,marginBottom:20,borderBottom:`2px solid #E0E7EF`,paddingBottom:16}},
+      h("div",{style:{width:40,height:40,borderRadius:10,background:`linear-gradient(135deg,#1976D2,#D32F2F)`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:18,fontWeight:800}},"E"),
       h("div",null,
-        h("div",{style:{fontSize:17,fontWeight:800}},h("span",{style:{color:B.blue}},"Egyptian "),h("span",{style:{color:B.red}},"British Co.")),
-        h("div",{style:{fontSize:11,color:B.subtle}},`Specialty Chemicals & Auxiliaries · Pending Orders Report · ${new Date().toLocaleDateString("en-GB")}`)
+        h("div",{style:{fontSize:17,fontWeight:800}},h("span",{style:{color:"#1976D2"}},"Egyptian "),h("span",{style:{color:"#D32F2F"}},"British Co.")),
+        h("div",{style:{fontSize:11,color:"#8898AA"}},`Specialty Chemicals & Auxiliaries · Pending Orders Report · ${new Date().toLocaleDateString("en-GB")}`)
       )
     ),
-    h("h2",{style:{fontSize:16,fontWeight:700,marginBottom:16,color:B.text}},"Pending Sales Orders"),
+    h("h2",{style:{fontSize:16,fontWeight:700,marginBottom:16}},"Pending Sales Orders"),
     h("table",{style:{width:"100%",borderCollapse:"collapse",fontSize:11}},
-      h("thead",null,h("tr",{style:{background:B.blueL}},
+      h("thead",null,h("tr",{style:{background:"#E3F2FD"}},
         ["Order Date","Customer","Country","Product","Family","Req Qty (KG)","Del Qty (KG)","Rem Qty (KG)","Price ex-VAT","Rem Amt (EGP)","Status","Payment Terms"]
-          .map(c=>h("th",{key:c,style:{padding:"7px 8px",textAlign:"left",color:B.blue,fontWeight:700,border:`1px solid ${B.border}`,fontSize:10}},c))
+          .map(c=>h("th",{key:c,style:{padding:"7px 8px",textAlign:"left",color:"#1976D2",fontWeight:700,border:"1px solid #E0E7EF",fontSize:10}},c))
       )),
       h("tbody",{id:"print-tbody"})
     ),
-    h("div",{style:{marginTop:18,fontSize:10,color:B.subtle,borderTop:`1px solid ${B.border}`,paddingTop:10}},`Generated: ${new Date().toLocaleString("en-GB")} · Egyptian British Co. — Confidential Document`)
+    h("div",{style:{marginTop:18,fontSize:10,color:"#8898AA",borderTop:"1px solid #E0E7EF",paddingTop:10}},`Generated: ${new Date().toLocaleString("en-GB")} · Egyptian British Co. — Confidential`)
   );
 }
 
@@ -1077,28 +898,103 @@ function PrintArea(){
 function App(){
   const [user,setUser]=useState(null);
   const [tab,setTab]=useState("sales");
+  const [loading,setLoading]=useState(true);
+  const [loadMsg,setLoadMsg]=useState("Connecting to Google Drive…");
+  const [error,setError]=useState(null);
+  const [salesData,setSalesData]=useState([]);
+  const [pendingData,setPendingData]=useState([]);
+  const [rlsUsers,setRlsUsers]=useState([]);
+  const [lastSync,setLastSync]=useState(null);
 
-  if(!user)return h(Login,{onLogin:u=>{setUser(u);setTab("sales");}});
+  // Load all sheets on mount
+  useEffect(()=>{
+    async function loadAll(){
+      try{
+        const isConfigured=CONFIG.GOOGLE_API_KEY&&CONFIG.GOOGLE_API_KEY!=="YOUR_GOOGLE_API_KEY";
+        if(!isConfigured){
+          setError("NOTCONFIGURED");
+          setLoading(false);return;
+        }
+        setLoadMsg("Loading Sales View…");
+        const sRaw=await fetchSheet(CONFIG.SALES_SHEET_ID,"Sales View");
+        setSalesData(sRaw.map(normalizeSalesRow));
+        setLoadMsg("Loading Pending Sales…");
+        const pRaw=await fetchSheet(CONFIG.PENDING_SHEET_ID,"Pending Sales");
+        setPendingData(pRaw.map(normalizePendingRow));
+        setLoadMsg("Loading access permissions…");
+        const rRaw=await fetchSheet(CONFIG.RLS_SHEET_ID,"RLS Config");
+        setRlsUsers(rRaw.map(normalizeRLSRow));
+        setLastSync(new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}));
+        setLoading(false);
+      }catch(e){
+        setError(e.message);
+        setLoading(false);
+      }
+    }
+    loadAll();
+  },[]);
+
+  if(loading)return h("div",{className:"loading-screen"},
+    h(EBCLogo,{size:"lg"}),
+    h("div",{className:"big-spin",style:{marginTop:16}}),
+    h("p",{style:{color:B.muted,fontSize:14,fontWeight:500}},loadMsg)
+  );
+
+  if(error==="NOTCONFIGURED")return h("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:B.bg,padding:20}},
+    h("div",{style:{background:"#fff",border:`2px solid #FDE68A`,borderRadius:18,padding:"40px 36px",maxWidth:520,textAlign:"center",boxShadow:"0 12px 48px rgba(0,0,0,.08)"}},
+      h(EBCLogo,{size:"lg"}),
+      h("div",{style:{fontSize:40,margin:"20px 0"}},"⚙️"),
+      h("h2",{style:{fontFamily:"'DM Serif Display',serif",fontSize:22,marginBottom:12}},"Dashboard Not Configured Yet"),
+      h("p",{style:{fontSize:13.5,color:B.muted,lineHeight:1.8,marginBottom:20}},"Open ",h("strong",null,"index.html")," in Notepad and fill in the 5 values in the ",h("strong",null,"CONFIG")," section at the very top of the file:"),
+      h("div",{style:{background:"#0F1C2E",color:"#E2E8F0",borderRadius:10,padding:"16px 20px",textAlign:"left",fontSize:12,fontFamily:"'Courier New',monospace",lineHeight:1.8}},
+        `const CONFIG = {`,h("br"),
+        h("span",{style:{color:"#90CAF9"}},"  GOOGLE_API_KEY"),`: "AIzaSy...",`,h("br"),
+        h("span",{style:{color:"#90CAF9"}},"  SALES_SHEET_ID"),`: "1Bxi...",`,h("br"),
+        h("span",{style:{color:"#90CAF9"}},"  PENDING_SHEET_ID"),`: "2Cxj...",`,h("br"),
+        h("span",{style:{color:"#90CAF9"}},"  RLS_SHEET_ID"),`: "3Dyk...",`,h("br"),
+        h("span",{style:{color:"#90CAF9"}},"  ANTHROPIC_KEY"),`: "sk-ant-...",`,h("br"),
+        `};`
+      ),
+      h("p",{style:{fontSize:12,color:B.subtle,marginTop:16}},"After saving, upload the updated file to GitHub. The dashboard will load your real data.")
+    )
+  );
+
+  if(error)return h("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:B.bg,padding:20}},
+    h("div",{style:{background:"#fff",border:`2px solid #FECACA`,borderRadius:18,padding:"40px 36px",maxWidth:520,textAlign:"center"}},
+      h("div",{style:{fontSize:40,marginBottom:16}},"❌"),
+      h("h2",{style:{fontFamily:"'DM Serif Display',serif",fontSize:20,marginBottom:12,color:B.red}},"Connection Error"),
+      h("p",{style:{fontSize:13.5,color:B.muted,lineHeight:1.8,marginBottom:16}},error),
+      h("div",{style:{background:B.blueLL,borderRadius:10,padding:"14px 16px",fontSize:12.5,color:B.muted,textAlign:"left",lineHeight:1.8}},
+        "Common fixes:",h("br"),
+        "• Check your Sheet IDs are correct",h("br"),
+        "• Make sure all 3 sheets are shared as 'Anyone with link can view'",h("br"),
+        "• Verify your Google API key is valid",h("br"),
+        "• Check the sheet name matches exactly: 'Sales View', 'Pending Sales', 'RLS Config'"
+      )
+    )
+  );
 
   const TABS=[["sales","📊 Sales Dashboard"],["pending","🔄 Pending Orders"],["ai","🤖 AI Insights"]];
 
+  if(!user)return h("div",null,h(Login,{onLogin:u=>{setUser(u);setTab("sales");},rlsUsers}),h(PrintArea));
+
   return h("div",{id:"main-app"},
-    h(Header,{user,onLogout:()=>setUser(null)}),
+    h(Header,{user,onLogout:()=>setUser(null),lastSync}),
     h("div",{style:{background:"#fff",borderBottom:`1px solid ${B.border}`}},
       h("div",{style:{maxWidth:1480,margin:"0 auto",padding:"0 16px",display:"flex",gap:2,overflowX:"auto"}},
         TABS.map(([k,l])=>h("button",{key:k,className:`tab-btn${tab===k?" active":""}`,onClick:()=>setTab(k)},l))
       )
     ),
     h("div",{className:"page"},
-      tab==="sales"&&h(SalesTab,{user}),
-      tab==="pending"&&h(PendingTab,{user}),
-      tab==="ai"&&h(AITab,{user})
+      tab==="sales"&&h(SalesTab,{user,salesData}),
+      tab==="pending"&&h(PendingTab,{user,pendingData}),
+      tab==="ai"&&h(AITab,{user,salesData,pendingData})
     ),
     h("div",{style:{textAlign:"center",padding:"12px 0 20px",color:B.subtle,fontSize:11,borderTop:`1px solid ${B.border}`,marginTop:8}},
-      h("span",{style:{fontWeight:700}},h("span",{style:{color:B.blue}},"Egyptian "),h("span",{style:{color:B.red}},"British Co."))," · Sales Intelligence Portal · Google Drive Sync: 10:00 AM & 4:30 PM daily · ",
-      user.role==="rep"?`RLS active — ${user.rep} view`:"Full manager access"
+      h("span",{style:{fontWeight:700}},h("span",{style:{color:B.blue}},"Egyptian "),h("span",{style:{color:B.red}},"British Co.")),
+      " · Sales Intelligence Portal · ",user.role==="rep"?`RLS Active — ${user.rep_name} view only`:"Full manager access — all data visible"
     ),
-    h(PrintArea,null)
+    h(PrintArea)
   );
 }
 
