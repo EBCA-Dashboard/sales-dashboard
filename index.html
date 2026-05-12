@@ -863,7 +863,7 @@ function App(){
   var s9=useState(null);var lastSync=s9[0];var setLastSync=s9[1];
 
   useEffect(function(){
-    var configured = CONFIG.GOOGLE_API_KEY && CONFIG.GOOGLE_API_KEY!=="AIzaSyD9F3cdkBs4274bmJgcaUSRmrsDHx5abRk";
+    var configured = CONFIG.GOOGLE_API_KEY && CONFIG.GOOGLE_API_KEY!=="YOUR_GOOGLE_API_KEY";
     if(!configured){ setError("SETUP"); setLoading(false); return; }
     async function load(){
       try{
