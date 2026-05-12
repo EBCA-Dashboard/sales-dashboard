@@ -5,10 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>EBC Sales Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.8.0/Recharts.js"></script>
+
+<script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
 <script>
+/* wait for all libs then boot */
+function bootDashboard() {
+  if (!window.React || !window.ReactDOM || !window.Recharts) {
+    setTimeout(bootDashboard, 50); return;
+  }
 /* ═══════════════════════════════════════════════════════════════
    ██████████████████████████████████████████████████████████████
    ██                                                          ██
@@ -20,16 +26,16 @@
 
 const CONFIG = {
   // 1. Google Sheets API Key (from Google Cloud Console)
-  GOOGLE_API_KEY: "AIzaSyD9F3cdkBs4274bmJgcaUSRmrsDHx5abRk",
+  GOOGLE_API_KEY: "YOUR_GOOGLE_API_KEY",
 
   // 2. Sales View sheet ID (the long code from the sheet URL)
-  SALES_SHEET_ID: "1jGy9ixB9HMQn-_4MsZGDxkS427BxXH0sdqfkqHrm99o",
+  SALES_SHEET_ID: "YOUR_SALES_SHEET_ID",
 
   // 3. Pending Sales sheet ID
-  PENDING_SHEET_ID: "1JHmxkiazFuBDJqLwkyJxImnxHBM7UqxxNhDqqZH6ao4",
+  PENDING_SHEET_ID: "YOUR_PENDING_SHEET_ID",
 
   // 4. RLS Config sheet ID
-  RLS_SHEET_ID: "14XfbVf4Bw93NdnYrqSM3-eOWllWzUKXvtO0jGE1gH6Y",
+  RLS_SHEET_ID: "YOUR_RLS_SHEET_ID",
 
   // 5. Anthropic API Key (for AI Insights tab) — can add later
   ANTHROPIC_KEY: "YOUR_ANTHROPIC_KEY",
@@ -947,13 +953,13 @@ function App(){
       h("h2",{style:{fontFamily:"'DM Serif Display',serif",fontSize:22,marginBottom:12}},"Dashboard Not Configured Yet"),
       h("p",{style:{fontSize:13.5,color:B.muted,lineHeight:1.8,marginBottom:20}},"Open ",h("strong",null,"index.html")," in Notepad and fill in the 5 values in the ",h("strong",null,"CONFIG")," section at the very top of the file:"),
       h("div",{style:{background:"#0F1C2E",color:"#E2E8F0",borderRadius:10,padding:"16px 20px",textAlign:"left",fontSize:12,fontFamily:"'Courier New',monospace",lineHeight:1.8}},
-        `const CONFIG = {`,h("br"),
-        h("span",{style:{color:"#90CAF9"}},"  GOOGLE_API_KEY"),`: "AIzaSy...",`,h("br"),
-        h("span",{style:{color:"#90CAF9"}},"  SALES_SHEET_ID"),`: "1Bxi...",`,h("br"),
-        h("span",{style:{color:"#90CAF9"}},"  PENDING_SHEET_ID"),`: "2Cxj...",`,h("br"),
-        h("span",{style:{color:"#90CAF9"}},"  RLS_SHEET_ID"),`: "3Dyk...",`,h("br"),
-        h("span",{style:{color:"#90CAF9"}},"  ANTHROPIC_KEY"),`: "sk-ant-...",`,h("br"),
-        `};`
+        "const CONFIG = {",h("br"),
+        h("span",{style:{color:"#90CAF9"}},"  GOOGLE_API_KEY: "),'  \"AIzaSy...\",',h("br"),
+        h("span",{style:{color:"#90CAF9"}},"  SALES_SHEET_ID: "),'  \"1Bxi...\",',h("br"),
+        h("span",{style:{color:"#90CAF9"}},"  PENDING_SHEET_ID: "),'  \"2Cxj...\",',h("br"),
+        h("span",{style:{color:"#90CAF9"}},"  RLS_SHEET_ID: "),'  \"3Dyk...\",',h("br"),
+        h("span",{style:{color:"#90CAF9"}},"  ANTHROPIC_KEY: "),'  \"sk-ant-...\",',h("br"),
+        "};"
       ),
       h("p",{style:{fontSize:12,color:B.subtle,marginTop:16}},"After saving, upload the updated file to GitHub. The dashboard will load your real data.")
     )
@@ -999,6 +1005,8 @@ function App(){
 }
 
 ReactDOM.render(h(App),document.getElementById("root"));
+} // end bootDashboard
+window.addEventListener("load", bootDashboard);
 </script>
 </body>
 </html>
