@@ -1,3 +1,5 @@
+<script>
+
 /* =========================================================
    COMPLETE KPI + AGGREGATION + CHART FIX REBUILD
    ========================================================= */
@@ -29,6 +31,7 @@ function parseNum(v){
 }
 
 function normalizeDate(dateStr){
+
   if(!dateStr) return "";
 
   const d = new Date(dateStr);
@@ -36,21 +39,23 @@ function normalizeDate(dateStr){
   if(isNaN(d)) return "";
 
   const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2, "0");
+  const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
 
   return `${y}-${m}-${day}`;
 }
 
 function monthKey(dateStr){
+
   const d = new Date(dateStr);
 
   if(isNaN(d)) return "";
 
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, "0")}`;
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
 }
 
 function getFilteredOptions(rows, field){
+
   return Array.from(
     new Set(
       rows
@@ -105,7 +110,7 @@ function normS(r){
 
     priceMod: parseNum(r["Price Modification EGP"]),
 
-    /* OFFICIAL KPI FIELD */
+    /* OFFICIAL SALES KPI */
     totalValVAT: parseNum(r["Total Val. EGP + VAT"]),
 
     paymentTerms: cleanText(r["Payment Terms"]),
@@ -173,7 +178,7 @@ function calcSKPI(rows){
     totalQty += r.qty;
     totalVal += r.totalValVAT;
 
-    /* UNIQUE ORDER LOGIC */
+    /* UNIQUE ORDER */
     const orderKey = [
       r.customerKey,
       r.orderDate
@@ -292,8 +297,6 @@ function getTrendData(rows){
 
   const familyTotals = {};
 
-  /* TOP FAMILIES BY QTY */
-
   aggregated.forEach(r => {
 
     if(!familyTotals[r.family]){
@@ -302,6 +305,8 @@ function getTrendData(rows){
 
     familyTotals[r.family] += r.qty;
   });
+
+  /* TOP 5 FAMILIES BY QTY */
 
   const topFamilies = Object.entries(familyTotals)
     .sort((a,b) => b[1] - a[1])
@@ -398,7 +403,7 @@ const pal = [
 /*
 IMPORTANT:
 
-ALL slicers must use CURRENT FILTERED ROWS
+ALL slicers MUST use CURRENT FILTERED ROWS
 NOT base dataset.
 
 EXAMPLE:
@@ -409,23 +414,15 @@ const customerOptions = getFilteredOptions(base, "customer");
 CORRECT:
 const customerOptions = getFilteredOptions(filteredRows, "customer");
 
-This applies to:
+Apply to:
 - customer
 - product
 - family
 - country
 - salesperson
-- months
-- years
+- month
+- year
 - all slicers
-
-This creates Power BI style cascading slicers.
-
-Selecting customer:
-→ filters products
-→ filters families
-→ filters months
-→ etc.
 */
 
 /* =========================================================
@@ -433,7 +430,7 @@ Selecting customer:
    ========================================================= */
 
 /*
-DELETE ENTIRE BLOCK:
+DELETE THIS BLOCK ENTIRELY:
 
 h("div",{className:"kpi",style:{"--kpi-color":B.amber}},
   h("div",{className:"kpi-icon"},"📦"),
@@ -441,7 +438,6 @@ h("div",{className:"kpi",style:{"--kpi-color":B.amber}},
   h("div",{className:"kpi-val"},num(rows.length)),
   h("div",{className:"kpi-sub"},"Line items")
 )
-
 */
 
 /* =========================================================
@@ -457,30 +453,20 @@ WITH:
 
 num(kpi.avgPrice,2)
 
-ALSO REMOVE:
+AND REMOVE:
 "Weighted Average"
-
-because there is now only ONE correct average.
 */
 
 /* =========================================================
-   FINAL ARCHITECTURE RULE
+   FINAL IMPORTANT RULE
    ========================================================= */
 
 /*
-ALL KPIs and ALL charts MUST use:
+ALL charts and ALL KPIs MUST USE:
 
 buildAggregatedSales(rows)
 
 NOT raw rows.
-
-This is the main fix that solves:
-- inflated quantities
-- inflated values
-- incorrect averages
-- wrong best-selling products
-- wrong trend charts
-- duplicate order calculations
-- unstable slicers
-- inaccurate BI results
 */
+
+</script>
