@@ -674,64 +674,120 @@ function PrintArea(){
 }
 
 function App(){
-  var s1=useState(null);var user=s1[0];var setUser=s1[1];
-  var s2=useState("sales");var tab=s2[0];var setTab=s2[1];
-  var s3=useState(true);var loading=s3[0];var setLoading=s3[1];
-  var s4=useState("Connecting...");var loadMsg=s4[0];var setLoadMsg=s4[1];
-  var s5=useState(null);var error=s5[0];var setError=s5[1];
-  var s6=useState([]);var salesData=s6[0];var setSalesData=s6[1];
-  var s7=useState([]);var pendingData=s7[0];var setPendingData=s7[1];
-  var s8=useState([]);var rlsUsers=s8[0];var setRlsUsers=s8[1];
-  var s9=useState(null);var lastSync=s9[0];var setLastSync=s9[1];
+  var s1=useState(null);    var user=s1[0];        var setUser=s1[1];
+  var s2=useState("sales"); var tab=s2[0];         var setTab=s2[1];
+  var s3=useState(true);    var loading=s3[0];     var setLoading=s3[1];
+  var s4=useState("Connecting to Google Drive..."); var loadMsg=s4[0]; var setLoadMsg=s4[1];
+  var s5=useState(null);    var error=s5[0];       var setError=s5[1];
+  var s6=useState([]);      var salesData=s6[0];   var setSalesData=s6[1];
+  var s7=useState([]);      var pendingData=s7[0]; var setPendingData=s7[1];
+  var s8=useState([]);      var rlsUsers=s8[0];    var setRlsUsers=s8[1];
+  var s9=useState(null);    var lastSync=s9[0];    var setLastSync=s9[1];
 
   useEffect(function(){
-    var ok=CONFIG.GOOGLE_API_KEY&&CONFIG.GOOGLE_API_KEY!=="YOUR_GOOGLE_API_KEY";
-    if(!ok){setError("SETUP");setLoading(false);return;}
+    var ok = CONFIG.GOOGLE_API_KEY && CONFIG.GOOGLE_API_KEY !== "YOUR_GOOGLE_API_KEY";
+    if(!ok){ setError("SETUP"); setLoading(false); return; }
     async function load(){
       try{
         setLoadMsg("Loading Sales View...");
-        var sr=await fetchSheet(CONFIG.SALES_SHEET_ID,"Sales View");
+        var sr = await fetchSheet(CONFIG.SALES_SHEET_ID, "Sales View");
         setSalesData(sr.map(normS));
         setLoadMsg("Loading Pending Sales...");
-        var pr=await fetchSheet(CONFIG.PENDING_SHEET_ID,"Pending Sales");
+        var pr = await fetchSheet(CONFIG.PENDING_SHEET_ID, "Pending Sales");
         setPendingData(pr.map(normP));
         setLoadMsg("Loading RLS config...");
-        var rr=await fetchSheet(CONFIG.RLS_SHEET_ID,"RLS Config");
+        var rr = await fetchSheet(CONFIG.RLS_SHEET_ID, "RLS Config");
         setRlsUsers(rr.map(normR));
         setLastSync(new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}));
         setLoading(false);
-      }catch(e){setError(e.message);setLoading(false);}
+      } catch(e){ setError(e.message); setLoading(false); }
     }
     load();
-  },[]);
+  }, []);
 
-  if(loading)return h("div",{className:"ls"},h(Logo,{size:"lg"}),h("div",{className:"bs",style:{marginTop:16}}),h("p",{style:{color:B.muted,fontSize:14,fontWeight:500}},loadMsg));
-  if(error==="SETUP")return h("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:B.bg,padding:20}},h("div",{style:{background:"#fff",border:"2px solid #FDE68A",borderRadius:18,padding:"40px 36px",maxWidth:520,textAlign:"center",boxShadow:"0 12px 48px rgba(0,0,0,.08)"}},h(Logo,{size:"lg"}),h("div",{style:{fontSize:32,margin:"20px 0"}},"\u2699\uFE0F"),h("p",{style:{fontSize:14,color:B.muted,lineHeight:1.8,marginBottom:20}},"Open index.html in Notepad and fill in the 5 CONFIG keys at the top, then re-upload to GitHub."),h("div",{style:{background:"#0F1C2E",color:"#E2E8F0",borderRadius:10,padding:"16px 20px",textAlign:"left",fontSize:12,fontFamily:"monospace",lineHeight:2}},h("span",{style:{color:"#90CAF9"}},"GOOGLE_API_KEY")," \u2192 from Google Cloud Console",h("br"),h("span",{style:{color:"#90CAF9"}},"SALES_SHEET_ID")," \u2192 from Sales View sheet URL",h("br"),h("span",{style:{color:"#90CAF9"}},"PENDING_SHEET_ID")," \u2192 from Pending Sales sheet URL",h("br"),h("span",{style:{color:"#90CAF9"}},"RLS_SHEET_ID")," \u2192 from RLS Config sheet URL",h("br"),h("span",{style:{color:"#90CAF9"}},"ANTHROPIC_KEY")," \u2192 from console.anthropic.com (optional)"))));
-  if(error)return h("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:B.bg,padding:20}},h("div",{style:{background:"#fff",border:"2px solid #FECACA",borderRadius:18,padding:"40px 36px",maxWidth:540,textAlign:"center"}},h("div",{style:{fontSize:32,marginBottom:12}},"\u274C"),h("p",{style:{color:B.red2,fontSize:14,marginBottom:16,fontWeight:600}},error),h("div",{style:{background:B.blueLL,borderRadius:10,padding:"14px 16px",fontSize:12.5,color:B.muted,textAlign:"left",lineHeight:1.9}},"1. Check all 3 Sheet IDs are correct",h("br"),"2. All 3 sheets shared as 'Anyone with link can view'",h("br"),"3. Google API key valid and Sheets API enabled",h("br"),"4. Tab names match exactly: Sales View / Pending Sales / RLS Config")));
-  if(!user)return h("div",null,h(LoginPage,{rlsUsers:rlsUsers,onLogin:function(u){setUser(u);setTab("sales");}}),h(PrintArea));
+  // LOADING SCREEN
+  if(loading){
+    return h("div",{className:"ls"},
+      h(Logo,{size:"lg"}),
+      h("div",{className:"bs",style:{marginTop:16}}),
+      h("p",{style:{color:B.muted,fontSize:14,fontWeight:500}},loadMsg)
+    );
+  }
+
+  // SETUP SCREEN - keys not filled in
+  if(error === "SETUP"){
+    return h("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:B.bg,padding:20}},
+      h("div",{style:{background:"#fff",border:"2px solid #FDE68A",borderRadius:18,padding:"40px 36px",maxWidth:520,textAlign:"center",boxShadow:"0 12px 48px rgba(0,0,0,.08)"}},
+        h(Logo,{size:"lg"}),
+        h("div",{style:{fontSize:28,margin:"20px 0",fontWeight:700,color:B.amber}},"Setup Required"),
+        h("p",{style:{fontSize:13.5,color:B.muted,lineHeight:1.8,marginBottom:20}},
+          "Open index.html in Notepad and fill in your 5 API keys in the CONFIG block at the top of the file, then re-upload to GitHub."),
+        h("div",{style:{background:"#0F1C2E",color:"#E2E8F0",borderRadius:10,padding:"16px 20px",textAlign:"left",fontSize:12,fontFamily:"monospace",lineHeight:2.2}},
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"GOOGLE_API_KEY"),":   your key from Google Cloud Console"),
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"SALES_SHEET_ID"),":  your Sales View sheet ID"),
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"PENDING_SHEET_ID"),": your Pending Sales sheet ID"),
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"RLS_SHEET_ID"),":    your RLS Config sheet ID"),
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"ANTHROPIC_KEY"),":   your key from console.anthropic.com")
+        )
+      )
+    );
+  }
+
+  // CONNECTION ERROR SCREEN
+  if(error){
+    return h("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:B.bg,padding:20}},
+      h("div",{style:{background:"#fff",border:"2px solid #FECACA",borderRadius:18,padding:"40px 36px",maxWidth:540,textAlign:"center",boxShadow:"0 8px 32px rgba(0,0,0,.08)"}},
+        h(Logo,{size:"lg"}),
+        h("div",{style:{fontSize:22,fontWeight:700,color:B.red2,margin:"20px 0"}},"Connection Error"),
+        h("p",{style:{color:B.red2,fontSize:13.5,marginBottom:16,fontWeight:600,lineHeight:1.6}},error),
+        h("div",{style:{background:B.blueLL,borderRadius:10,padding:"14px 16px",fontSize:13,color:B.muted,textAlign:"left",lineHeight:2}},
+          h("div",null,"1. Check all 3 Sheet IDs are correct"),
+          h("div",null,"2. All 3 sheets shared as Anyone with link can view"),
+          h("div",null,"3. Google API key valid and Sheets API enabled"),
+          h("div",null,"4. Tab names match exactly: Sales View / Pending Sales / RLS Config")
+        )
+      )
+    );
+  }
+
+  // LOGIN
+  if(!user){
+    return h("div",null,
+      h(LoginPage,{rlsUsers:rlsUsers, onLogin:function(u){setUser(u);setTab("sales");}}),
+      h(PrintArea)
+    );
+  }
+
+  // MAIN DASHBOARD
+  var TABS = [["sales","Sales Dashboard"],["pending","Pending Orders"],["ai","AI Insights"]];
   return h("div",{id:"app"},
-    h(Header,{user:user,onLogout:function(){setUser(null);},lastSync:lastSync}),
+    h(Header,{user:user, onLogout:function(){setUser(null);}, lastSync:lastSync}),
     h("div",{style:{background:"#fff",borderBottom:"1px solid "+B.border}},
       h("div",{style:{maxWidth:1480,margin:"0 auto",padding:"0 16px",display:"flex",gap:2,overflowX:"auto"}},
-        [["sales","Sales Dashboard"],["pending","Pending Orders"],["ai","AI Insights"]].map(function(t){return h("button",{key:t[0],className:"tab"+(tab===t[0]?" on":""),onClick:function(){setTab(t[0]);}},t[1]);})
+        TABS.map(function(t){
+          return h("button",{key:t[0], className:"tab"+(tab===t[0]?" on":""), onClick:function(){setTab(t[0]);}}, t[1]);
+        })
       )
     ),
     h("div",{className:"page"},
-      tab==="sales"&&h(SalesTab,{user:user,salesData:salesData}),
-      tab==="pending"&&h(PendingTab,{user:user,pendingData:pendingData}),
-      tab==="ai"&&h(AITab,{user:user,salesData:salesData,pendingData:pendingData})
+      tab==="sales"   && h(SalesTab,  {user:user, salesData:salesData}),
+      tab==="pending" && h(PendingTab, {user:user, pendingData:pendingData}),
+      tab==="ai"      && h(AITab,     {user:user, salesData:salesData, pendingData:pendingData})
     ),
     h("div",{style:{textAlign:"center",padding:"12px 0 20px",color:B.subtle,fontSize:11,borderTop:"1px solid "+B.border,marginTop:8}},
-      h("span",{style:{fontWeight:700}},h("span",{style:{color:B.blue2}},"Egyptian "),h("span",{style:{color:B.red2}},"British Co.")),
-      " \u00b7 Sales Intelligence Portal \u00b7 ",
-      user.role==="rep"?"RLS Active: "+user.rep_name+" view only":"Full manager access \u00b7 All data visible"
+      h("span",{style:{fontWeight:700}},
+        h("span",{style:{color:B.blue2}},"Egyptian "),
+        h("span",{style:{color:B.red2}},"British Co.")),
+      " - Sales Intelligence Portal - ",
+      user.role==="rep" ? "RLS Active: "+user.rep_name+" view only" : "Full Manager Access - All Data Visible"
     ),
     h(PrintArea)
   );
 }
-ReactDOM.render(h(App),document.getElementById("root"));
-} // end startApp
 
+ReactDOM.render(h(App), document.getElementById("root"));
+
+} // end startApp
 </script>
 </body>
 </html>
