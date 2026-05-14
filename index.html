@@ -1,472 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EBC Sales Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1976D2;--blue-l:#E3F2FD;--blue-ll:#F0F7FF;
+  --red:#D32F2F;--red-l:#FFEBEE;
+  --bg:#F4F6FA;--card:#FFF;--border:#E0E7EF;
+  --text:#0F1C2E;--muted:#4A5568;--subtle:#8898AA;
+  --green:#1B7E4C;--green-l:#E6F5EC;
+  --amber:#B45309;--amber-l:#FEF3C7;
+  --shadow:0 1px 4px rgba(15,28,46,.07),0 4px 16px rgba(15,28,46,.06);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+input,select,button,textarea{font-family:'Plus Jakarta Sans',sans-serif}
+.page{max-width:1480px;margin:0 auto;padding:20px 16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+@media(max-width:1100px){.g6{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.g2{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.g6{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.g4{grid-template-columns:1fr 1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.cf{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-color,var(--blue))}
+.kpi-label{font-size:10px;font-weight:700;color:var(--subtle);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.kpi-val{font-family:'DM Serif Display',serif;font-size:26px;color:var(--kpi-color,var(--text));line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.kpi-icon{position:absolute;top:14px;right:16px;font-size:20px;opacity:.14}
+.btn{padding:8px 16px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:none;display:inline-flex;align-items:center;gap:5px}
+.bb{background:var(--blue);color:#fff}.bb:hover{background:#1255A0}
+.bo{background:transparent;color:var(--blue);border:1.5px solid var(--blue)}.bo:hover{background:var(--blue-l)}
+.br{background:var(--red);color:#fff}.br:hover{background:#B71C1C}
+.bg{background:transparent;color:var(--muted);border:1px solid var(--border)}.bg:hover{background:var(--bg)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.bbl{background:var(--blue-l);color:var(--blue)}.brl{background:var(--red-l);color:var(--red)}
+.bgl{background:var(--green-l);color:var(--green)}.bay{background:#F1F5F9;color:var(--muted)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:9px 11px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--subtle);border-bottom:2px solid var(--border);background:#FAFBFD;white-space:nowrap;text-transform:uppercase}
+.tbl td{padding:9px 11px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:#F7FAFF}
+.sl{padding:7px 11px;border:1.5px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);font-size:12px;font-weight:500;cursor:pointer;outline:none}
+.sl:focus,.sl:hover{border-color:var(--blue)}
+.tab{padding:10px 18px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-bottom:2.5px solid transparent;transition:all .2s;white-space:nowrap}
+.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.dim{padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.dim.on{background:var(--blue-l);color:var(--blue);border-color:var(--blue)}
+.aia{border-radius:10px;padding:11px 14px;margin-bottom:9px;font-size:12.5px;line-height:1.6;border-left:3px solid}
+.aiw{background:var(--amber-l);border-color:#D97706;color:#78350F}
+.aid{background:var(--red-l);border-color:var(--red);color:#7F1D1D}
+.aii{background:var(--blue-l);border-color:var(--blue);color:#1E40AF}
+.aig{background:var(--green-l);border-color:var(--green);color:#14532D}
+.cbbl{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:85%;margin-bottom:8px}
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:rot .6s linear infinite;display:inline-block;flex-shrink:0}
+@keyframes rot{to{transform:rotate(360deg)}}
+.st{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px}
+.ls{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
+.bs{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:rot .8s linear infinite}
+@media print{#app{display:none!important}#pa{display:block!important}body{background:#fff}}
+#pa{display:none}
+</style>
+</head>
+<body>
+<div id="root"></div>
 <script>
+const CONFIG = {
+  GOOGLE_API_KEY:   "YOUR_GOOGLE_API_KEY",
+  SALES_SHEET_ID:   "YOUR_SALES_SHEET_ID",
+  PENDING_SHEET_ID: "YOUR_PENDING_SHEET_ID",
+  RLS_SHEET_ID:     "YOUR_RLS_SHEET_ID",
+  ANTHROPIC_KEY:    "YOUR_ANTHROPIC_KEY"
+};
+</script>
+<script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
+<script>
+(function waitForLibs() {
+  if (!window.React || !window.ReactDOM || !window.PropTypes || !window.Recharts) {
+    return setTimeout(waitForLibs, 60);
+  }
+  startApp();
+})();
 
-/* =========================================================
-   COMPLETE KPI + AGGREGATION + CHART FIX REBUILD
-   ========================================================= */
+function startApp() {
 
-/* =========================================================
-   STEP 1 — HELPERS
-   ========================================================= */
+var h = React.createElement;
+var useState = React.useState;
+var useMemo = React.useMemo;
+var useRef = React.useRef;
+var useEffect = React.useEffect;
+var RC = Recharts;
 
-function cleanText(v){
-  return String(v || "")
-    .trim()
-    .replace(/\s+/g, " ");
+var B = {
+  blue:"#1976D2", blueL:"#E3F2FD", blueLL:"#F0F7FF",
+  red:"#D32F2F", redL:"#FFEBEE",
+  text:"#0F1C2E", muted:"#4A5568", subtle:"#8898AA",
+  border:"#E0E7EF", bg:"#F4F6FA", card:"#FFF",
+  green:"#1B7E4C", greenL:"#E6F5EC",
+  amber:"#B45309", amberL:"#FEF3C7",
+  pal:["#1976D2","#D32F2F","#0288D1","#2E7D32","#6A1B9A","#E65100","#00695C","#AD1457","#1565C0","#558B2F"]
+};
+
+var MON = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function num(n,d){
+  if(n==null) return "-";
+  d = d||0;
+  return new Intl.NumberFormat("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.round(n*Math.pow(10,d))/Math.pow(10,d));
+}
+function fK(n){
+  if(n==null) return "-";
+  if(n>=1e6) return num(n/1e6,1)+"M";
+  if(n>=1e3) return num(n/1e3,1)+"K";
+  return num(n);
+}
+function fD(s){
+  if(!s) return "-";
+  var d = new Date(s);
+  if(isNaN(d)) return s;
+  return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"});
 }
 
-function normalizeKey(v){
-  return cleanText(v).toLowerCase();
+async function fetchSheet(sheetId, sheetName) {
+  var url = "https://sheets.googleapis.com/v4/spreadsheets/"+sheetId+"/values/"+encodeURIComponent(sheetName)+"?key="+CONFIG.GOOGLE_API_KEY;
+  var res = await fetch(url);
+  if(!res.ok) throw new Error("Sheet '"+sheetName+"' error "+res.status+". Check Sheet ID and sharing settings.");
+  var data = await res.json();
+  var rows = data.values || [];
+  if(rows.length < 2) return [];
+  var headers = rows[0].map(function(h){ return h.trim(); });
+  return rows.slice(1).map(function(row){
+    var obj = {};
+    headers.forEach(function(h,i){ obj[h] = row[i] !== undefined ? row[i] : ""; });
+    return obj;
+  });
 }
-
-function parseNum(v){
-  if(v == null || v === "") return 0;
-
-  const cleaned = String(v)
-    .replace(/,/g, "")
-    .trim();
-
-  const n = parseFloat(cleaned);
-
-  return isNaN(n) ? 0 : n;
-}
-
-function normalizeDate(dateStr){
-
-  if(!dateStr) return "";
-
-  const d = new Date(dateStr);
-
-  if(isNaN(d)) return "";
-
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-
-  return `${y}-${m}-${day}`;
-}
-
-function monthKey(dateStr){
-
-  const d = new Date(dateStr);
-
-  if(isNaN(d)) return "";
-
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
-}
-
-function getFilteredOptions(rows, field){
-
-  return Array.from(
-    new Set(
-      rows
-        .map(r => r[field])
-        .filter(Boolean)
-    )
-  ).sort();
-}
-
-/* =========================================================
-   STEP 2 — NORMALIZATION
-   ========================================================= */
 
 function normS(r){
-
   return {
-
-    orderNo: cleanText(r["Order - No"]),
-    orderDate: normalizeDate(r["Order date"]),
-    deliveryDate: normalizeDate(r["Delivery Date"]),
-
-    year: cleanText(r["Year"]),
-    erpNum: cleanText(r["ERP Num."]),
-    invNo: cleanText(r["Inv. No."]),
-
-    customer: cleanText(r["Customer Name"]),
-    customerKey: normalizeKey(r["Customer Name"]),
-
-    country: cleanText(r["Country"]),
-
-    custCode: cleanText(r["Customer Code"]),
-    custType: cleanText(r["Customer Type"]),
-
-    market: cleanText(r["Market"]),
-    tawjeh: cleanText(r["التوجيه"]),
-
-    product: cleanText(r["Product Name"]),
-    productKey: normalizeKey(r["Product Name"]),
-
-    family: cleanText(r["Family"]),
-    familyKey: normalizeKey(r["Family"]),
-
-    base: cleanText(r["Base"]),
-
-    salesPrice: parseNum(r["Sales Price"]),
-    qty: parseNum(r["Qty. (kg.)"]),
-
-    totalInv: parseNum(r["Total Sales Inv"]),
-
-    currency: cleanText(r["Currency"]),
-    rate: parseNum(r["Rate"]) || 1,
-
-    priceMod: parseNum(r["Price Modification EGP"]),
-
-    /* OFFICIAL SALES KPI */
-    totalValVAT: parseNum(r["Total Val. EGP + VAT"]),
-
-    paymentTerms: cleanText(r["Payment Terms"]),
-
-    salesManager: cleanText(r["Sales Manager"]),
-    salesperson: cleanText(r["Salesperson"]),
-
-    remarks: cleanText(r["Remarks"])
+    orderNo: r["Order - No"]||"",
+    orderDate: r["Order date"]||"",
+    deliveryDate: r["Delivery Date"]||"",
+    year: r["Year"]||"",
+    erpNum: r["ERP Num."]||"",
+    invNo: r["Inv. No."]||"",
+    customer: r["Customer Name"]||"",
+    country: r["Country"]||"",
+    custCode: r["Customer Code"]||"",
+    custType: r["Customer Type"]||"",
+    market: r["Market"]||"",
+    tawjeh: r["\u0627\u0644\u062a\u0648\u062c\u064a\u0647"]||"",
+    product: r["Product Name"]||"",
+    family: r["Family"]||"",
+    base: r["Base"]||"",
+    salesPrice: parseFloat(r["Sales Price"])||0,
+    qty: parseFloat(r["Qty. (kg.)"])||0,
+    totalInv: parseFloat(r["Total Sales Inv"])||0,
+    currency: r["Currency"]||"",
+    rate: parseFloat(r["Rate"])||1,
+    priceMod: parseFloat(r["Price Modification EGP"])||0,
+    totalValVAT: parseFloat(r["Total Val. EGP + VAT"])||0,
+    paymentTerms: r["Payment Terms"]||"",
+    salesManager: r["Sales Manager"]||"",
+    salesperson: r["Salesperson"]||"",
+    remarks: r["Remarks"]||""
   };
 }
 
-/* =========================================================
-   STEP 3 — CENTRAL AGGREGATION ENGINE
-   ========================================================= */
-
-function buildAggregatedSales(rows){
-
-  const map = {};
-
-  rows.forEach(r => {
-
-    const key = [
-      r.customerKey,
-      r.productKey,
-      r.orderDate
-    ].join("||");
-
-    if(!map[key]){
-
-      map[key] = {
-
-        ...r,
-
-        qty: 0,
-        totalValVAT: 0,
-        totalInv: 0
-      };
-    }
-
-    map[key].qty += r.qty;
-    map[key].totalValVAT += r.totalValVAT;
-    map[key].totalInv += r.totalInv;
-  });
-
-  return Object.values(map);
+function normP(r){
+  return {
+    base: r["Base"]||"",
+    region: r["Region"]||"",
+    custType: r["Customer Type"]||"",
+    family: r["Family"]||"",
+    salesManager: r["Sales Manager"]||"",
+    salesMan: r["Sales Man"]||"",
+    serNo: r["Ser. No."]||"",
+    custCode: r["Customer Code"]||"",
+    oracleCode: r["Oracle / Code"]||"",
+    orderDate: r["Order Date"]||"",
+    customer: r["Customer"]||"",
+    country: r["Country"]||"",
+    incoterm: r["Incoterm"]||"",
+    product: r["Product"]||"",
+    reqQty: parseFloat(r["Total Requested Qty. (K.G)"])||0,
+    delQty: parseFloat(r["Del. Qty. (K.G)"])||0,
+    remQty: parseFloat(r["Remaining Qty. (K.G)"])||0,
+    priceExVAT: parseFloat(r["Price Excluding(VAT)"])||0,
+    priceInVAT: parseFloat(r["Price Including (VAT)"])||0,
+    currency: r["Currency"]||"",
+    rate: parseFloat(r["Rate"])||1,
+    totNoVAT: parseFloat(r["Total Price without VAT (EGP)"])||0,
+    remAmt: parseFloat(r["Remaining Amount without VAT (EGP)"])||0,
+    totWithVAT: parseFloat(r["Total Price With VAT (All Currencies)"])||0,
+    status: r["Status / Order"]||"",
+    paymentTerms: r["Payment Terms"]||"",
+    remarks: r["Remarks"]||""
+  };
 }
 
-/* =========================================================
-   STEP 4 — KPI ENGINE
-   ========================================================= */
+function normR(r){
+  return {
+    email: (r["email"]||"").toLowerCase().trim(),
+    name: r["name"]||"",
+    role: (r["role"]||"rep").toLowerCase().trim(),
+    rep_name: r["rep_name"]||""
+  };
+}
 
 function calcSKPI(rows){
-
-  const aggregated = buildAggregatedSales(rows);
-
-  let totalQty = 0;
-  let totalVal = 0;
-
-  const uniqueOrders = new Set();
-
-  const productTotals = {};
-
-  aggregated.forEach(r => {
-
+  var totalQty=0, totalVal=0, orderAvgs=[], orderKeys=new Set(), prodQty={};
+  rows.forEach(function(r){
     totalQty += r.qty;
-    totalVal += r.totalValVAT;
-
-    /* UNIQUE ORDER */
-    const orderKey = [
-      r.customerKey,
-      r.orderDate
-    ].join("||");
-
-    uniqueOrders.add(orderKey);
-
-    /* BEST PRODUCT */
-    if(!productTotals[r.product]){
-      productTotals[r.product] = 0;
-    }
-
-    productTotals[r.product] += r.qty;
+    totalVal += r.totalValVAT/1.14;
+    if(r.qty>0) orderAvgs.push((r.totalInv*r.rate)/r.qty);
+    orderKeys.add(r.customer+"||"+r.orderDate);
+    prodQty[r.product] = (prodQty[r.product]||0) + r.qty;
   });
-
-  let bestProduct = "--";
-  let bestQty = 0;
-
-  Object.entries(productTotals).forEach(([product, qty]) => {
-
-    if(qty > bestQty){
-
-      bestQty = qty;
-      bestProduct = product;
-    }
-  });
-
-  return {
-
-    totalQty,
-
-    totalVal,
-
-    /* CORRECT FINANCIAL AVG */
-    avgPrice: totalQty > 0
-      ? totalVal / totalQty
-      : 0,
-
-    totalOrders: uniqueOrders.size,
-
-    bestProd: bestProduct,
-
-    bestQty
-  };
+  var avgPO = orderAvgs.length ? orderAvgs.reduce(function(a,b){return a+b;},0)/orderAvgs.length : 0;
+  var avgW = totalQty>0 ? totalVal/totalQty : 0;
+  var best = Object.entries(prodQty).sort(function(a,b){return b[1]-a[1];})[0];
+  return {totalQty:totalQty, totalVal:totalVal, avgPO:avgPO, avgW:avgW,
+    totalOrders:orderKeys.size, bestProd:best?best[0]:"--", bestQty:best?best[1]:0};
 }
 
-/* =========================================================
-   STEP 5 — DIMENSION CHARTS
-   ========================================================= */
+function calcPKPI(rows){
+  var remQty=0, remAmt=0, avgs=[];
+  rows.forEach(function(r){
+    remQty += r.remQty; remAmt += r.remAmt;
+    if(r.reqQty>0) avgs.push(r.totNoVAT/r.reqQty);
+  });
+  var avg = avgs.length ? avgs.reduce(function(a,b){return a+b;},0)/avgs.length : 0;
+  return {remQty:remQty, remAmt:remAmt, avg:avg, total:rows.length};
+}
 
 function getDimData(rows, dim){
-
-  const aggregated = buildAggregatedSales(rows);
-
-  const map = {};
-
-  aggregated.forEach(r => {
-
-    const key = r[dim] || "N/A";
-
-    if(!map[key]){
-
-      map[key] = {
-
-        name: key,
-        sales: 0,
-        qty: 0
-      };
-    }
-
-    map[key].sales += r.totalValVAT;
-    map[key].qty += r.qty;
+  var m = {};
+  rows.forEach(function(r){
+    var k = r[dim]||"N/A";
+    if(!m[k]) m[k]={name:k,sales:0,qty:0};
+    m[k].sales += r.totalValVAT/1.14;
+    m[k].qty += r.qty;
   });
-
-  return Object.values(map)
-    .sort((a,b) => b.sales - a.sales)
-    .slice(0,10);
+  return Object.values(m).sort(function(a,b){return b.sales-a.sales;}).slice(0,10).map(function(d){
+    return {name:d.name.length>13?d.name.slice(0,13)+"...":d.name, sales:Math.round(d.sales), qty:Math.round(d.qty)};
+  });
 }
-
-/* =========================================================
-   STEP 6 — COUNTRY CHART
-   ========================================================= */
-
 function getCountryData(rows){
-
-  const aggregated = buildAggregatedSales(rows);
-
-  const map = {};
-
-  aggregated.forEach(r => {
-
-    if(!map[r.country]){
-
-      map[r.country] = {
-
-        country: r.country,
-        sales: 0
-      };
-    }
-
-    map[r.country].sales += r.totalValVAT;
+  var m={};
+  rows.forEach(function(r){
+    if(!m[r.country]) m[r.country]={country:r.country,sales:0};
+    m[r.country].sales += r.totalValVAT/1.14;
   });
-
-  return Object.values(map)
-    .sort((a,b) => b.sales - a.sales)
-    .slice(0,10);
+  return Object.values(m).sort(function(a,b){return b.sales-a.sales;}).slice(0,10).map(function(d){
+    return {country:d.country, sales:Math.round(d.sales)};
+  });
 }
-
-/* =========================================================
-   STEP 7 — TREND CHART
-   ========================================================= */
-
 function getTrendData(rows){
-
-  const aggregated = buildAggregatedSales(rows);
-
-  const familyTotals = {};
-
-  aggregated.forEach(r => {
-
-    if(!familyTotals[r.family]){
-      familyTotals[r.family] = 0;
+  var fams = Array.from(new Set(rows.map(function(r){return r.family;}))).slice(0,5);
+  var mo = {};
+  rows.forEach(function(r){
+    if(!r.deliveryDate) return;
+    var k = r.deliveryDate.slice(0,7);
+    if(!mo[k]) mo[k]={mo:new Date(k+"-01").toLocaleDateString("en-US",{month:"short",year:"2-digit"}),raw:k};
+    if(fams.indexOf(r.family)>=0){
+      mo[k][r.family+"_s"] = (mo[k][r.family+"_s"]||0) + r.totalInv*r.rate;
+      mo[k][r.family+"_q"] = (mo[k][r.family+"_q"]||0) + r.qty;
     }
-
-    familyTotals[r.family] += r.qty;
   });
-
-  /* TOP 5 FAMILIES BY QTY */
-
-  const topFamilies = Object.entries(familyTotals)
-    .sort((a,b) => b[1] - a[1])
-    .slice(0,5)
-    .map(x => x[0]);
-
-  const monthly = {};
-
-  aggregated.forEach(r => {
-
-    if(!topFamilies.includes(r.family)) return;
-
-    const mk = monthKey(r.deliveryDate);
-
-    if(!mk) return;
-
-    if(!monthly[mk]){
-
-      monthly[mk] = {
-
-        raw: mk,
-
-        mo: new Date(mk + "-01")
-          .toLocaleDateString("en-US", {
-            month: "short",
-            year: "2-digit"
-          })
-      };
-    }
-
-    if(!monthly[mk][r.family]){
-
-      monthly[mk][r.family] = {
-
-        qty: 0,
-        val: 0
-      };
-    }
-
-    monthly[mk][r.family].qty += r.qty;
-    monthly[mk][r.family].val += r.totalValVAT;
+  var data = Object.values(mo).sort(function(a,b){return a.raw.localeCompare(b.raw);}).map(function(row){
+    var out={mo:row.mo};
+    fams.forEach(function(f){ out[f] = row[f+"_q"]>0 ? parseFloat((row[f+"_s"]/row[f+"_q"]).toFixed(2)) : null; });
+    return out;
   });
-
-  const data = Object.values(monthly)
-    .sort((a,b) => a.raw.localeCompare(b.raw))
-    .map(row => {
-
-      const out = {
-        mo: row.mo
-      };
-
-      topFamilies.forEach(f => {
-
-        const d = row[f];
-
-        out[f] = d && d.qty > 0
-          ? +(d.val / d.qty).toFixed(2)
-          : null;
-      });
-
-      return out;
-    });
-
-  return {
-
-    data,
-    fams: topFamilies
-  };
+  return {data:data, fams:fams};
+}
+function getPCustData(rows){
+  var m={};
+  rows.forEach(function(r){
+    var k=r.customer;
+    if(!m[k]) m[k]={name:k.split(" ").slice(0,2).join(" "),remQty:0,remAmt:0};
+    m[k].remQty += r.remQty; m[k].remAmt += r.remAmt;
+  });
+  return Object.values(m).sort(function(a,b){return b.remAmt-a.remAmt;}).slice(0,9).map(function(d){
+    return {name:d.name, remQty:Math.round(d.remQty), remAmt:Math.round(d.remAmt)};
+  });
+}
+function getPFamData(rows){
+  var m={};
+  rows.forEach(function(r){
+    if(!m[r.family]) m[r.family]={family:r.family,remQty:0,remAmt:0};
+    m[r.family].remQty += r.remQty; m[r.family].remAmt += r.remAmt;
+  });
+  return Object.values(m).sort(function(a,b){return b.remAmt-a.remAmt;}).map(function(d){
+    return {family:d.family, remQty:Math.round(d.remQty), remAmt:Math.round(d.remAmt)};
+  });
 }
 
-/* =========================================================
-   STEP 8 — PROFESSIONAL COLORS
-   ========================================================= */
+var TipComp = function(props){
+  if(!props.active||!props.payload||!props.payload.length) return null;
+  return h("div",{style:{background:"#fff",border:"1px solid "+B.border,borderRadius:10,padding:"10px 14px",fontSize:12,boxShadow:"0 4px 20px rgba(0,0,0,.1)"}},
+    props.label&&h("p",{style:{color:B.subtle,fontSize:11,marginBottom:6,fontWeight:600}},props.label),
+    props.payload.map(function(p,i){ return h("p",{key:i,style:{color:p.color||B.blue,fontWeight:700,marginBottom:2}},p.name+": "+fK(p.value)); })
+  );
+};
 
-const pal = [
+function Logo(props){
+  var size = props.size||"md";
+  var sz = {sm:{b:28,t:12,s:9},md:{b:36,t:15,s:9.5},lg:{b:48,t:20,s:11}}[size]||{b:36,t:15,s:9.5};
+  return h("div",{style:{display:"flex",alignItems:"center",gap:10}},
+    h("div",{style:{width:sz.b,height:sz.b,borderRadius:Math.round(sz.b*.22),background:"linear-gradient(140deg,"+B.blue+","+B.red+")",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:Math.round(sz.b*.44),fontWeight:800,flexShrink:0,boxShadow:"0 4px 12px rgba(25,118,210,.25)"}},"E"),
+    h("div",null,
+      h("div",{style:{fontSize:sz.t,fontWeight:800,lineHeight:1.15}},
+        h("span",{style:{color:B.blue}},"Egyptian "),h("span",{style:{color:B.red}},"British Co.")),
+      h("div",{style:{fontSize:sz.s,color:B.subtle,fontWeight:500}},"Specialty Chemicals & Auxiliaries")
+    )
+  );
+}
 
-  "#1565C0",
-  "#C62828",
-  "#2E7D32",
-  "#6A1B9A",
-  "#EF6C00",
+function LoginPage(props){
+  var rlsUsers = props.rlsUsers;
+  var onLogin = props.onLogin;
+  var email = useState("")[0];
+  var setEmail = useState("")[1];
+  var state = useState("");
+  email = state[0]; setEmail = state[1];
+  var errState = useState("");
+  var err = errState[0]; var setErr = errState[1];
+  var loadState = useState(false);
+  var loading = loadState[0]; var setLoading = loadState[1];
 
-  "#00838F",
-  "#AD1457",
-  "#283593",
-  "#558B2F",
-  "#37474F"
-];
+  function attempt(){
+    setLoading(true); setErr("");
+    var e = email.trim().toLowerCase();
+    var u = rlsUsers.find(function(u){ return u.email===e; });
+    if(u){ onLogin(Object.assign({},u,{email:e})); }
+    else{ setErr("No account found. Contact your admin to be added to RLS Config sheet."); }
+    setLoading(false);
+  }
 
-/* =========================================================
-   STEP 9 — CASCADING SLICERS
-   ========================================================= */
+  return h("div",{style:{minHeight:"100vh",background:"linear-gradient(135deg,"+B.blueLL+" 0%,#FFF8F8 60%,"+B.bg+" 100%)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
+    h("div",{style:{width:"100%",maxWidth:420,position:"relative",zIndex:1}},
+      h("div",{style:{textAlign:"center",marginBottom:22}},
+        h("div",{style:{display:"inline-flex",alignItems:"center",gap:12,background:"#fff",padding:"12px 24px",borderRadius:14,border:"1px solid "+B.border,boxShadow:"0 2px 16px rgba(0,0,0,.07)"}},
+          h(Logo,{size:"md"}))),
+      h("div",{style:{background:"#fff",border:"1px solid "+B.border,borderRadius:18,padding:"36px 32px",boxShadow:"0 12px 48px rgba(21,101,192,.1)"}},
+        h("div",{style:{textAlign:"center",marginBottom:28}},
+          h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:24,color:B.text,marginBottom:6}},"Sales Intelligence Portal"),
+          h("p",{style:{fontSize:13,color:B.muted}},"Sign in with your work email")),
+        h("label",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em",display:"block",marginBottom:8}},"WORK EMAIL"),
+        h("input",{type:"email",value:email,placeholder:"yourname@company.com",
+          onChange:function(e){setEmail(e.target.value);setErr("");},
+          onKeyDown:function(e){if(e.key==="Enter")attempt();},
+          style:{width:"100%",padding:"12px 15px",border:"1.5px solid "+(err?B.red:B.border),borderRadius:10,fontSize:14,color:B.text,outline:"none",marginBottom:err?8:20}}),
+        err&&h("p",{style:{color:B.red,fontSize:12,marginBottom:14}},err),
+        h("button",{onClick:attempt,disabled:!email.trim()||loading,className:"btn bb",style:{width:"100%",padding:13,fontSize:14,justifyContent:"center",borderRadius:10,marginBottom:16}},
+          loading?"Verifying...":"Access Dashboard"),
+        h("div",{style:{background:B.blueLL,borderRadius:10,border:"1px solid "+B.border,padding:"12px 16px",fontSize:11.5,color:B.muted,lineHeight:1.6}},
+          "Your Outlook email determines what data you can see (RLS)")
+      )
+    )
+  );
+}
 
-/*
-IMPORTANT:
+function Header(props){
+  var user=props.user; var onLogout=props.onLogout; var lastSync=props.lastSync;
+  return h("header",{style:{background:"#fff",borderBottom:"1px solid "+B.border,padding:"0 20px",position:"sticky",top:0,zIndex:200,boxShadow:"0 1px 8px rgba(0,0,0,.06)"}},
+    h("div",{style:{maxWidth:1480,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",height:58}},
+      h(Logo,{size:"md"}),
+      h("div",{style:{display:"flex",alignItems:"center",gap:12}},
+        lastSync&&h("div",{style:{fontSize:11,color:B.subtle}},"Last sync: "+lastSync),
+        h("div",{style:{textAlign:"right"}},
+          h("div",{style:{fontSize:13,fontWeight:700,color:B.text}},user.name),
+          h("div",{style:{fontSize:10,color:B.subtle}},user.role==="manager"?"All Access":"RLS Active")),
+        h("button",{onClick:onLogout,className:"btn bg",style:{fontSize:11}},"Sign out")
+      )
+    )
+  );
+}
 
-ALL slicers MUST use CURRENT FILTERED ROWS
-NOT base dataset.
+function SalesTab(props){
+  var user=props.user; var salesData=props.salesData;
+  var base = useMemo(function(){
+    return user.role==="manager" ? salesData : salesData.filter(function(r){
+      return r.salesManager===user.rep_name || r.salesperson===user.rep_name;
+    });
+  },[user,salesData]);
 
-EXAMPLE:
+  var fyState=useState("all"); var fy=fyState[0]; var setFy=fyState[1];
+  var fmState=useState("all"); var fm=fmState[0]; var setFm=fmState[1];
+  var fcState=useState("all"); var fc=fcState[0]; var setFc=fcState[1];
+  var fpState=useState("all"); var fp=fpState[0]; var setFp=fpState[1];
+  var ffState=useState("all"); var ff=ffState[0]; var setFf=ffState[1];
+  var dimState=useState("salesManager"); var dim=dimState[0]; var setDim=dimState[1];
 
-WRONG:
-const customerOptions = getFilteredOptions(base, "customer");
+  var rows = useMemo(function(){
+    return base.filter(function(r){
+      if(fy!=="all" && (r.deliveryDate||"").slice(0,4)!==fy) return false;
+      if(fm!=="all"){var m=new Date(r.deliveryDate).getMonth()+1;if(isNaN(m)||String(m)!==fm) return false;}
+      if(fc!=="all" && r.customer!==fc) return false;
+      if(fp!=="all" && r.product!==fp) return false;
+      if(ff!=="all" && r.family!==ff) return false;
+      return true;
+    });
+  },[base,fy,fm,fc,fp,ff]);
 
-CORRECT:
-const customerOptions = getFilteredOptions(filteredRows, "customer");
+  var kpi = useMemo(function(){return calcSKPI(rows);},[rows]);
+  var dimData = useMemo(function(){return getDimData(rows,dim);},[rows,dim]);
+  var countryData = useMemo(function(){return getCountryData(rows);},[rows]);
+  var trendObj = useMemo(function(){return getTrendData(rows);},[rows]);
+  var trendData = trendObj.data; var trendFams = trendObj.fams;
 
-Apply to:
-- customer
-- product
-- family
-- country
-- salesperson
-- month
-- year
-- all slicers
-*/
+  var years = Array.from(new Set(base.map(function(r){return (r.deliveryDate||"").slice(0,4);}).filter(Boolean))).sort().reverse();
+  var months = Array.from(new Set(base.map(function(r){var d=new Date(r.deliveryDate);return isNaN(d)?null:d.getMonth()+1;}).filter(Boolean))).sort(function(a,b){return a-b;});
+  var customers = Array.from(new Set(base.map(function(r){return r.customer;}).filter(Boolean))).sort();
+  var products = Array.from(new Set(base.map(function(r){return r.product;}).filter(Boolean))).sort();
+  var families = Array.from(new Set(base.map(function(r){return r.family;}).filter(Boolean))).sort();
 
-/* =========================================================
-   STEP 10 — REMOVE WRONG KPI
-   ========================================================= */
+  var DIMS = [["salesManager","Sales Mgr"],["salesperson","Salesperson"],["base","Base"],["market","Market"],["family","Family"],["tawjeh","التوجيه"]];
 
-/*
-DELETE THIS BLOCK ENTIRELY:
+  function reset(){ setFy("all");setFm("all");setFc("all");setFp("all");setFf("all"); }
 
-h("div",{className:"kpi",style:{"--kpi-color":B.amber}},
-  h("div",{className:"kpi-icon"},"📦"),
-  h("div",{className:"kpi-label"},"Filtered Rows"),
-  h("div",{className:"kpi-val"},num(rows.length)),
-  h("div",{className:"kpi-sub"},"Line items")
-)
-*/
+  return h("div",null,
+    h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
+      h("div",null,
+        h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:24,color:B.text}},"Sales Dashboard"),
+        h("p",{style:{fontSize:11.5,color:B.muted,marginTop:3}},"Live data from Google Drive - Sales View")),
+      h("span",{style:{fontSize:11,fontWeight:700,background:B.blueL,color:B.blue,padding:"5px 12px",borderRadius:20}},rows.length+" rows / "+kpi.totalOrders+" orders")
+    ),
 
-/* =========================================================
-   STEP 11 — FIX KPI UI
-   ========================================================= */
+    h("div",{className:"card",style:{marginBottom:14,padding:"14px 18px"}},
+      h("div",{style:{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center"}},
+        h("span",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em"}},"FILTERS"),
+        h("select",{className:"sl",value:fy,onChange:function(e){setFy(e.target.value);}},
+          h("option",{value:"all"},"All Years"),years.map(function(y){return h("option",{key:y,value:y},y);})),
+        h("select",{className:"sl",value:fm,onChange:function(e){setFm(e.target.value);}},
+          h("option",{value:"all"},"All Months"),months.map(function(m){return h("option",{key:m,value:String(m)},MON[m]);})),
+        h("select",{className:"sl",value:fc,onChange:function(e){setFc(e.target.value);}},
+          h("option",{value:"all"},"All Customers"),customers.map(function(c){return h("option",{key:c,value:c},c);})),
+        h("select",{className:"sl",value:fp,onChange:function(e){setFp(e.target.value);}},
+          h("option",{value:"all"},"All Products"),products.map(function(p){return h("option",{key:p,value:p},p);})),
+        h("select",{className:"sl",value:ff,onChange:function(e){setFf(e.target.value);}},
+          h("option",{value:"all"},"All Families"),families.map(function(f){return h("option",{key:f,value:f},f);})),
+        h("button",{className:"btn bg",style:{fontSize:11},onClick:reset},"Reset")
+      )
+    ),
 
-/*
-REPLACE:
+    h("div",{className:"g6",style:{marginBottom:14}},
+      h("div",{className:"kpi",style:{"--kpi-color":B.blue}},h("div",{className:"kpi-icon"},"⚖️"),h("div",{className:"kpi-label"},"Total Qty (KG)"),h("div",{className:"kpi-val"},fK(kpi.totalQty)),h("div",{className:"kpi-sub"},"Kilograms sold")),
+      h("div",{className:"kpi",style:{"--kpi-color":B.text}},h("div",{className:"kpi-icon"},"💰"),h("div",{className:"kpi-label"},"Total Val EGP excl VAT"),h("div",{className:"kpi-val"},fK(kpi.totalVal)),h("div",{className:"kpi-sub"},"Before 14% VAT")),
+      h("div",{className:"kpi",style:{"--kpi-color":B.green}},h("div",{className:"kpi-icon"},"📊"),h("div",{className:"kpi-label"},"Avg Price / KG"),h("div",{className:"kpi-val",style:{fontSize:20}},num(kpi.avgPO,2)+" EGP"),h("div",{className:"kpi-sub"},"Weighted: "+num(kpi.avgW,2)+" EGP")),
+      h("div",{className:"kpi",style:{"--kpi-color":"#7C3AED"}},h("div",{className:"kpi-icon"},"📋"),h("div",{className:"kpi-label"},"Total Orders"),h("div",{className:"kpi-val"},num(kpi.totalOrders)),h("div",{className:"kpi-sub"},"Unique customer orders")),
+      h("div",{className:"kpi",style:{"--kpi-color":B.red}},h("div",{className:"kpi-icon"},"⭐"),h("div",{className:"kpi-label"},"Best Selling Product"),h("div",{style:{fontSize:15,fontWeight:800,color:B.red,marginTop:6,lineHeight:1.3}},kpi.bestProd),h("div",{className:"kpi-sub"},fK(kpi.bestQty)+" KG")),
+      h("div",{className:"kpi",style:{"--kpi-color":B.amber}},h("div",{className:"kpi-icon"},"📦"),h("div",{className:"kpi-label"},"Filtered Rows"),h("div",{className:"kpi-val"},num(rows.length)),h("div",{className:"kpi-sub"},"Line items"))
+    ),
 
-num(kpi.avgPO,2)
+    h("div",{className:"card",style:{marginBottom:14}},
+      h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:14}},
+        h("div",null,h("div",{className:"st",style:{marginBottom:2}},"Sales and Qty by Dimension"),h("p",{style:{fontSize:11,color:B.muted}},"Blue bars = Sales EGP (left) — Red bars = Qty KG (right)")),
+        h("div",{style:{display:"flex",flexWrap:"wrap",gap:5}},
+          DIMS.map(function(d){return h("button",{key:d[0],className:"dim"+(dim===d[0]?" on":""),onClick:function(){setDim(d[0]);}},d[1]);}))
+      ),
+      h(RC.ResponsiveContainer,{width:"100%",height:260},
+        h(RC.ComposedChart,{data:dimData,margin:{top:5,right:20,bottom:5,left:10}},
+          h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),
+          h(RC.XAxis,{dataKey:"name",tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),
+          h(RC.YAxis,{yAxisId:"l",tickFormatter:fK,tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false,width:48}),
+          h(RC.YAxis,{yAxisId:"r",orientation:"right",tickFormatter:fK,tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false,width:48}),
+          h(RC.Tooltip,{content:h(TipComp)}),
+          h(RC.Bar,{yAxisId:"l",dataKey:"sales",name:"Sales EGP",fill:B.blue,radius:[5,5,0,0],barSize:20}),
+          h(RC.Bar,{yAxisId:"r",dataKey:"qty",name:"Qty KG",fill:B.red,fillOpacity:.75,radius:[5,5,0,0],barSize:14})
+        )
+      )
+    ),
 
-WITH:
+    h("div",{className:"g2",style:{marginBottom:14}},
+      h("div",{className:"card"},
+        h("div",{className:"st"},"Sales by Country"),
+        h(RC.ResponsiveContainer,{width:"100%",height:240},
+          h(RC.BarChart,{data:countryData,layout:"vertical",margin:{top:0,right:16,bottom:0,left:70}},
+            h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,horizontal:false}),
+            h(RC.XAxis,{type:"number",tickFormatter:fK,tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),
+            h(RC.YAxis,{type:"category",dataKey:"country",tick:{fill:B.muted,fontSize:11},axisLine:false,tickLine:false,width:70}),
+            h(RC.Tooltip,{content:h(TipComp)}),
+            h(RC.Bar,{dataKey:"sales",name:"Sales EGP",radius:[0,5,5,0],barSize:13},
+              countryData.map(function(_,i){return h(RC.Cell,{key:i,fill:B.pal[i%B.pal.length]});}))
+          )
+        )
+      ),
+      h("div",{className:"card"},
+        h("div",{className:"st"},"Price Trend by Family (EGP/KG)"),
+        h(RC.ResponsiveContainer,{width:"100%",height:210},
+          h(RC.LineChart,{data:trendData,margin:{top:5,right:10,bottom:5,left:10}},
+            h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),
+            h(RC.XAxis,{dataKey:"mo",tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),
+            h(RC.YAxis,{tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),
+            h(RC.Tooltip,{contentStyle:{background:"#fff",border:"1px solid "+B.border,borderRadius:8,fontSize:11}}),
+            trendFams.map(function(f,i){return h(RC.Line,{key:f,type:"monotone",dataKey:f,stroke:B.pal[i],strokeWidth:2,dot:false,connectNulls:true,name:f});})
+          )
+        ),
+        h("div",{style:{display:"flex",flexWrap:"wrap",gap:10,marginTop:8,fontSize:11}},
+          trendFams.map(function(f,i){return h("span",{key:f,style:{display:"flex",alignItems:"center",gap:4,color:B.muted}},
+            h("span",{style:{width:14,height:3,background:B.pal[i],display:"inline-block",borderRadius:2}}),f);})
+        )
+      )
+    ),
 
-num(kpi.avgPrice,2)
+    h("div",{className:"cf"},
+      h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 20px",borderBottom:"1px solid "+B.border}},
+        h("div",{className:"st",style:{marginBottom:0}},"Sales Order Detail"),
+        h("span",{className:"badge bbl"},rows.length+" records")),
+      h("div",{style:{overflowX:"auto"}},
+        h("table",{className:"tbl"},
+          h("thead",null,h("tr",null,
+            ["Order No","Order Date","Delivery Date","Customer","Country","Product","Family","Base","Qty KG","Price","Total Inv","Val EGP+VAT","Currency","Sales Mgr","Salesperson","Market","التوجيه"].map(function(c){return h("th",{key:c},c);})
+          )),
+          h("tbody",null,
+            rows.length===0 ? h("tr",null,h("td",{colSpan:17,style:{textAlign:"center",padding:40,color:B.subtle}},"No records match current filters")) :
+            rows.slice(0,20).map(function(r,i){
+              return h("tr",{key:i},
+                h("td",{style:{fontWeight:600,color:B.blue}},r.orderNo),
+                h("td",null,fD(r.orderDate)),h("td",null,fD(r.deliveryDate)),
+                h("td",{style:{fontWeight:600}},r.customer),h("td",null,r.country),
+                h("td",null,r.product),h("td",null,h("span",{className:"badge bbl"},r.family)),
+                h("td",null,r.base),h("td",{style:{fontWeight:700,color:B.blue}},fK(r.qty)),
+                h("td",null,num(r.salesPrice,2)),h("td",null,fK(r.totalInv)),
+                h("td",{style:{fontWeight:700}},fK(r.totalValVAT)),h("td",null,r.currency),
+                h("td",{style:{color:B.muted}},r.salesManager),h("td",{style:{color:B.muted}},r.salesperson),
+                h("td",null,r.market),h("td",null,r.tawjeh)
+              );
+            })
+          )
+        )
+      )
+    )
+  );
+}
 
-AND REMOVE:
-"Weighted Average"
-*/
+function PendingTab(props){
+  var user=props.user; var pendingData=props.pendingData;
+  var base = useMemo(function(){
+    return user.role==="manager" ? pendingData : pendingData.filter(function(r){
+      return r.salesManager===user.rep_name || r.salesMan===user.rep_name;
+    });
+  },[user,pendingData]);
 
-/* =========================================================
-   FINAL IMPORTANT RULE
-   ========================================================= */
+  var ffState=useState("all"); var ff=ffState[0]; var setFf=ffState[1];
+  var fpState=useState("all"); var fp=fpState[0]; var setFp=fpState[1];
+  var fsState=useState("all"); var fs=fsState[0]; var setFs=fsState[1];
 
-/*
-ALL charts and ALL KPIs MUST USE:
+  var rows = useMemo(function(){
+    return base.filter(function(r){
+      if(ff!=="all"&&r.family!==ff) return false;
+      if(fp!=="all"&&r.product!==fp) return false;
+      if(fs!=="all"&&r.status!==fs) return false;
+      return true;
+    });
+  },[base,ff,fp,fs]);
 
-buildAggregatedSales(rows)
+  var kpi = useMemo(function(){return calcPKPI(rows);},[rows]);
+  var custData = useMemo(function(){return getPCustData(rows);},[rows]);
+  var famData = useMemo(function(){return getPFamData(rows);},[rows]);
 
-NOT raw rows.
-*/
+  var families = Array.from(new Set(base.map(function(r){return r.family;}).filter(Boolean))).sort();
+  var products = Array.from(new Set(base.map(function(r){return r.product;}).filter(Boolean))).sort();
+  var statuses = Array.from(new Set(base.map(function(r){return r.status;}).filter(Boolean))).sort();
 
+  var scMap = {"Pending Approval":B.amber,"In Production":B.blue,"Ready to Ship":B.green,"Partial Delivery":"#0891B2","On Hold":B.red,"Awaiting Payment":"#7C3AED"};
+
+  function handlePrint(){
+    var pa=document.getElementById("pa");
+    var tb=document.getElementById("ptb");
+    if(tb){
+      tb.innerHTML=rows.map(function(r){
+        return "<tr><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+fD(r.orderDate)+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;font-weight:600'>"+r.customer+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+r.country+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+r.product+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+r.family+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;text-align:right'>"+num(r.reqQty)+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;text-align:right'>"+num(r.delQty)+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;text-align:right;color:#D32F2F;font-weight:700'>"+num(r.remQty)+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;text-align:right'>"+num(r.priceExVAT,2)+" "+r.currency+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;text-align:right;font-weight:700'>"+num(r.remAmt)+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+r.status+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+r.paymentTerms+"</td></tr>";
+      }).join("");
+    }
+    pa.style.display="block"; window.print(); setTimeout(function(){pa.style.display="none";},1500);
+  }
+
+  return h("div",null,
+    h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
+      h("div",null,h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:24,color:B.text}},"Pending Sales Orders"),h("p",{style:{fontSize:11.5,color:B.muted,marginTop:3}},"Live from Google Drive - Pending Sales")),
+      h("button",{className:"btn br",onClick:handlePrint},"Export PDF")
+    ),
+    h("div",{className:"card",style:{marginBottom:14,padding:"14px 18px"}},
+      h("div",{style:{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center"}},
+        h("span",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em"}},"FILTERS"),
+        h("select",{className:"sl",value:ff,onChange:function(e){setFf(e.target.value);}},h("option",{value:"all"},"All Families"),families.map(function(f){return h("option",{key:f,value:f},f);})),
+        h("select",{className:"sl",value:fp,onChange:function(e){setFp(e.target.value);}},h("option",{value:"all"},"All Products"),products.map(function(p){return h("option",{key:p,value:p},p);})),
+        h("select",{className:"sl",value:fs,onChange:function(e){setFs(e.target.value);}},h("option",{value:"all"},"All Statuses"),statuses.map(function(s){return h("option",{key:s,value:s},s);})),
+        h("button",{className:"btn bg",style:{fontSize:11},onClick:function(){setFf("all");setFp("all");setFs("all");}},"Reset")
+      )
+    ),
+    h("div",{className:"g4",style:{marginBottom:14}},
+      h("div",{className:"kpi",style:{"--kpi-color":B.red}},h("div",{className:"kpi-icon"},"⏳"),h("div",{className:"kpi-label"},"Total Remaining Amount"),h("div",{className:"kpi-val"},fK(kpi.remAmt)),h("div",{className:"kpi-sub"},"EGP excl VAT")),
+      h("div",{className:"kpi",style:{"--kpi-color":B.blue}},h("div",{className:"kpi-icon"},"📦"),h("div",{className:"kpi-label"},"Total Remaining Qty"),h("div",{className:"kpi-val"},fK(kpi.remQty)),h("div",{className:"kpi-sub"},"KG pending")),
+      h("div",{className:"kpi",style:{"--kpi-color":B.green}},h("div",{className:"kpi-icon"},"💲"),h("div",{className:"kpi-label"},"Avg Price / KG"),h("div",{className:"kpi-val"},num(kpi.avg,2)),h("div",{className:"kpi-sub"},"Per-order avg method")),
+      h("div",{className:"kpi",style:{"--kpi-color":"#7C3AED"}},h("div",{className:"kpi-icon"},"📋"),h("div",{className:"kpi-label"},"Open Orders"),h("div",{className:"kpi-val"},num(kpi.total)),h("div",{className:"kpi-sub"},"Pending fulfillment"))
+    ),
+    h("div",{className:"g2",style:{marginBottom:14}},
+      h("div",{className:"card"},
+        h("div",{className:"st"},"Customer Remaining Qty and Amount"),
+        h(RC.ResponsiveContainer,{width:"100%",height:250},
+          h(RC.ComposedChart,{data:custData,margin:{top:5,right:16,bottom:5,left:0}},
+            h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),
+            h(RC.XAxis,{dataKey:"name",tick:{fill:B.subtle,fontSize:9.5},axisLine:false,tickLine:false}),
+            h(RC.YAxis,{yAxisId:"l",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),
+            h(RC.YAxis,{yAxisId:"r",orientation:"right",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),
+            h(RC.Tooltip,{content:h(TipComp)}),
+            h(RC.Bar,{yAxisId:"r",dataKey:"remAmt",name:"Rem Amount EGP",fill:B.red,fillOpacity:.85,radius:[5,5,0,0],barSize:16}),
+            h(RC.Bar,{yAxisId:"l",dataKey:"remQty",name:"Rem Qty KG",fill:B.blue,fillOpacity:.7,radius:[5,5,0,0],barSize:11})
+          )
+        )
+      ),
+      h("div",{className:"card"},
+        h("div",{className:"st"},"Family Remaining Qty and Amount"),
+        h(RC.ResponsiveContainer,{width:"100%",height:250},
+          h(RC.ComposedChart,{data:famData,margin:{top:5,right:16,bottom:5,left:0}},
+            h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),
+            h(RC.XAxis,{dataKey:"family",tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),
+            h(RC.YAxis,{yAxisId:"l",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),
+            h(RC.YAxis,{yAxisId:"r",orientation:"right",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),
+            h(RC.Tooltip,{content:h(TipComp)}),
+            h(RC.Bar,{yAxisId:"r",dataKey:"remAmt",name:"Rem Amount EGP",fill:B.red,fillOpacity:.85,radius:[5,5,0,0],barSize:20}),
+            h(RC.Bar,{yAxisId:"l",dataKey:"remQty",name:"Rem Qty KG",fill:B.blue,fillOpacity:.7,radius:[5,5,0,0],barSize:14})
+          )
+        )
+      )
+    ),
+    h("div",{className:"cf"},
+      h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 20px",borderBottom:"1px solid "+B.border}},
+        h("div",{className:"st",style:{marginBottom:0}},"Pending Orders Detail"),
+        h("span",{className:"badge brl"},rows.length+" open")),
+      h("div",{style:{overflowX:"auto"}},
+        h("table",{className:"tbl"},
+          h("thead",null,h("tr",null,
+            ["Ser No","Order Date","Customer","Country","Product","Family","Req Qty","Del Qty","Rem Qty","Price ex-VAT","Rem Amt EGP","Status","Payment","Incoterm"].map(function(c){return h("th",{key:c},c);})
+          )),
+          h("tbody",null,
+            rows.length===0 ? h("tr",null,h("td",{colSpan:14,style:{textAlign:"center",padding:40,color:B.subtle}},"No pending orders match filters")) :
+            rows.map(function(r,i){
+              var sc = scMap[r.status]||B.muted;
+              return h("tr",{key:i},
+                h("td",{style:{color:B.muted,fontSize:11}},r.serNo),
+                h("td",null,fD(r.orderDate)),h("td",{style:{fontWeight:600}},r.customer),
+                h("td",null,r.country),h("td",null,r.product),
+                h("td",null,h("span",{className:"badge bbl"},r.family)),
+                h("td",{style:{color:B.muted}},fK(r.reqQty)),
+                h("td",{style:{color:B.green,fontWeight:600}},fK(r.delQty)),
+                h("td",{style:{color:B.red,fontWeight:700}},fK(r.remQty)),
+                h("td",null,num(r.priceExVAT,2)+" "+r.currency),
+                h("td",{style:{fontWeight:700}},fK(r.remAmt)),
+                h("td",null,h("span",{style:{background:sc+"18",color:sc,padding:"3px 9px",borderRadius:20,fontSize:10,fontWeight:700,whiteSpace:"nowrap"}},r.status)),
+                h("td",{style:{color:B.muted,fontSize:11}},r.paymentTerms),
+                h("td",{style:{color:B.muted}},r.incoterm)
+              );
+            })
+          )
+        )
+      )
+    )
+  );
+}
+
+function AITab(props){
+  var user=props.user; var salesData=props.salesData; var pendingData=props.pendingData;
+  var sRows = useMemo(function(){
+    return user.role==="manager" ? salesData : salesData.filter(function(r){return r.salesManager===user.rep_name||r.salesperson===user.rep_name;});
+  },[user,salesData]);
+  var pRows = useMemo(function(){
+    return user.role==="manager" ? pendingData : pendingData.filter(function(r){return r.salesManager===user.rep_name||r.salesMan===user.rep_name;});
+  },[user,pendingData]);
+  var sk = useMemo(function(){return calcSKPI(sRows);},[sRows]);
+  var pk = useMemo(function(){return calcPKPI(pRows);},[pRows]);
+
+  var s1=useState("");var sum=s1[0];var setSum=s1[1];
+  var s2=useState(false);var sumL=s2[0];var setSumL=s2[1];
+  var s3=useState([]);var alts=s3[0];var setAlts=s3[1];
+  var s4=useState(false);var altL=s4[0];var setAltL=s4[1];
+  var s5=useState([]);var rsks=s5[0];var setRsks=s5[1];
+  var s6=useState(false);var rskL=s6[0];var setRskL=s6[1];
+  var s7=useState(null);var fore=s7[0];var setFore=s7[1];
+  var s8=useState(false);var forL=s8[0];var setForL=s8[1];
+  var s9=useState("");var dig=s9[0];var setDig=s9[1];
+  var s10=useState(false);var digL=s10[0];var setDigL=s10[1];
+  var s11=useState(false);var copied=s11[0];var setCopied=s11[1];
+  var s12=useState([]);var msgs=s12[0];var setMsgs=s12[1];
+  var s13=useState(false);var chatL=s13[0];var setChatL=s13[1];
+  var s14=useState("");var cin=s14[0];var setCin=s14[1];
+  var chatRef = useRef(null);
+
+  var hasKey = CONFIG.ANTHROPIC_KEY && CONFIG.ANTHROPIC_KEY!=="YOUR_ANTHROPIC_KEY";
+  var families = Array.from(new Set(sRows.map(function(r){return r.family;}))).join(", ");
+  var topCustomers = Array.from(new Set(sRows.map(function(r){return r.customer;}))).slice(0,6).join(", ");
+  var ctx = "Egyptian British Co - Specialty Chemicals. Sales: "+sRows.length+" rows, "+sk.totalOrders+" orders. Qty: "+fK(sk.totalQty)+" KG. Val(ex-VAT): "+fK(sk.totalVal)+" EGP. AvgPrice/KG: "+num(sk.avgPO,2)+" EGP. Best: "+sk.bestProd+" ("+fK(sk.bestQty)+" KG). Pending: "+pRows.length+" orders, Rem: "+fK(pk.remAmt)+" EGP, "+fK(pk.remQty)+" KG. Customers: "+topCustomers+". Families: "+families+".";
+
+  async function callAI(prompt, sys){
+    if(!hasKey) return "Add your Anthropic API key to CONFIG.ANTHROPIC_KEY in index.html to enable AI features.";
+    try{
+      var r = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":CONFIG.ANTHROPIC_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+          system:sys||"You are a senior sales analyst for Egyptian British Co, a specialty chemicals company. Be precise and professional. Use EGP currency.",
+          messages:[{role:"user",content:prompt}]})});
+      var d = await r.json();
+      if(d.error) return "Error: "+d.error.message;
+      return (d.content&&d.content[0]&&d.content[0].text)||"No response.";
+    }catch(e){return "Error: "+e.message;}
+  }
+
+  function parseAlerts(text){
+    var lines = text.split("\n").filter(function(l){return l.indexOf("|")>=0;});
+    var parsed = lines.map(function(l){var parts=l.split("|");return{type:parts[0].trim().toLowerCase(),msg:parts.slice(1).join("|").trim()};});
+    return parsed.length ? parsed : [{type:"info",msg:text}];
+  }
+
+  async function genSum(){setSumL(true);var r=await callAI("Write a 4-sentence performance summary with specific numbers. Data: "+ctx);setSum(r);setSumL(false);}
+  async function genAlts(){setAltL(true);var r=await callAI("Identify 4 anomalies. Format: TYPE|MESSAGE (TYPE=warn/danger/info/good)\nData: "+ctx,"Return only formatted lines.");setAlts(parseAlerts(r));setAltL(false);}
+  async function genRsks(){setRskL(true);var r=await callAI("Identify 4 pending order risks. Format: TYPE|MESSAGE (TYPE=warn/danger/info/good)\nData: "+pRows.length+" orders, "+fK(pk.remAmt)+" EGP remaining.","Return only formatted lines.");setRsks(parseAlerts(r));setRskL(false);}
+  async function genFore(){
+    setForL(true);
+    var r=await callAI("Forecast next month revenue. Return ONLY JSON: {value:string,confidence:string,trend:string,notes:string}\nData: "+ctx,"Return only valid JSON.");
+    try{var j=JSON.parse(r.replace(/```json|```/g,"").trim());setFore(j);}
+    catch(e){setFore({value:"N/A",confidence:"--",trend:"flat",notes:r.slice(0,150)});}
+    setForL(false);
+  }
+  async function genDig(){setDigL(true);var r=await callAI("Write a weekly digest under 180 words for email/WhatsApp. Include key metrics, highlights, 2 action points.\nData: "+ctx,"Plain text only. No markdown.");setDig(r);setDigL(false);}
+  async function sendChat(){
+    var msg=cin.trim();if(!msg||chatL)return;
+    setCin("");setMsgs(function(p){return p.concat([{role:"user",content:msg}]);});setChatL(true);
+    var r=await callAI("Answer in max 3 sentences with numbers.\nQuestion: "+msg+"\nData: "+ctx,"Sales analyst for EBC. Max 3 sentences with numbers.");
+    setMsgs(function(p){return p.concat([{role:"ai",content:r}]);});setChatL(false);
+  }
+  useEffect(function(){if(chatRef.current)chatRef.current.scrollTop=chatRef.current.scrollHeight;},[msgs,chatL]);
+
+  function Panel(pp){
+    return h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},
+      h("div",null,h("div",{className:"st",style:{marginBottom:2}},pp.title),h("p",{style:{fontSize:11,color:B.muted}},pp.sub)),
+      h("button",{className:"btn bo",onClick:pp.onGen,disabled:pp.loading,style:{fontSize:11,minWidth:90}},
+        pp.loading?h("span",{style:{display:"flex",alignItems:"center",gap:6}},h("span",{className:"spin"}),"..."):pp.label||"Generate")
+    );
+  }
+
+  return h("div",null,
+    h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
+      h("div",null,h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:24}},"AI Insights"),h("p",{style:{fontSize:11.5,color:B.muted,marginTop:3}},"Powered by Claude AI - analyzing your live EBC data")),
+      h("button",{className:"btn bb",onClick:function(){genSum();genAlts();genRsks();genFore();}},"Refresh All")
+    ),
+    h("div",{className:"card",style:{marginBottom:14}},
+      h(Panel,{title:"Performance Summary",sub:"Auto-generated from current data",onGen:genSum,loading:sumL}),
+      h("div",{style:{minHeight:72,background:B.blueLL,borderRadius:10,border:"1px solid "+B.border,padding:"14px 16px",fontSize:13,lineHeight:1.8,color:B.text}},
+        sumL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted}},h("span",{className:"spin"}),"Generating..."):
+        sum||h("span",{style:{color:B.subtle}},"Click Generate to create a performance summary.")
+      )
+    ),
+    h("div",{className:"g2",style:{marginBottom:14}},
+      h("div",{className:"card"},
+        h(Panel,{title:"Anomaly Detection",sub:"Unusual patterns",onGen:genAlts,loading:altL,label:"Detect"}),
+        altL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Scanning..."):
+        alts.length?h("div",null,alts.map(function(a,i){return h("div",{key:i,className:"aia ai"+a.type.charAt(0)},a.msg);})):
+        h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Detect to scan for anomalies.")
+      ),
+      h("div",{className:"card"},
+        h(Panel,{title:"Pending Orders Risk",sub:"High-priority items",onGen:genRsks,loading:rskL,label:"Analyze"}),
+        rskL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Analyzing..."):
+        rsks.length?h("div",null,rsks.map(function(r,i){return h("div",{key:i,className:"aia ai"+r.type.charAt(0)},r.msg);})):
+        h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Analyze to flag urgent pending items.")
+      )
+    ),
+    h("div",{className:"g2",style:{marginBottom:14}},
+      h("div",{className:"card"},
+        h(Panel,{title:"Next Month Forecast",sub:"AI revenue projection",onGen:genFore,loading:forL,label:"Forecast"}),
+        forL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Building forecast..."):
+        fore?h("div",null,
+          h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:12}},
+            h("div",{style:{background:B.blueL,borderRadius:10,padding:"12px",textAlign:"center"}},h("div",{style:{fontSize:10,fontWeight:700,color:B.blue,letterSpacing:".07em",marginBottom:4}},"FORECAST"),h("div",{style:{fontSize:22,fontWeight:800,color:B.blue,fontFamily:"'DM Serif Display',serif"}},fore.value)),
+            h("div",{style:{background:B.greenL,borderRadius:10,padding:"12px",textAlign:"center"}},h("div",{style:{fontSize:10,fontWeight:700,color:B.green,letterSpacing:".07em",marginBottom:4}},"CONFIDENCE"),h("div",{style:{fontSize:22,fontWeight:800,color:B.green,fontFamily:"'DM Serif Display',serif"}},fore.confidence)),
+            h("div",{style:{background:B.blueLL,borderRadius:10,padding:"12px",textAlign:"center"}},h("div",{style:{fontSize:10,fontWeight:700,color:B.muted,letterSpacing:".07em",marginBottom:4}},"TREND"),h("div",{style:{fontSize:22,fontWeight:800}},fore.trend==="up"?"up":fore.trend==="down"?"down":"flat"))
+          ),
+          h("p",{style:{fontSize:12.5,color:B.muted,lineHeight:1.7}},fore.notes)
+        ):h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Forecast to project next month revenue.")
+      ),
+      h("div",{className:"card"},
+        h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},
+          h("div",null,h("div",{className:"st",style:{marginBottom:2}},"Weekly Digest"),h("p",{style:{fontSize:11,color:B.muted}},"Copy and paste into email or WhatsApp")),
+          h("div",{style:{display:"flex",gap:6}},
+            dig&&h("button",{className:"btn bg",onClick:function(){navigator.clipboard.writeText(dig);setCopied(true);setTimeout(function(){setCopied(false);},2000);},style:{fontSize:11}},copied?"Copied!":"Copy"),
+            h("button",{className:"btn bo",onClick:genDig,disabled:digL,style:{fontSize:11}},digL?h("span",{style:{display:"flex",alignItems:"center",gap:6}},h("span",{className:"spin"}),"..."):"Generate")
+          )
+        ),
+        h("div",{style:{minHeight:130,background:"#FAFBFD",borderRadius:10,border:"1px solid "+B.border,padding:"13px 15px",fontSize:12.5,lineHeight:1.8,color:B.text,whiteSpace:"pre-wrap",overflowY:"auto",maxHeight:200}},
+          digL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted}},h("span",{className:"spin"}),"Drafting..."):
+          dig||h("span",{style:{color:B.subtle}},"Click Generate to draft a weekly summary.")
+        )
+      )
+    ),
+    h("div",{className:"card"},
+      h("div",{className:"st",style:{marginBottom:4}},"Ask Your Data"),
+      h("p",{style:{fontSize:11.5,color:B.muted,marginBottom:14}},"Ask anything in plain language about your sales data"),
+      h("div",{ref:chatRef,style:{maxHeight:280,overflowY:"auto",marginBottom:12,padding:"4px 0"}},
+        msgs.length===0&&!chatL&&h("div",{style:{textAlign:"center",padding:"28px 0",color:B.subtle,fontSize:13}},"Ask a question below"),
+        msgs.map(function(m,i){return h("div",{key:i,className:"cbbl",style:m.role==="user"?{marginLeft:"auto",background:B.blue,color:"#fff"}:{background:"#F1F5F9",color:B.text}},m.content);}),
+        chatL&&h("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"10px 0",color:B.muted,fontSize:13}},h("span",{className:"spin"}),"Analyzing...")
+      ),
+      h("div",{style:{display:"flex",gap:8,marginBottom:10}},
+        h("input",{value:cin,onChange:function(e){setCin(e.target.value);},onKeyDown:function(e){if(e.key==="Enter")sendChat();},
+          placeholder:"e.g. Who is the top salesperson?",
+          style:{flex:1,padding:"10px 14px",border:"1.5px solid "+B.border,borderRadius:10,fontSize:13,color:B.text,outline:"none"}}),
+        h("button",{className:"btn bb",onClick:sendChat,disabled:chatL||!cin.trim(),style:{whiteSpace:"nowrap",padding:"10px 18px"}},"Send")
+      ),
+      h("div",{style:{display:"flex",flexWrap:"wrap",gap:6}},
+        ["Top salesperson?","Highest price family?","Largest pending customer?","Best selling product?"].map(function(q){
+          return h("button",{key:q,onClick:function(){setCin(q);},style:{padding:"5px 12px",borderRadius:7,border:"1px solid "+B.border,background:B.blueLL,color:B.blue,fontSize:11,cursor:"pointer",fontWeight:600}},q);
+        })
+      )
+    )
+  );
+}
+
+function PrintArea(){
+  return h("div",{id:"pa",style:{display:"none",padding:24,fontFamily:"'Plus Jakarta Sans',sans-serif"}},
+    h("div",{style:{display:"flex",alignItems:"center",gap:14,marginBottom:20,borderBottom:"2px solid #E0E7EF",paddingBottom:16}},
+      h("div",{style:{width:40,height:40,borderRadius:10,background:"linear-gradient(135deg,#1976D2,#D32F2F)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:18,fontWeight:800}},"E"),
+      h("div",null,
+        h("div",{style:{fontSize:17,fontWeight:800}},h("span",{style:{color:"#1976D2"}},"Egyptian "),h("span",{style:{color:"#D32F2F"}},"British Co.")),
+        h("div",{style:{fontSize:11,color:"#8898AA"}},"Specialty Chemicals and Auxiliaries - Pending Orders Report - "+new Date().toLocaleDateString("en-GB"))
+      )
+    ),
+    h("h2",{style:{fontSize:16,fontWeight:700,marginBottom:16}},"Pending Sales Orders"),
+    h("table",{style:{width:"100%",borderCollapse:"collapse",fontSize:11}},
+      h("thead",null,h("tr",{style:{background:"#E3F2FD"}},
+        ["Order Date","Customer","Country","Product","Family","Req Qty KG","Del Qty KG","Rem Qty KG","Price ex-VAT","Rem Amt EGP","Status","Payment Terms"].map(function(c){
+          return h("th",{key:c,style:{padding:"7px 8px",textAlign:"left",color:"#1976D2",fontWeight:700,border:"1px solid #E0E7EF",fontSize:10}},c);
+        })
+      )),
+      h("tbody",{id:"ptb"})
+    ),
+    h("div",{style:{marginTop:18,fontSize:10,color:"#8898AA",borderTop:"1px solid #E0E7EF",paddingTop:10}},"Generated: "+new Date().toLocaleString("en-GB")+" - Egyptian British Co. Confidential")
+  );
+}
+
+function App(){
+  var s1=useState(null);var user=s1[0];var setUser=s1[1];
+  var s2=useState("sales");var tab=s2[0];var setTab=s2[1];
+  var s3=useState(true);var loading=s3[0];var setLoading=s3[1];
+  var s4=useState("Connecting...");var loadMsg=s4[0];var setLoadMsg=s4[1];
+  var s5=useState(null);var error=s5[0];var setError=s5[1];
+  var s6=useState([]);var salesData=s6[0];var setSalesData=s6[1];
+  var s7=useState([]);var pendingData=s7[0];var setPendingData=s7[1];
+  var s8=useState([]);var rlsUsers=s8[0];var setRlsUsers=s8[1];
+  var s9=useState(null);var lastSync=s9[0];var setLastSync=s9[1];
+
+  useEffect(function(){
+    var configured = CONFIG.GOOGLE_API_KEY && CONFIG.GOOGLE_API_KEY!=="YOUR_GOOGLE_API_KEY";
+    if(!configured){ setError("SETUP"); setLoading(false); return; }
+    async function load(){
+      try{
+        setLoadMsg("Loading Sales View...");
+        var sr = await fetchSheet(CONFIG.SALES_SHEET_ID, "Sales View");
+        setSalesData(sr.map(normS));
+        setLoadMsg("Loading Pending Sales...");
+        var pr = await fetchSheet(CONFIG.PENDING_SHEET_ID, "Pending Sales");
+        setPendingData(pr.map(normP));
+        setLoadMsg("Loading access config...");
+        var rr = await fetchSheet(CONFIG.RLS_SHEET_ID, "RLS Config");
+        setRlsUsers(rr.map(normR));
+        setLastSync(new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}));
+        setLoading(false);
+      }catch(e){ setError(e.message); setLoading(false); }
+    }
+    load();
+  },[]);
+
+  if(loading) return h("div",{className:"ls"},
+    h(Logo,{size:"lg"}),
+    h("div",{className:"bs",style:{marginTop:16}}),
+    h("p",{style:{color:B.muted,fontSize:14,fontWeight:500}},loadMsg)
+  );
+
+  if(error==="SETUP") return h("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:B.bg,padding:20}},
+    h("div",{style:{background:"#fff",border:"2px solid #FDE68A",borderRadius:18,padding:"40px 36px",maxWidth:520,textAlign:"center",boxShadow:"0 12px 48px rgba(0,0,0,.08)"}},
+      h(Logo,{size:"lg"}),
+      h("div",{style:{fontSize:36,margin:"20px 0"}},"Setup Required"),
+      h("p",{style:{fontSize:13.5,color:B.muted,lineHeight:1.8,marginBottom:20}},"Open index.html in Notepad. At the top of the file, fill in your 5 keys in the CONFIG block, then re-upload to GitHub."),
+      h("div",{style:{background:"#0F1C2E",color:"#E2E8F0",borderRadius:10,padding:"16px 20px",textAlign:"left",fontSize:12,fontFamily:"monospace",lineHeight:2}},
+        "GOOGLE_API_KEY: ", h("span",{style:{color:"#A5D6A7"}},"your key here"),h("br"),
+        "SALES_SHEET_ID: ", h("span",{style:{color:"#A5D6A7"}},"your sheet id"),h("br"),
+        "PENDING_SHEET_ID: ",h("span",{style:{color:"#A5D6A7"}},"your sheet id"),h("br"),
+        "RLS_SHEET_ID: ",    h("span",{style:{color:"#A5D6A7"}},"your sheet id"),h("br"),
+        "ANTHROPIC_KEY: ",   h("span",{style:{color:"#A5D6A7"}},"your key (optional)")
+      )
+    )
+  );
+
+  if(error) return h("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:B.bg,padding:20}},
+    h("div",{style:{background:"#fff",border:"2px solid #FECACA",borderRadius:18,padding:"40px 36px",maxWidth:540,textAlign:"center"}},
+      h("div",{style:{fontSize:36,marginBottom:12}},"Connection Error"),
+      h("p",{style:{color:B.red,fontSize:14,marginBottom:16,fontWeight:600}},error),
+      h("div",{style:{background:B.blueLL,borderRadius:10,padding:"14px 16px",fontSize:12.5,color:B.muted,textAlign:"left",lineHeight:1.9}},
+        "Check these:",h("br"),
+        "1. All 3 Sheet IDs are correct",h("br"),
+        "2. All 3 sheets shared as Anyone with link can view",h("br"),
+        "3. Google API key is valid and Sheets API is enabled",h("br"),
+        "4. Sheet tab names match exactly: Sales View / Pending Sales / RLS Config"
+      )
+    )
+  );
+
+  if(!user) return h("div",null, h(LoginPage,{rlsUsers:rlsUsers,onLogin:function(u){setUser(u);setTab("sales");}}), h(PrintArea));
+
+  var TABS = [["sales","Sales Dashboard"],["pending","Pending Orders"],["ai","AI Insights"]];
+
+  return h("div",{id:"app"},
+    h(Header,{user:user,onLogout:function(){setUser(null);},lastSync:lastSync}),
+    h("div",{style:{background:"#fff",borderBottom:"1px solid "+B.border}},
+      h("div",{style:{maxWidth:1480,margin:"0 auto",padding:"0 16px",display:"flex",gap:2,overflowX:"auto"}},
+        TABS.map(function(t){return h("button",{key:t[0],className:"tab"+(tab===t[0]?" on":""),onClick:function(){setTab(t[0]);}},t[1]);})
+      )
+    ),
+    h("div",{className:"page"},
+      tab==="sales"&&h(SalesTab,{user:user,salesData:salesData}),
+      tab==="pending"&&h(PendingTab,{user:user,pendingData:pendingData}),
+      tab==="ai"&&h(AITab,{user:user,salesData:salesData,pendingData:pendingData})
+    ),
+    h("div",{style:{textAlign:"center",padding:"12px 0 20px",color:B.subtle,fontSize:11,borderTop:"1px solid "+B.border,marginTop:8}},
+      h("span",{style:{fontWeight:700}},h("span",{style:{color:B.blue}},"Egyptian "),h("span",{style:{color:B.red}},"British Co.")),
+      " - Sales Intelligence Portal - ",user.role==="rep"?"RLS Active: "+user.rep_name+" view only":"Full manager access"
+    ),
+    h(PrintArea)
+  );
+}
+
+ReactDOM.render(h(App), document.getElementById("root"));
+
+} // end startApp
 </script>
+</body>
+</html>
