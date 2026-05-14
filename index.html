@@ -73,10 +73,10 @@ input,select,button,textarea{font-family:'Plus Jakarta Sans',sans-serif}
 <div id="root"></div>
 <script>
 const CONFIG = {
-  GOOGLE_API_KEY:   "YOUR_GOOGLE_API_KEY",
-  SALES_SHEET_ID:   "YOUR_SALES_SHEET_ID",
-  PENDING_SHEET_ID: "YOUR_PENDING_SHEET_ID",
-  RLS_SHEET_ID:     "YOUR_RLS_SHEET_ID",
+  GOOGLE_API_KEY:   "AIzaSyD9F3cdkBs4274bmJgcaUSRmrsDHx5abRk",
+  SALES_SHEET_ID:   "1jGy9ixB9HMQn-_4MsZGDxkS427BxXH0sdqfkqHrm99o",
+  PENDING_SHEET_ID: "1JHmxkiazFuBDJqLwkyJxImnxHBM7UqxxNhDqqZH6ao4",
+  RLS_SHEET_ID:     "14XfbVf4Bw93NdnYrqSM3-eOWllWzUKXvtO0jGE1gH6Y",
   ANTHROPIC_KEY:    "YOUR_ANTHROPIC_KEY"
 };
 </script>
@@ -863,7 +863,7 @@ function App(){
   var s9=useState(null);var lastSync=s9[0];var setLastSync=s9[1];
 
   useEffect(function(){
-    var configured = CONFIG.GOOGLE_API_KEY && CONFIG.GOOGLE_API_KEY!=="YOUR_GOOGLE_API_KEY";
+    var configured = CONFIG.GOOGLE_API_KEY && CONFIG.GOOGLE_API_KEY!=="AIzaSyD9F3cdkBs4274bmJgcaUSRmrsDHx5abRk";
     if(!configured){ setError("SETUP"); setLoading(false); return; }
     async function load(){
       try{
