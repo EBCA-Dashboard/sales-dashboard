@@ -406,7 +406,7 @@ function getTrendData(rows){
 function getPCustData(rows){
   var m={};
   rows.forEach(function(r){var k=r.customer;if(!m[k])m[k]={name:k.length>16?k.slice(0,16)+"...":k,remQty:0,remAmt:0};m[k].remQty+=r.remQty;m[k].remAmt+=r.remAmt;});
-  return Object.values(m).sort(function(a,b){return b.remAmt-a.remAmt;}).slice(0,9)
+  return Object.values(m).sort(function(a,b){return b.remAmt-a.remAmt;}).slice(0,20)
     .map(function(d){return{name:d.name,remQty:Math.round(d.remQty),remAmt:Math.round(d.remAmt)};});
 }
 function getPFamData(rows){
@@ -423,6 +423,48 @@ var TipComp=function(p){
     p.payload.map(function(pp,i){return h("p",{key:i,style:{color:pp.color||B.blue2,fontWeight:700,marginBottom:2}},pp.name+": "+fK(pp.value));})
   );
 };
+
+/* ── Multi-select dropdown ── */
+function MultiSelect(props){
+  /* props: label, options (array of strings), selected (array, empty=all), onChange(arr) */
+  var os=useState(false);var open=os[0];var setOpen=os[1];
+  var ref=useRef(null);
+  useEffect(function(){
+    function onDoc(e){ if(ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown",onDoc);
+    return function(){ document.removeEventListener("mousedown",onDoc); };
+  },[]);
+  var sel=props.selected||[];
+  var allSelected = sel.length===0;
+  var lm = props.labelMap; /* optional function(opt)->display label */
+  function disp(opt){ return lm ? lm(opt) : opt; }
+  function toggle(opt){
+    var next;
+    if(sel.indexOf(opt)>-1){ next=sel.filter(function(x){return x!==opt;}); }
+    else { next=sel.concat([opt]); }
+    props.onChange(next);
+  }
+  function clearAll(){ props.onChange([]); }
+  var label = allSelected ? props.allLabel : (sel.length===1 ? disp(sel[0]) : sel.length+" selected");
+  return h("div",{ref:ref,style:{position:"relative",display:"inline-block"}},
+    h("button",{type:"button",onClick:function(){setOpen(!open);},
+      style:{padding:"7px 11px",border:"1.5px solid "+(allSelected?"var(--border)":B.blue2),borderRadius:9,background:allSelected?"#fff":B.blueL,color:allSelected?"var(--text)":B.blue2,fontSize:12,fontWeight:600,cursor:"pointer",outline:"none",minWidth:130,maxWidth:180,textAlign:"left",display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}},
+      h("span",{style:{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},label),
+      h("span",{style:{fontSize:9,flexShrink:0}},open?"\u25B2":"\u25BC")
+    ),
+    open && h("div",{style:{position:"absolute",top:"calc(100% + 4px)",left:0,zIndex:50,background:"#fff",border:"1px solid var(--border)",borderRadius:10,boxShadow:"0 8px 24px rgba(15,28,46,.12)",minWidth:200,maxHeight:280,overflowY:"auto",padding:6}},
+      h("div",{onClick:clearAll,style:{padding:"7px 10px",fontSize:12,fontWeight:700,color:allSelected?B.blue2:B.muted,cursor:"pointer",borderRadius:7,background:allSelected?B.blueL:"transparent"}}, props.allLabel),
+      h("div",{style:{borderTop:"1px solid var(--border)",margin:"4px 0"}}),
+      (props.options||[]).map(function(opt){
+        var checked = sel.indexOf(opt)>-1;
+        return h("label",{key:opt,style:{display:"flex",alignItems:"center",gap:8,padding:"6px 10px",fontSize:12,color:B.text,cursor:"pointer",borderRadius:7,background:checked?B.blueL:"transparent"}},
+          h("input",{type:"checkbox",checked:checked,onChange:function(){toggle(opt);},style:{width:13,height:13,accentColor:B.blue2,cursor:"pointer",flexShrink:0}}),
+          h("span",{style:{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},disp(opt))
+        );
+      })
+    )
+  );
+}
 
 function Logo(props){
   var sz={sm:{t:13,s:9.5},md:{t:16,s:10},lg:{t:26,s:12.5}}[props.size||"md"]||{t:16,s:10};
@@ -507,23 +549,23 @@ function Header(props){
 function SalesTab(props){
   var user=props.user,salesData=props.salesData;
   var base=useMemo(function(){return user.role==="manager"?salesData:salesData.filter(function(r){return r.salesManager===user.rep_name||r.salesperson===user.rep_name;});},[user,salesData]);
-  var s1=useState("all");var fY=s1[0];var setFY=s1[1];
-  var s2=useState("all");var fM=s2[0];var setFM=s2[1];
-  var s3=useState("all");var fC=s3[0];var setFC=s3[1];
-  var s4=useState("all");var fP=s4[0];var setFP=s4[1];
-  var s5=useState("all");var fF=s5[0];var setFF=s5[1];
-  var s6=useState("all");var fMkt=s6[0];var setFMkt=s6[1];
+  var s1=useState([]);var fY=s1[0];var setFY=s1[1];
+  var s2=useState([]);var fM=s2[0];var setFM=s2[1];
+  var s3=useState([]);var fC=s3[0];var setFC=s3[1];
+  var s4=useState([]);var fP=s4[0];var setFP=s4[1];
+  var s5=useState([]);var fF=s5[0];var setFF=s5[1];
+  var s6=useState([]);var fMkt=s6[0];var setFMkt=s6[1];
   var sd=useState("salesManager");var dim=sd[0];var setDim=sd[1];
 
-  /* cascading: apply all filters except the one we're building options for */
+  /* cascading: apply all filters except the one we're building options for. Empty array = "all" (no filter) */
   function applyF(rows,skip){
     return rows.filter(function(r){
-      if(skip!=="y"&&fY!=="all"&&r.delivYear!==fY)return false;
-      if(skip!=="m"&&fM!=="all"&&r.delivMonth!==fM)return false;
-      if(skip!=="c"&&fC!=="all"&&r.customer!==fC)return false;
-      if(skip!=="p"&&fP!=="all"&&r.product!==fP)return false;
-      if(skip!=="f"&&fF!=="all"&&r.family!==fF)return false;
-      if(skip!=="mkt"&&fMkt!=="all"&&r.market!==fMkt)return false;
+      if(skip!=="y"&&fY.length&&fY.indexOf(r.delivYear)===-1)return false;
+      if(skip!=="m"&&fM.length&&fM.indexOf(Number(r.delivMonth))===-1)return false;
+      if(skip!=="c"&&fC.length&&fC.indexOf(r.customer)===-1)return false;
+      if(skip!=="p"&&fP.length&&fP.indexOf(r.product)===-1)return false;
+      if(skip!=="f"&&fF.length&&fF.indexOf(r.family)===-1)return false;
+      if(skip!=="mkt"&&fMkt.length&&fMkt.indexOf(r.market)===-1)return false;
       return true;
     });
   }
@@ -538,7 +580,7 @@ function SalesTab(props){
   var dimData=useMemo(function(){return getDimData(rows,dim);},[rows,dim]);
   var cntData=useMemo(function(){return getCountryData(rows);},[rows]);
   var trend=useMemo(function(){return getTrendData(rows);},[rows]);
-  function reset(){setFY("all");setFM("all");setFC("all");setFP("all");setFF("all");setFMkt("all");}
+  function reset(){setFY([]);setFM([]);setFC([]);setFP([]);setFF([]);setFMkt([]);}
   var DIMS=[["salesManager","Sales Mgr"],["salesperson","Salesperson"],["base","Base"],["market","Market"],["family","Family"],["tawjeh","\u0627\u0644\u062a\u0648\u062c\u064a\u0647"]];
   var ss={padding:"7px 11px",border:"1.5px solid var(--border)",borderRadius:9,background:"#fff",color:"var(--text)",fontSize:12,fontWeight:500,cursor:"pointer",outline:"none",minWidth:120};
 
@@ -557,12 +599,12 @@ function SalesTab(props){
     h("div",{className:"card",style:{marginBottom:16,padding:"14px 18px"}},
       h("div",{style:{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center"}},
         h("span",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em",marginRight:4}},"FILTERS"),
-        h("select",{style:ss,value:fY,onChange:function(e){setFY(e.target.value);}},h("option",{value:"all"},"All Years"),yOpts.map(function(y){return h("option",{key:y,value:y},y);})),
-        h("select",{style:ss,value:fM,onChange:function(e){setFM(e.target.value);}},h("option",{value:"all"},"All Months"),mOpts.map(function(m){return h("option",{key:m,value:String(m)},MON[m]);})),
-        h("select",{style:ss,value:fC,onChange:function(e){setFC(e.target.value);}},h("option",{value:"all"},"All Customers"),cOpts.map(function(c){return h("option",{key:c,value:c},c);})),
-        h("select",{style:ss,value:fP,onChange:function(e){setFP(e.target.value);}},h("option",{value:"all"},"All Products"),pOpts.map(function(p){return h("option",{key:p,value:p},p);})),
-        h("select",{style:ss,value:fF,onChange:function(e){setFF(e.target.value);}},h("option",{value:"all"},"All Families"),fOpts.map(function(f){return h("option",{key:f,value:f},f);})),
-        h("select",{style:ss,value:fMkt,onChange:function(e){setFMkt(e.target.value);}},h("option",{value:"all"},"All Markets"),mktOpts.map(function(m){return h("option",{key:m,value:m},m);})),
+        h(MultiSelect,{allLabel:"All Years",options:yOpts,selected:fY,onChange:setFY}),
+        h(MultiSelect,{allLabel:"All Months",options:mOpts,selected:fM,onChange:setFM,labelMap:function(m){return MON[m];}}),
+        h(MultiSelect,{allLabel:"All Customers",options:cOpts,selected:fC,onChange:setFC}),
+        h(MultiSelect,{allLabel:"All Products",options:pOpts,selected:fP,onChange:setFP}),
+        h(MultiSelect,{allLabel:"All Families",options:fOpts,selected:fF,onChange:setFF}),
+        h(MultiSelect,{allLabel:"All Markets",options:mktOpts,selected:fMkt,onChange:setFMkt}),
         h("button",{className:"btn bg",style:{fontSize:11},onClick:reset},"Reset All")
       )
     ),
@@ -683,35 +725,42 @@ function SalesTab(props){
 function PendingTab(props){
   var user=props.user,pendingData=props.pendingData;
   var base=useMemo(function(){return user.role==="manager"?pendingData:pendingData.filter(function(r){return r.salesManager===user.rep_name||r.salesMan===user.rep_name;});},[user,pendingData]);
-  var f1=useState("all");var fF=f1[0];var setFF=f1[1];
-  var f2=useState("all");var fP=f2[0];var setFP=f2[1];
-  var f3=useState("all");var fS=f3[0];var setFS=f3[1];
-  var f4=useState("all");var fMkt=f4[0];var setFMkt=f4[1];
-  function applyF(rows,skip){return rows.filter(function(r){if(skip!=="f"&&fF!=="all"&&r.family!==fF)return false;if(skip!=="p"&&fP!=="all"&&r.product!==fP)return false;if(skip!=="s"&&fS!=="all"&&r.status!==fS)return false;if(skip!=="mkt"&&fMkt!=="all"&&r.market!==fMkt)return false;return true;});}
-  var rows=useMemo(function(){return applyF(base,null);},[base,fF,fP,fS,fMkt]);
-  var fOpts=useMemo(function(){return Array.from(new Set(applyF(base,"f").map(function(r){return r.family;}).filter(Boolean))).sort();},[base,fP,fS,fMkt]);
-  var pOpts=useMemo(function(){return Array.from(new Set(applyF(base,"p").map(function(r){return r.product;}).filter(Boolean))).sort();},[base,fF,fS,fMkt]);
-  var sOpts=useMemo(function(){return Array.from(new Set(applyF(base,"s").map(function(r){return r.status;}).filter(Boolean))).sort();},[base,fF,fP,fMkt]);
-  var mktOpts=useMemo(function(){return Array.from(new Set(applyF(base,"mkt").map(function(r){return r.market;}).filter(Boolean))).sort();},[base,fF,fP,fS]);
-  var kpi=useMemo(function(){return calcPKPI(rows,fS);},[rows,fS]);
+  var f0=useState([]);var fCust=f0[0];var setFCust=f0[1];
+  var f1=useState([]);var fF=f1[0];var setFF=f1[1];
+  var f2=useState([]);var fP=f2[0];var setFP=f2[1];
+  var f3=useState([]);var fS=f3[0];var setFS=f3[1];
+  var f4=useState([]);var fMkt=f4[0];var setFMkt=f4[1];
+  function applyF(rows,skip){return rows.filter(function(r){
+    if(skip!=="cust"&&fCust.length&&fCust.indexOf(r.customer)===-1)return false;
+    if(skip!=="f"&&fF.length&&fF.indexOf(r.family)===-1)return false;
+    if(skip!=="p"&&fP.length&&fP.indexOf(r.product)===-1)return false;
+    if(skip!=="s"&&fS.length&&fS.indexOf(r.status)===-1)return false;
+    if(skip!=="mkt"&&fMkt.length&&fMkt.indexOf(r.market)===-1)return false;
+    return true;
+  });}
+  var rows=useMemo(function(){return applyF(base,null);},[base,fCust,fF,fP,fS,fMkt]);
+  var custOpts=useMemo(function(){return Array.from(new Set(applyF(base,"cust").map(function(r){return r.customer;}).filter(Boolean))).sort();},[base,fF,fP,fS,fMkt]);
+  var fOpts=useMemo(function(){return Array.from(new Set(applyF(base,"f").map(function(r){return r.family;}).filter(Boolean))).sort();},[base,fCust,fP,fS,fMkt]);
+  var pOpts=useMemo(function(){return Array.from(new Set(applyF(base,"p").map(function(r){return r.product;}).filter(Boolean))).sort();},[base,fCust,fF,fS,fMkt]);
+  var sOpts=useMemo(function(){return Array.from(new Set(applyF(base,"s").map(function(r){return r.status;}).filter(Boolean))).sort();},[base,fCust,fF,fP,fMkt]);
+  var mktOpts=useMemo(function(){return Array.from(new Set(applyF(base,"mkt").map(function(r){return r.market;}).filter(Boolean))).sort();},[base,fCust,fF,fP,fS]);
+  var kpi=useMemo(function(){return calcPKPI(rows,fS.length===1?fS[0]:"all");},[rows,fS]);
   var cd=useMemo(function(){return getPCustData(rows);},[rows]);
   var fd=useMemo(function(){return getPFamData(rows);},[rows]);
   var scMap={"Pending Approval":B.amber,"In Production":B.blue2,"Ready to Ship":B.green,"Partial Delivery":"#0891B2","On Hold":B.red2,"Awaiting Payment":"#7C3AED"};
-  var ss={padding:"7px 11px",border:"1.5px solid var(--border)",borderRadius:9,background:"#fff",color:"var(--text)",fontSize:12,fontWeight:500,cursor:"pointer",outline:"none",minWidth:120};
-  function handlePrint(){var pa=document.getElementById("pa"),tb=document.getElementById("ptb");if(tb){tb.innerHTML=rows.map(function(r){return "<tr><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+fD(r.orderDate)+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;font-weight:600'>"+r.customer+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+r.country+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+r.product+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+r.family+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;text-align:right'>"+num(r.reqQty)+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;text-align:right'>"+num(r.delQty)+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;text-align:right;color:#C62828;font-weight:700'>"+num(r.remQty)+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;text-align:right'>"+num(r.priceExVAT,2)+" "+r.currency+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF;text-align:right;font-weight:700'>"+num(r.remAmt)+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+r.status+"</td><td style='padding:5px 7px;border:1px solid #E0E7EF'>"+r.paymentTerms+"</td></tr>";}).join("");}pa.style.display="block";window.print();setTimeout(function(){pa.style.display="none";},1500);}
   return h("div",null,
     h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
-      h("div",null,h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:26,color:B.text}},"Pending Sales Orders"),h("p",{style:{fontSize:12,color:B.muted,marginTop:3}},"Live from Google Drive \u00b7 Pending Sales workbook")),
-      h("button",{className:"btn br",onClick:handlePrint},"\uD83D\uDDA8\uFE0F Export PDF")
+      h("div",null,h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:26,color:B.text}},"Pending Sales Orders"),h("p",{style:{fontSize:12,color:B.muted,marginTop:3}},"Live from Google Drive \u00b7 Pending Sales workbook"))
     ),
     h("div",{className:"card",style:{marginBottom:14,padding:"14px 18px"}},
       h("div",{style:{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center"}},
         h("span",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em"}},"FILTERS"),
-        h("select",{style:ss,value:fF,onChange:function(e){setFF(e.target.value);}},h("option",{value:"all"},"All Families"),fOpts.map(function(f){return h("option",{key:f,value:f},f);})),
-        h("select",{style:ss,value:fP,onChange:function(e){setFP(e.target.value);}},h("option",{value:"all"},"All Products"),pOpts.map(function(p){return h("option",{key:p,value:p},p);})),
-        h("select",{style:ss,value:fS,onChange:function(e){setFS(e.target.value);}},h("option",{value:"all"},"All Statuses"),sOpts.map(function(s){return h("option",{key:s,value:s},s);})),
-        h("select",{style:ss,value:fMkt,onChange:function(e){setFMkt(e.target.value);}},h("option",{value:"all"},"All Markets"),mktOpts.map(function(m){return h("option",{key:m,value:m},m);})),
-        h("button",{className:"btn bg",style:{fontSize:11},onClick:function(){setFF("all");setFP("all");setFS("all");setFMkt("all");}},"Reset")
+        h(MultiSelect,{allLabel:"All Customers",options:custOpts,selected:fCust,onChange:setFCust}),
+        h(MultiSelect,{allLabel:"All Families",options:fOpts,selected:fF,onChange:setFF}),
+        h(MultiSelect,{allLabel:"All Products",options:pOpts,selected:fP,onChange:setFP}),
+        h(MultiSelect,{allLabel:"All Statuses",options:sOpts,selected:fS,onChange:setFS}),
+        h(MultiSelect,{allLabel:"All Markets",options:mktOpts,selected:fMkt,onChange:setFMkt}),
+        h("button",{className:"btn bg",style:{fontSize:11},onClick:function(){setFCust([]);setFF([]);setFP([]);setFS([]);setFMkt([]);}},"Reset")
       )
     ),
     h("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}},
@@ -732,8 +781,21 @@ function PendingTab(props){
         h("div",{className:"kpi-val"},num(kpi.openOrders)),
         h("div",{className:"kpi-sub"}," "))
     ),
-    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}},
-      h("div",{className:"card"},h("div",{className:"st"},"Customer \u2014 Remaining Qty & Amount"),h(RC.ResponsiveContainer,{width:"100%",height:250},h(RC.ComposedChart,{data:cd,margin:{top:5,right:16,bottom:5,left:0}},h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),h(RC.XAxis,{dataKey:"name",tick:{fill:B.subtle,fontSize:9.5},axisLine:false,tickLine:false}),h(RC.YAxis,{yAxisId:"l",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),h(RC.YAxis,{yAxisId:"r",orientation:"right",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),h(RC.Tooltip,{content:h(TipComp)}),h(RC.Bar,{yAxisId:"r",dataKey:"remAmt",name:"Rem. Amount EGP",fill:B.red2,fillOpacity:.85,radius:[5,5,0,0],barSize:16}),h(RC.Bar,{yAxisId:"l",dataKey:"remQty",name:"Rem. Qty KG",fill:B.blue2,fillOpacity:.7,radius:[5,5,0,0],barSize:11})))),
+    h("div",{className:"card",style:{marginBottom:14}},
+      h("div",{className:"st"},"Customer \u2014 Remaining Qty & Amount"),
+      h(RC.ResponsiveContainer,{width:"100%",height:420},
+        h(RC.ComposedChart,{data:cd,margin:{top:5,right:16,bottom:60,left:0}},
+          h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),
+          h(RC.XAxis,{dataKey:"name",tick:{fill:B.subtle,fontSize:9.5},axisLine:false,tickLine:false,angle:-40,textAnchor:"end",interval:0,height:80}),
+          h(RC.YAxis,{yAxisId:"l",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),
+          h(RC.YAxis,{yAxisId:"r",orientation:"right",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),
+          h(RC.Tooltip,{content:h(TipComp)}),
+          h(RC.Bar,{yAxisId:"r",dataKey:"remAmt",name:"Rem. Amount EGP",fill:B.red2,fillOpacity:.85,radius:[5,5,0,0],barSize:16}),
+          h(RC.Bar,{yAxisId:"l",dataKey:"remQty",name:"Rem. Qty KG",fill:B.blue2,fillOpacity:.7,radius:[5,5,0,0],barSize:11})
+        )
+      )
+    ),
+    h("div",{style:{display:"grid",gridTemplateColumns:"1fr",gap:14,marginBottom:14}},
       h("div",{className:"card"},h("div",{className:"st"},"Family \u2014 Remaining Qty & Amount"),h(RC.ResponsiveContainer,{width:"100%",height:250},h(RC.ComposedChart,{data:fd,margin:{top:5,right:16,bottom:5,left:0}},h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),h(RC.XAxis,{dataKey:"family",tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),h(RC.YAxis,{yAxisId:"l",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),h(RC.YAxis,{yAxisId:"r",orientation:"right",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),h(RC.Tooltip,{content:h(TipComp)}),h(RC.Bar,{yAxisId:"r",dataKey:"remAmt",name:"Rem. Amount EGP",fill:B.red2,fillOpacity:.85,radius:[5,5,0,0],barSize:20}),h(RC.Bar,{yAxisId:"l",dataKey:"remQty",name:"Rem. Qty KG",fill:B.blue2,fillOpacity:.7,radius:[5,5,0,0],barSize:14}))))
     ),
     h("div",{className:"cf"},
