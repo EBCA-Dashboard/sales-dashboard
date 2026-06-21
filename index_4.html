@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EBC Sales Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 32'><text x='1' y='25' font-family='Plus Jakarta Sans,Arial,sans-serif' font-weight='800' font-size='24' letter-spacing='-1' fill='%231565C0'>E</text><text x='18' y='25' font-family='Plus Jakarta Sans,Arial,sans-serif' font-weight='800' font-size='24' letter-spacing='-1' fill='%23C62828'>B</text></svg>"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1976D2;--blue-l:#E3F2FD;--blue-ll:#F0F7FF;
+  --red:#D32F2F;--red-l:#FFEBEE;
+  --bg:#F4F6FA;--card:#FFF;--border:#E0E7EF;
+  --text:#0F1C2E;--muted:#4A5568;--subtle:#8898AA;
+  --green:#1B7E4C;--green-l:#E6F5EC;
+  --amber:#B45309;--amber-l:#FEF3C7;
+  --shadow:0 1px 4px rgba(15,28,46,.07),0 4px 16px rgba(15,28,46,.06);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+input,select,button,textarea{font-family:'Plus Jakarta Sans',sans-serif}
+.page{max-width:1480px;margin:0 auto;padding:20px 16px;position:relative;z-index:1}
+#root,#app{position:relative;z-index:1}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+@media(max-width:1100px){.g6{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.g2{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.g6{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.g4{grid-template-columns:1fr 1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.cf{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-color,var(--blue))}
+.kpi-label{font-size:10px;font-weight:700;color:var(--subtle);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.kpi-val{font-family:'DM Serif Display',serif;font-size:26px;color:var(--kpi-color,var(--text));line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.btn{padding:8px 16px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:none;display:inline-flex;align-items:center;gap:5px}
+.bb{background:var(--blue);color:#fff}.bb:hover{background:#1255A0}
+.bo{background:transparent;color:var(--blue);border:1.5px solid var(--blue)}.bo:hover{background:var(--blue-l)}
+.br{background:var(--red);color:#fff}.br:hover{background:#B71C1C}
+.bg{background:transparent;color:var(--muted);border:1px solid var(--border)}.bg:hover{background:var(--bg)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.bbl{background:var(--blue-l);color:var(--blue)}.brl{background:var(--red-l);color:var(--red)}
+.bgl{background:var(--green-l);color:var(--green)}.bay{background:#F1F5F9;color:var(--muted)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:9px 11px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--subtle);border-bottom:2px solid var(--border);background:#FAFBFD;white-space:nowrap;text-transform:uppercase}
+.tbl td{padding:9px 11px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:#F7FAFF}
+.sl{padding:7px 11px;border:1.5px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);font-size:12px;font-weight:500;cursor:pointer;outline:none}
+.sl:focus,.sl:hover{border-color:var(--blue)}
+.tab{padding:10px 18px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-bottom:2.5px solid transparent;transition:all .2s;white-space:nowrap}
+.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.dim{padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.dim.on{background:var(--blue-l);color:var(--blue);border-color:var(--blue)}
+.aia{border-radius:10px;padding:11px 14px;margin-bottom:9px;font-size:12.5px;line-height:1.6;border-left:3px solid}
+.aiw{background:var(--amber-l);border-color:#D97706;color:#78350F}
+.aid{background:var(--red-l);border-color:var(--red);color:#7F1D1D}
+.aii{background:var(--blue-l);border-color:var(--blue);color:#1E40AF}
+.aig{background:var(--green-l);border-color:var(--green);color:#14532D}
+.cbbl{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:85%;margin-bottom:8px}
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:rot .6s linear infinite;display:inline-block;flex-shrink:0}
+@keyframes rot{to{transform:rotate(360deg)}}
+.st{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px}
+.ls{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
+.bs{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:rot .8s linear infinite}
+@media print{#app{display:none!important}#pa{display:block!important}body{background:#fff}}
+#pa{display:none}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<canvas id="mol-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+<script>
+(function(){
+  var canvas = document.getElementById("mol-canvas");
+  var ctx = canvas.getContext("2d");
+  var W, H;
+  var nodes = [];
+  var NODE_COUNT = 18;
+
+  function resize(){
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  function randBetween(a,b){ return a + Math.random()*(b-a); }
+
+  /* Smaller varied sizes: small (3-5), medium (7-9), large (11-14) */
+  var sizePool = [3,4,5, 7,8,9, 11,12,13,14];
+  for(var i=0;i<NODE_COUNT;i++){
+    var sz = sizePool[Math.floor(Math.random()*sizePool.length)];
+    var speed = randBetween(0.5, 1.2);
+    var angle = Math.random() * Math.PI * 2;
+    nodes.push({
+      x: randBetween(0, W),
+      y: randBetween(0, H),
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      r: sz
+    });
+  }
+
+  var LINK_DIST = 220;
+  var LINE_COL  = "rgba(21,101,192,";
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    /* bond lines */
+    for(var a=0;a<nodes.length;a++){
+      for(var b=a+1;b<nodes.length;b++){
+        var dx = nodes[b].x - nodes[a].x;
+        var dy = nodes[b].y - nodes[a].y;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < LINK_DIST){
+          var alpha = (1 - dist/LINK_DIST) * 0.60;
+          ctx.beginPath();
+          ctx.moveTo(nodes[a].x, nodes[a].y);
+          ctx.lineTo(nodes[b].x, nodes[b].y);
+          ctx.strokeStyle = LINE_COL + alpha + ")";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+    }
+
+    /* solid nodes */
+    for(var i=0;i<nodes.length;i++){
+      var n = nodes[i];
+      /* outer glow ring */
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r + 3, 0, Math.PI*2);
+      ctx.fillStyle = "rgba(21,101,192,0.12)";
+      ctx.fill();
+      /* solid filled circle */
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+      ctx.fillStyle = "rgba(21,101,192,0.82)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(21,101,192,1)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+
+  function update(){
+    for(var i=0;i<nodes.length;i++){
+      var n = nodes[i];
+      n.x += n.vx;
+      n.y += n.vy;
+      /* wrap around edges with a small buffer */
+      if(n.x < -20)  n.x = W + 20;
+      if(n.x > W+20) n.x = -20;
+      if(n.y < -20)  n.y = H + 20;
+      if(n.y > H+20) n.y = -20;
+    }
+  }
+
+  function loop(){
+    update();
+    if(window.molVisible !== false){ draw(); }
+    else { ctx.clearRect(0,0,W,H); }
+    requestAnimationFrame(loop);
+  }
+  window.molVisible = false;
+  window.showMol = function(){ window.molVisible = true; canvas.style.display="block"; };
+  window.hideMol = function(){ window.molVisible = false; ctx.clearRect(0,0,W,H); canvas.style.display="none"; };
+  canvas.style.display = "none"; /* hidden until login page explicitly shows it */
+  loop();
+})();
+</script>
+<script>
+const CONFIG = {
+  GOOGLE_API_KEY:   "AIzaSyD9F3cdkBs4274bmJgcaUSRmrsDHx5abRk",
+  SALES_SHEET_ID:   "1jGy9ixB9HMQn-_4MsZGDxkS427BxXH0sdqfkqHrm99o",
+  PENDING_SHEET_ID: "1JHmxkiazFuBDJqLwkyJxImnxHBM7UqxxNhDqqZH6ao4",
+  RLS_SHEET_ID:     "14XfbVf4Bw93NdnYrqSM3-eOWllWzUKXvtO0jGE1gH6Y",
+  ANTHROPIC_KEY:    "YOUR_ANTHROPIC_KEY"
+};
+</script>
+<script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
+<script>
+(function waitForLibs() {
+  if (!window.React || !window.ReactDOM || !window.PropTypes || !window.Recharts) {
+    return setTimeout(waitForLibs, 60);
+  }
+  startApp();
+})();
+
+function startApp(){
+var h=React.createElement,useState=React.useState,useMemo=React.useMemo,useRef=React.useRef,useEffect=React.useEffect,RC=Recharts;
+
+/* ── BRAND ── */
+var B={
+  blue:"#1565C0",blue2:"#1976D2",blueL:"#E3F2FD",blueLL:"#F0F7FF",
+  red:"#C62828",red2:"#D32F2F",redL:"#FFEBEE",
+  text:"#0F1C2E",muted:"#4A5568",subtle:"#8898AA",
+  border:"#E0E7EF",bg:"#F4F6FA",card:"#FFFFFF",
+  green:"#1B7E4C",greenL:"#E6F5EC",amber:"#B45309",amberL:"#FEF3C7",
+  pal:["#1565C0","#C62828","#2E7D32","#6A1B9A","#E65100","#00695C","#AD1457","#F57F17","#0277BD","#4E342E"],
+  fpal:["#1565C0","#D32F2F","#C2185B","#F57F17","#6A1B9A","#00838F"]
+};
+var MON=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+/* ── NUMBER PARSER ── handles commas, spaces, scientific notation ── */
+/* ── VERIFIED NUMBER PARSER ── */
+function pn(s){
+  if(s===null||s===undefined||s==="")return 0;
+  if(typeof s==="number")return isNaN(s)?0:s;
+  var c=String(s).replace(/,/g,"").replace(/\s/g,"").trim();
+  // scientific notation like 2.0262E+10 — keep as number but cap at sane values
+  var v=parseFloat(c);
+  return isNaN(v)?0:v;
+}
+function num(n,d){
+  if(n===null||n===undefined)return"-";d=d||0;
+  return new Intl.NumberFormat("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}).format(n);
+}
+function fK(n){
+  if(n===null||n===undefined)return"-";
+  if(Math.abs(n)>=1e6)return num(n/1e6,2)+"M";
+  if(Math.abs(n)>=1e3)return num(n/1e3,1)+"K";
+  return num(n,0);
+}
+
+/* ── DATE PARSER ── handles DD-Mon-YY, DD/MM/YYYY, YYYY-MM-DD ── */
+var MMAP={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+function parseDate(s){
+  if(!s)return null;
+  s=String(s).trim();
+  // DD-Mon-YY  e.g. "11-May-26" or "11-May-2026"
+  var m=s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{2,4})$/);
+  if(m){
+    var mo=MMAP[m[2].toLowerCase()];
+    if(mo){var yr=parseInt(m[3]);if(yr<100)yr+=2000;return new Date(yr,mo-1,parseInt(m[1]));}
+  }
+  // YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}/.test(s))return new Date(s);
+  // DD/MM/YYYY
+  var m2=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m2)return new Date(parseInt(m2[3]),parseInt(m2[2])-1,parseInt(m2[1]));
+  var d=new Date(s);return isNaN(d)?null:d;
+}
+function fD(s){var d=parseDate(s);if(!d)return s||"-";return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"});}
+
+/* ── FETCH SHEET ── */
+async function fetchSheet(id,name){
+  var url="https://sheets.googleapis.com/v4/spreadsheets/"+id+"/values/"+encodeURIComponent(name)+"?key="+CONFIG.GOOGLE_API_KEY;
+  var controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+  var timer = controller ? setTimeout(function(){ controller.abort(); }, 20000) : null;
+  var r = await fetch(url, controller ? {signal: controller.signal} : {});
+  if(timer) clearTimeout(timer);
+  if(!r.ok)throw new Error("Sheet '"+name+"' error "+r.status+". Check ID and sharing.");
+  var d=await r.json();
+  var rows=d.values||[];
+  if(rows.length<2)return[];
+  var hdrs=rows[0].map(function(h){return String(h).trim();});
+  return rows.slice(1).filter(function(row){return row.some(function(c){return c!==null&&c!==undefined&&String(c).trim()!=="";});})
+    .map(function(row){var o={};hdrs.forEach(function(hd,i){o[hd]=row[i]!==undefined?String(row[i]).trim():"";});return o;});
+}
+
+/* ── NORMALIZER: SALES VIEW ── */
+function normS(r){
+  var d=parseDate(r["Delivery Date"]||"");
+  var od=parseDate(r["Order date"]||"");
+  var qty=pn(r["Qty. (kg.)"]);
+  var totalValVAT=pn(r["Total Val. EGP + VAT"]);
+  return{
+    orderNo:     r["Order - No"]||"",
+    orderDate:   r["Order date"]||"",
+    orderDateObj:od,
+    delivDate:   r["Delivery Date"]||"",
+    delivDateObj:d,
+    delivYear:   d?String(d.getFullYear()):"",
+    delivMonth:  d?String(d.getMonth()+1):"",
+    erpNum:      r["ERP Num."]||"",
+    invNo:       r["Inv. No."]||"",
+    customer:    r["Customer Name"]||"",
+    country:     r["Country"]||"",
+    custCode:    r["Customer Code"]||"",
+    custType:    r["Customer Type"]||"",
+    market:      r["Market"]||"",
+    tawjeh:      r["\u0627\u0644\u062a\u0648\u062c\u064a\u0647"]||"",
+    product:     r["Product Name"]||"",
+    family:      r["Family"]||"",
+    base:        r["Base"]||"",
+    salesPrice:  pn(r["Sales Price"]),
+    qty:         qty,
+    totalInv:    pn(r["Total Sales Inv"]),
+    currency:    r["Currency"]||"",
+    rate:        pn(r["Rate"])||1,
+    priceMod:    pn(r["Price Modification EGP"]),
+    totalValVAT: totalValVAT,
+    paymentTerms:r["Payment Terms"]||"",
+    salesManager:r["Sales Manager"]||"",
+    salesperson: r["Salesperson"]||"",
+    remarks:     r["Remarks"]||""
+  };
+}
+function normP(r){
+  return{
+    base:r["Base"]||"",region:r["Region"]||"",custType:r["Customer Type"]||"",family:r["Family"]||"",
+    salesManager:r["Sales Manager"]||"",salesMan:r["Sales Man"]||"",serNo:r["Ser. No."]||"",
+    custCode:r["Customer Code"]||"",oracleCode:r["Oracle / Code"]||"",orderDate:r["Order Date"]||"",
+    customer:r["Customer"]||"",country:r["Country"]||"",incoterm:r["Incoterm"]||"",product:r["Product"]||"",
+    reqQty:pn(r["Total Requested Qty. (K.G)"]),delQty:pn(r["Del. Qty. (K.G)"]),remQty:pn(r["Remaining Qty. (K.G)"]),
+    priceExVAT:pn(r["Price Excluding(VAT)"]),priceInVAT:pn(r["Price Including (VAT)"]),
+    currency:r["Currency"]||"",rate:pn(r["Rate"])||1,
+    totNoVAT:pn(r["Total Price without VAT (EGP)"]),remAmt:pn(r["Remaining Amount without VAT (EGP)"]),
+    totWithVAT:pn(r["Total Price With VAT (All Currencies)"]),status:r["Status / Order"]||"",
+    paymentTerms:r["Payment Terms"]||"",remarks:r["Remarks"]||"",market:r["Market"]||""
+  };
+}
+function normR(r){
+  var e    = r["email"]||r["Outlook Email"]||r["Email"]||"";
+  var role = r["role"]||r["Role"]||"rep";
+  var rep  = r["rep_name"]||r["Sales Engineer"]||r["Salesperson"]||r["Rep Name"]||"";
+  var pass = r["password"]||r["Password"]||r["Pass"]||"";
+  return{
+    email:    e.toLowerCase().trim(),
+    name:     (r["name"]||r["Name"]||"").trim(),
+    role:     role.toLowerCase().trim(),
+    rep_name: rep.trim(),
+    password: pass.trim()
+  };
+}
+
+/* ── KPI CALCULATIONS ──
+   Total Qty     = SUM of Qty. (kg.) column
+   Total Val     = SUM of "Total Val. EGP + VAT" column directly (no VAT adjustment)
+   Avg Price/KG  = Total Val / Total Qty  (simple financial average)
+   Total Orders  = COUNT of unique (Customer Name + Order date) combinations
+   Best Product  = Product with highest aggregated SUM of qty (SUMIF logic)
+*/
+function calcSKPI(rows){
+  var tQty=0,tVal=0,orderKeys=new Set(),prodQty={};
+  rows.forEach(function(r){
+    tQty+=r.qty;
+    tVal+=r.totalValVAT;
+    orderKeys.add(r.customer+"||"+r.orderDate);
+    prodQty[r.product]=(prodQty[r.product]||0)+r.qty;
+  });
+  var avg=tQty>0?tVal/tQty:0;
+  var bestProd="--",bestQty=0;
+  Object.keys(prodQty).forEach(function(p){if(prodQty[p]>bestQty){bestQty=prodQty[p];bestProd=p;}});
+  return{totalQty:tQty,totalVal:tVal,avgPrice:avg,totalOrders:orderKeys.size,bestProd:bestProd,bestQty:bestQty};
+}
+function calcPKPI(rows,activeStatus){
+  var rQ=0,rA=0,tRQ=0,tRV=0;
+  rows.forEach(function(r){rQ+=r.remQty;rA+=r.remAmt;tRQ+=r.reqQty;tRV+=r.totNoVAT;});
+  var OPEN=["pending","annual pending","on hold","in process"];
+  var openOrders;
+  if(!activeStatus||activeStatus==="all"){
+    openOrders=rows.filter(function(r){return OPEN.indexOf((r.status||"").toLowerCase().trim())>=0;}).length;
+  }else{
+    openOrders=rows.length;
+  }
+  return{remQty:rQ,remAmt:rA,avgPrice:tRQ>0?tRV/tRQ:0,total:rows.length,openOrders:openOrders};
+}
+
+/* ── CHART DATA ── */
+function getDimData(rows,dim){
+  var m={};
+  rows.forEach(function(r){var k=r[dim]||"N/A";if(!m[k])m[k]={name:k,sales:0,qty:0};m[k].sales+=r.totalValVAT;m[k].qty+=r.qty;});
+  return Object.values(m).sort(function(a,b){return b.sales-a.sales;}).slice(0,10)
+    .map(function(d){return{name:d.name.length>14?d.name.slice(0,14)+"...":d.name,sales:Math.round(d.sales),qty:Math.round(d.qty)};});
+}
+function getCountryData(rows){
+  var m={};
+  rows.forEach(function(r){if(!m[r.country])m[r.country]={country:r.country,sales:0};m[r.country].sales+=r.totalValVAT;});
+  return Object.values(m).sort(function(a,b){return b.sales-a.sales;}).slice(0,10)
+    .map(function(d){return{country:d.country,sales:Math.round(d.sales)};});
+}
+function getTrendData(rows){
+  // Top 6 families by total qty (SUMIF equivalent)
+  var fQ={};
+  rows.forEach(function(r){fQ[r.family]=(fQ[r.family]||0)+r.qty;});
+  var fams=Object.keys(fQ).sort(function(a,b){return fQ[b]-fQ[a];}).slice(0,6);
+  var mo={};
+  rows.forEach(function(r){
+    if(!r.delivDateObj)return;
+    var yr=r.delivYear,mn=r.delivMonth.length===1?"0"+r.delivMonth:r.delivMonth;
+    var k=yr+"-"+mn;
+    if(!mo[k])mo[k]={mo:r.delivDateObj.toLocaleDateString("en-US",{month:"short",year:"2-digit"}),raw:k};
+    if(fams.indexOf(r.family)>=0){
+      mo[k][r.family+"_s"]=(mo[k][r.family+"_s"]||0)+r.totalValVAT;
+      mo[k][r.family+"_q"]=(mo[k][r.family+"_q"]||0)+r.qty;
+    }
+  });
+  var data=Object.values(mo).sort(function(a,b){return a.raw.localeCompare(b.raw);})
+    .map(function(row){
+      var out={mo:row.mo};
+      fams.forEach(function(f){out[f]=row[f+"_q"]>0?parseFloat((row[f+"_s"]/row[f+"_q"]).toFixed(2)):null;});
+      return out;
+    });
+  return{data:data,fams:fams};
+}
+function getPCustData(rows){
+  var m={};
+  rows.forEach(function(r){var k=r.customer;if(!m[k])m[k]={name:k.length>16?k.slice(0,16)+"...":k,remQty:0,remAmt:0};m[k].remQty+=r.remQty;m[k].remAmt+=r.remAmt;});
+  return Object.values(m).sort(function(a,b){return b.remAmt-a.remAmt;}).slice(0,20)
+    .map(function(d){return{name:d.name,remQty:Math.round(d.remQty),remAmt:Math.round(d.remAmt)};});
+}
+function getPFamData(rows){
+  var m={};
+  rows.forEach(function(r){if(!m[r.family])m[r.family]={family:r.family,remQty:0,remAmt:0};m[r.family].remQty+=r.remQty;m[r.family].remAmt+=r.remAmt;});
+  return Object.values(m).sort(function(a,b){return b.remAmt-a.remAmt;})
+    .map(function(d){return{family:d.family,remQty:Math.round(d.remQty),remAmt:Math.round(d.remAmt)};});
+}
+
+var TipComp=function(p){
+  if(!p.active||!p.payload||!p.payload.length)return null;
+  return h("div",{style:{background:"#fff",border:"1px solid "+B.border,borderRadius:10,padding:"10px 14px",fontSize:12,boxShadow:"0 4px 20px rgba(0,0,0,.1)"}},
+    p.label&&h("p",{style:{color:B.subtle,fontSize:11,marginBottom:6,fontWeight:600}},p.label),
+    p.payload.map(function(pp,i){return h("p",{key:i,style:{color:pp.color||B.blue2,fontWeight:700,marginBottom:2}},pp.name+": "+fK(pp.value));})
+  );
+};
+
+/* ── Multi-select dropdown ── */
+function MultiSelect(props){
+  /* props: label, options (array of strings), selected (array, empty=all), onChange(arr) */
+  var os=useState(false);var open=os[0];var setOpen=os[1];
+  var ref=useRef(null);
+  useEffect(function(){
+    function onDoc(e){ if(ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown",onDoc);
+    return function(){ document.removeEventListener("mousedown",onDoc); };
+  },[]);
+  var sel=props.selected||[];
+  var allSelected = sel.length===0;
+  var lm = props.labelMap; /* optional function(opt)->display label */
+  function disp(opt){ return lm ? lm(opt) : opt; }
+  function toggle(opt){
+    var next;
+    if(sel.indexOf(opt)>-1){ next=sel.filter(function(x){return x!==opt;}); }
+    else { next=sel.concat([opt]); }
+    props.onChange(next);
+  }
+  function clearAll(){ props.onChange([]); }
+  var label = allSelected ? props.allLabel : (sel.length===1 ? disp(sel[0]) : sel.length+" selected");
+  return h("div",{ref:ref,style:{position:"relative",display:"inline-block"}},
+    h("button",{type:"button",onClick:function(){setOpen(!open);},
+      style:{padding:"7px 11px",border:"1.5px solid "+(allSelected?"var(--border)":B.blue2),borderRadius:9,background:allSelected?"#fff":B.blueL,color:allSelected?"var(--text)":B.blue2,fontSize:12,fontWeight:600,cursor:"pointer",outline:"none",minWidth:130,maxWidth:180,textAlign:"left",display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}},
+      h("span",{style:{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},label),
+      h("span",{style:{fontSize:9,flexShrink:0}},open?"\u25B2":"\u25BC")
+    ),
+    open && h("div",{style:{position:"absolute",top:"calc(100% + 4px)",left:0,zIndex:50,background:"#fff",border:"1px solid var(--border)",borderRadius:10,boxShadow:"0 8px 24px rgba(15,28,46,.12)",minWidth:200,maxHeight:280,overflowY:"auto",padding:6}},
+      h("div",{onClick:clearAll,style:{padding:"7px 10px",fontSize:12,fontWeight:700,color:allSelected?B.blue2:B.muted,cursor:"pointer",borderRadius:7,background:allSelected?B.blueL:"transparent"}}, props.allLabel),
+      h("div",{style:{borderTop:"1px solid var(--border)",margin:"4px 0"}}),
+      (props.options||[]).map(function(opt){
+        var checked = sel.indexOf(opt)>-1;
+        return h("label",{key:opt,style:{display:"flex",alignItems:"center",gap:8,padding:"6px 10px",fontSize:12,color:B.text,cursor:"pointer",borderRadius:7,background:checked?B.blueL:"transparent"}},
+          h("input",{type:"checkbox",checked:checked,onChange:function(){toggle(opt);},style:{width:13,height:13,accentColor:B.blue2,cursor:"pointer",flexShrink:0}}),
+          h("span",{style:{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},disp(opt))
+        );
+      })
+    )
+  );
+}
+
+function Logo(props){
+  var sz={sm:{t:13,s:9.5},md:{t:16,s:10},lg:{t:26,s:12.5}}[props.size||"md"]||{t:16,s:10};
+  var centered=props.center;
+  return h("div",{style:{display:"flex",alignItems:"center",justifyContent:centered?"center":"flex-start"}},
+    h("div",{style:{textAlign:centered?"center":"left"}},
+      h("div",{style:{fontSize:sz.t,fontWeight:800,lineHeight:1.15}},
+        h("span",{style:{color:B.blue2}},"Egyptian "),
+        h("span",{style:{color:B.red2}},"British Co.")),
+      h("div",{style:{fontSize:sz.s,color:B.text,fontWeight:600}},"Specialty Chemicals & Auxiliaries"))
+  );
+}
+
+function LoginPage(props){
+  var es=useState(function(){ return localStorage.getItem("ebc_remember")==="1" ? localStorage.getItem("ebc_email")||"" : ""; });var email=es[0];var setEmail=es[1];
+  var ps=useState(function(){ return localStorage.getItem("ebc_remember")==="1" ? localStorage.getItem("ebc_pwd")||"" : ""; });var pwd=ps[0];var setPwd=ps[1];
+  var sp=useState(false);var showPwd=sp[0];var setShowPwd=sp[1];
+  var er=useState("");var err=er[0];var setErr=er[1];
+  var ls=useState(false);var loading=ls[0];var setLoading=ls[1];
+  var rm=useState(function(){ return localStorage.getItem("ebc_remember")==="1"; });var remMe=rm[0];var setRemMe=rm[1];
+  function attempt(){
+    setLoading(true); setErr("");
+    var e = email.trim().toLowerCase();
+    var u = props.rlsUsers.find(function(u){ return u.email===e; });
+    if(!u){ setErr("No account found. Contact your admin."); setLoading(false); return; }
+    if(u.password && u.password !== ""){
+      if(pwd.trim() !== u.password){ setErr("Incorrect password. Please try again."); setLoading(false); return; }
+    }
+    if(remMe){ localStorage.setItem("ebc_email",e); localStorage.setItem("ebc_pwd",pwd.trim()); localStorage.setItem("ebc_remember","1"); }
+    else { localStorage.removeItem("ebc_email"); localStorage.removeItem("ebc_pwd"); localStorage.removeItem("ebc_remember"); }
+    props.onLogin(Object.assign({},u,{email:e})); setLoading(false);
+  }
+  return h("div",{style:{minHeight:"100vh",background:"linear-gradient(135deg,rgba(240,247,255,0.92) 0%,rgba(255,245,245,0.88) 60%,rgba(244,246,250,0.92) 100%)",display:"flex",alignItems:"center",justifyContent:"center",padding:20,position:"relative",zIndex:1}},
+    h("div",{style:{width:"100%",maxWidth:420}},
+      h("div",{style:{marginBottom:22,textAlign:"center",display:"flex",justifyContent:"center"}},h(Logo,{size:"lg",center:true})),
+      h("div",{style:{background:"#fff",border:"1px solid "+B.border,borderRadius:18,padding:"36px 32px",boxShadow:"0 12px 48px rgba(21,101,192,.1)"}},
+        h("div",{style:{textAlign:"center",marginBottom:28}},h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:24,color:B.text,marginBottom:6}},"Sales Intelligence Portal"),h("p",{style:{fontSize:13,color:B.muted}},"Sign in with your work email")),
+        h("label",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em",display:"block",marginBottom:8}},"WORK EMAIL"),
+        h("input",{type:"email",value:email,placeholder:"yourname@egyptianbritishco.net",
+          autoComplete:"email",name:"email",
+          onChange:function(e){setEmail(e.target.value);setErr("");},
+          onKeyDown:function(e){if(e.key==="Enter")attempt();},
+          style:{width:"100%",padding:"12px 15px",border:"1.5px solid "+(err?B.red2:B.border),borderRadius:10,fontSize:14,color:B.text,outline:"none",marginBottom:16}}),
+        h("label",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em",display:"block",marginBottom:8}},"PASSWORD"),
+        h("div",{style:{position:"relative",marginBottom:err?8:14}},
+          h("input",{type:showPwd?"text":"password",value:pwd,placeholder:"Enter your password",
+            autoComplete:"current-password",name:"password",
+            onChange:function(e){setPwd(e.target.value);setErr("");},
+            onKeyDown:function(e){if(e.key==="Enter")attempt();},
+            style:{width:"100%",padding:"12px 44px 12px 15px",border:"1.5px solid "+(err?B.red2:B.border),borderRadius:10,fontSize:14,color:B.text,outline:"none"}}),
+          h("button",{onClick:function(){setShowPwd(!showPwd);},type:"button",
+            style:{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:13,color:B.subtle,fontWeight:600}},
+            showPwd?"Hide":"Show")
+        ),
+        err&&h("p",{style:{color:B.red2,fontSize:12,marginBottom:10}},err),
+        h("div",{style:{display:"flex",alignItems:"center",gap:8,marginBottom:18}},
+          h("input",{type:"checkbox",id:"rememberMe",checked:remMe,
+            onChange:function(e){setRemMe(e.target.checked);},
+            style:{width:15,height:15,accentColor:B.blue2,cursor:"pointer",flexShrink:0}}),
+          h("label",{htmlFor:"rememberMe",style:{fontSize:12.5,color:B.muted,cursor:"pointer",userSelect:"none"}},"Remember my email")
+        ),
+        h("button",{onClick:attempt,disabled:!email.trim()||!pwd.trim()||loading,className:"btn bb",style:{width:"100%",padding:13,fontSize:14,justifyContent:"center",borderRadius:10,marginBottom:16}},loading?"Verifying...":"Access Dashboard"),
+        h("div",{style:{background:B.blueLL,borderRadius:10,border:"1px solid "+B.border,padding:"12px 16px",fontSize:11.5,color:B.muted,lineHeight:1.6}},"Access is controlled by your admin.")
+      )
+    )
+  );
+}
+
+function Header(props){
+  return h("header",{style:{background:"#fff",borderBottom:"1px solid "+B.border,padding:"0 20px",position:"sticky",top:0,zIndex:200,boxShadow:"0 1px 8px rgba(0,0,0,.06)"}},
+    h("div",{style:{maxWidth:1480,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",height:58}},
+      h(Logo,{size:"md"}),
+      h("div",{style:{display:"flex",alignItems:"center",gap:12}},
+        props.lastSync&&h("div",{style:{fontSize:11,color:B.subtle,background:B.blueLL,padding:"4px 10px",borderRadius:20,fontWeight:600}},"Synced "+props.lastSync),
+        h("div",{style:{textAlign:"right"}},h("div",{style:{fontSize:13,fontWeight:700,color:B.text}},props.user.name),h("div",{style:{fontSize:10,color:B.subtle}},props.user.role==="manager"?"\u{1F451} Full Access \u2014 All Data":"\uD83D\uDD12 RLS Active \u2014 Your Data Only")),
+        h("button",{onClick:props.onLogout,className:"btn bg",style:{fontSize:11}},"Sign out")
+      )
+    )
+  );
+}
+
+function SalesTab(props){
+  var user=props.user,salesData=props.salesData;
+  var base=useMemo(function(){return user.role==="manager"?salesData:salesData.filter(function(r){return r.salesManager===user.rep_name||r.salesperson===user.rep_name;});},[user,salesData]);
+  var s1=useState([]);var fY=s1[0];var setFY=s1[1];
+  var s2=useState([]);var fM=s2[0];var setFM=s2[1];
+  var s3=useState([]);var fC=s3[0];var setFC=s3[1];
+  var s4=useState([]);var fP=s4[0];var setFP=s4[1];
+  var s5=useState([]);var fF=s5[0];var setFF=s5[1];
+  var s6=useState([]);var fMkt=s6[0];var setFMkt=s6[1];
+  var sd=useState("salesManager");var dim=sd[0];var setDim=sd[1];
+
+  /* cascading: apply all filters except the one we're building options for. Empty array = "all" (no filter) */
+  function applyF(rows,skip){
+    return rows.filter(function(r){
+      if(skip!=="y"&&fY.length&&fY.indexOf(r.delivYear)===-1)return false;
+      if(skip!=="m"&&fM.length&&fM.indexOf(Number(r.delivMonth))===-1)return false;
+      if(skip!=="c"&&fC.length&&fC.indexOf(r.customer)===-1)return false;
+      if(skip!=="p"&&fP.length&&fP.indexOf(r.product)===-1)return false;
+      if(skip!=="f"&&fF.length&&fF.indexOf(r.family)===-1)return false;
+      if(skip!=="mkt"&&fMkt.length&&fMkt.indexOf(r.market)===-1)return false;
+      return true;
+    });
+  }
+  var rows=useMemo(function(){return applyF(base,null);},[base,fY,fM,fC,fP,fF,fMkt]);
+  var yOpts=useMemo(function(){return Array.from(new Set(applyF(base,"y").map(function(r){return r.delivYear;}).filter(Boolean))).sort();},[base,fM,fC,fP,fF,fMkt]);
+  var mOpts=useMemo(function(){return Array.from(new Set(applyF(base,"m").map(function(r){return r.delivMonth;}).filter(Boolean))).map(Number).sort(function(a,b){return a-b;});},[base,fY,fC,fP,fF,fMkt]);
+  var cOpts=useMemo(function(){return Array.from(new Set(applyF(base,"c").map(function(r){return r.customer;}).filter(Boolean))).sort();},[base,fY,fM,fP,fF,fMkt]);
+  var pOpts=useMemo(function(){return Array.from(new Set(applyF(base,"p").map(function(r){return r.product;}).filter(Boolean))).sort();},[base,fY,fM,fC,fF,fMkt]);
+  var fOpts=useMemo(function(){return Array.from(new Set(applyF(base,"f").map(function(r){return r.family;}).filter(Boolean))).sort();},[base,fY,fM,fC,fP,fMkt]);
+  var mktOpts=useMemo(function(){return Array.from(new Set(applyF(base,"mkt").map(function(r){return r.market;}).filter(Boolean))).sort();},[base,fY,fM,fC,fP,fF]);
+  var kpi=useMemo(function(){return calcSKPI(rows);},[rows]);
+  var dimData=useMemo(function(){return getDimData(rows,dim);},[rows,dim]);
+  var cntData=useMemo(function(){return getCountryData(rows);},[rows]);
+  var trend=useMemo(function(){return getTrendData(rows);},[rows]);
+  function reset(){setFY([]);setFM([]);setFC([]);setFP([]);setFF([]);setFMkt([]);}
+  var DIMS=[["salesManager","Sales Mgr"],["salesperson","Salesperson"],["base","Base"],["market","Market"],["family","Family"],["tawjeh","\u0627\u0644\u062a\u0648\u062c\u064a\u0647"]];
+  var ss={padding:"7px 11px",border:"1.5px solid var(--border)",borderRadius:9,background:"#fff",color:"var(--text)",fontSize:12,fontWeight:500,cursor:"pointer",outline:"none",minWidth:120};
+
+  return h("div",null,
+    /* page header */
+    h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
+      h("div",null,h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:26,color:B.text}},"Sales Dashboard"),
+        h("p",{style:{fontSize:12,color:B.muted,marginTop:3}},"Live data from Google Drive \u00b7 Sales View workbook \u00b7 All figures in EGP")),
+      h("div",{style:{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}},
+        user.role==="rep"&&h("span",{style:{fontSize:11,fontWeight:700,background:B.redL,color:B.red2,padding:"5px 12px",borderRadius:20}},"\uD83D\uDD12 RLS: Your records only"),
+        h("span",{style:{fontSize:11,fontWeight:700,background:B.blueL,color:B.blue2,padding:"5px 12px",borderRadius:20}},num(rows.length)+" rows \u00b7 "+num(kpi.totalOrders)+" orders")
+      )
+    ),
+
+    /* slicers */
+    h("div",{className:"card",style:{marginBottom:16,padding:"14px 18px"}},
+      h("div",{style:{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center"}},
+        h("span",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em",marginRight:4}},"FILTERS"),
+        h(MultiSelect,{allLabel:"All Years",options:yOpts,selected:fY,onChange:setFY}),
+        h(MultiSelect,{allLabel:"All Months",options:mOpts,selected:fM,onChange:setFM,labelMap:function(m){return MON[m];}}),
+        h(MultiSelect,{allLabel:"All Customers",options:cOpts,selected:fC,onChange:setFC}),
+        h(MultiSelect,{allLabel:"All Products",options:pOpts,selected:fP,onChange:setFP}),
+        h(MultiSelect,{allLabel:"All Families",options:fOpts,selected:fF,onChange:setFF}),
+        h(MultiSelect,{allLabel:"All Markets",options:mktOpts,selected:fMkt,onChange:setFMkt}),
+        h("button",{className:"btn bg",style:{fontSize:11},onClick:reset},"Reset All")
+      )
+    ),
+
+        /* 5 KPIs */
+    h("div",{style:{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:16}},
+      h("div",{className:"kpi",style:{"--kpi-color":"#1976D2"}},
+        h("div",{className:"kpi-label"},"Total Qty (KG)"),
+        h("div",{className:"kpi-val",style:{fontSize:22}},num(kpi.totalQty)+" KG"),
+        h("div",{className:"kpi-sub"}," ")),
+      h("div",{className:"kpi",style:{"--kpi-color":"#0F1C2E"}},
+        h("div",{className:"kpi-label"},"Total Val. EGP"),
+        h("div",{className:"kpi-val",style:{fontSize:22}},num(Math.round(kpi.totalVal))+" EGP"),
+        h("div",{className:"kpi-sub"}," ")),
+      h("div",{className:"kpi",style:{"--kpi-color":"#1B7E4C"}},
+        h("div",{className:"kpi-label"},"Avg Price / KG"),
+        h("div",{className:"kpi-val",style:{fontSize:22}},num(kpi.avgPrice,2)+" EGP"),
+        h("div",{className:"kpi-sub"}," ")),
+      h("div",{className:"kpi",style:{"--kpi-color":"#7C3AED"}},
+        h("div",{className:"kpi-label"},"Total Orders"),
+        h("div",{className:"kpi-val"},num(kpi.totalOrders)),
+        h("div",{className:"kpi-sub"}," ")),
+      h("div",{className:"kpi",style:{"--kpi-color":"#D32F2F"}},
+        h("div",{className:"kpi-label"},"Best Selling Product"),
+        h("div",{style:{fontSize:14,fontWeight:800,color:"#AD1457",marginTop:6,lineHeight:1.3}},kpi.bestProd),
+        h("div",{className:"kpi-sub"},fK(kpi.bestQty)+" KG"))
+    ),
+
+    /* dimension chart */
+    h("div",{className:"card",style:{marginBottom:14}},
+      h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:14}},
+        h("div",null,h("div",{className:"st",style:{marginBottom:2}},"Sales & Qty by Dimension"),h("p",{style:{fontSize:11,color:B.muted}},"\uD83D\uDFE6 Sales EGP (left axis)   \uD83D\uDFE5 Qty KG (right axis)")),
+        h("div",{style:{display:"flex",flexWrap:"wrap",gap:5}},
+          DIMS.map(function(d){return h("button",{key:d[0],style:{padding:"5px 12px",borderRadius:7,border:"1.5px solid "+(dim===d[0]?B.blue2:B.border),background:dim===d[0]?B.blueL:"transparent",color:dim===d[0]?B.blue2:B.muted,fontSize:11,fontWeight:600,cursor:"pointer"},onClick:function(){setDim(d[0]);}},d[1]);})
+        )
+      ),
+      h(RC.ResponsiveContainer,{width:"100%",height:260},
+        h(RC.ComposedChart,{data:dimData,margin:{top:5,right:24,bottom:5,left:10}},
+          h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),
+          h(RC.XAxis,{dataKey:"name",tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),
+          h(RC.YAxis,{yAxisId:"l",tickFormatter:fK,tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false,width:54}),
+          h(RC.YAxis,{yAxisId:"r",orientation:"right",tickFormatter:fK,tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false,width:54}),
+          h(RC.Tooltip,{content:h(TipComp)}),
+          h(RC.Bar,{yAxisId:"l",dataKey:"sales",name:"Sales EGP",fill:B.blue2,radius:[5,5,0,0],barSize:22}),
+          h(RC.Bar,{yAxisId:"r",dataKey:"qty",name:"Qty KG",fill:B.red2,fillOpacity:.75,radius:[5,5,0,0],barSize:15})
+        )
+      )
+    ),
+
+    /* country + trend */
+    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}},
+      h("div",{className:"card"},
+        h("div",{className:"st"},"Sales by Country (EGP incl. VAT)"),
+        h(RC.ResponsiveContainer,{width:"100%",height:250},
+          h(RC.BarChart,{data:cntData,layout:"vertical",margin:{top:0,right:16,bottom:0,left:76}},
+            h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,horizontal:false}),
+            h(RC.XAxis,{type:"number",tickFormatter:fK,tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),
+            h(RC.YAxis,{type:"category",dataKey:"country",tick:{fill:B.muted,fontSize:11},axisLine:false,tickLine:false,width:76}),
+            h(RC.Tooltip,{content:h(TipComp)}),
+            h(RC.Bar,{dataKey:"sales",name:"Sales EGP",radius:[0,5,5,0],barSize:13},
+              cntData.map(function(_,i){return h(RC.Cell,{key:i,fill:B.pal[i%B.pal.length]});}))
+          )
+        )
+      ),
+      h("div",{className:"card"},
+        h("div",{className:"st"},"Avg Price/KG Trend by Family — Top 6"),
+        h(RC.ResponsiveContainer,{width:"100%",height:215},
+          h(RC.LineChart,{data:trend.data,margin:{top:5,right:10,bottom:5,left:10}},
+            h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),
+            h(RC.XAxis,{dataKey:"mo",tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),
+            h(RC.YAxis,{tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false,width:48,tickFormatter:function(v){return v?num(v,0):""}}),
+            h(RC.Tooltip,{formatter:function(v,n){return[v?num(v,2):"--",n+" EGP/KG"];},contentStyle:{background:"#fff",border:"1px solid "+B.border,borderRadius:8,fontSize:11}}),
+            trend.fams.map(function(f,i){return h(RC.Line,{key:f,type:"monotone",dataKey:f,stroke:B.fpal[i%B.fpal.length],strokeWidth:2.5,dot:false,connectNulls:true,name:f});})
+          )
+        ),
+        h("div",{style:{display:"flex",flexWrap:"wrap",gap:10,marginTop:8,fontSize:11}},
+          trend.fams.map(function(f,i){return h("span",{key:f,style:{display:"flex",alignItems:"center",gap:5,color:B.muted}},h("span",{style:{width:16,height:3,background:B.fpal[i%B.fpal.length],display:"inline-block",borderRadius:2}}),f);}))
+      )
+    ),
+
+    /* data table */
+    h("div",{className:"cf"},
+      h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 20px",borderBottom:"1px solid "+B.border}},
+        h("div",{className:"st",style:{marginBottom:0}},"Sales Order Detail"),
+        h("span",{style:{background:B.blueL,color:B.blue2,padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}},num(rows.length)+" records")),
+      h("div",{style:{overflowX:"auto"}},
+        h("table",{className:"tbl"},
+          h("thead",null,h("tr",null,
+            ["Order No","Order Date","Delivery Date","Customer","Country","Product","Family","Base","Qty (KG)","Sales Price","Total Inv","Val EGP+VAT","Currency","Rate","Sales Mgr","Salesperson","Market","\u0627\u0644\u062a\u0648\u062c\u064a\u0647"].map(function(c){return h("th",{key:c},c);})
+          )),
+          h("tbody",null,
+            rows.length===0?h("tr",null,h("td",{colSpan:18,style:{textAlign:"center",padding:40,color:B.subtle}},"No records match current filters")):
+            rows.slice(0,25).map(function(r,i){
+              return h("tr",{key:i},
+                h("td",{style:{fontWeight:600,color:B.blue2,fontSize:11}},r.orderNo),
+                h("td",null,fD(r.orderDate)),h("td",null,fD(r.delivDate)),
+                h("td",{style:{fontWeight:600,maxWidth:160,overflow:"hidden",textOverflow:"ellipsis"}},r.customer),
+                h("td",null,r.country),h("td",null,r.product),
+                h("td",null,h("span",{style:{background:B.blueL,color:B.blue2,padding:"2px 7px",borderRadius:8,fontSize:10,fontWeight:700}},r.family)),
+                h("td",null,r.base),
+                h("td",{style:{fontWeight:700,color:B.blue2,textAlign:"right"}},num(r.qty)),
+                h("td",{style:{textAlign:"right"}},num(r.salesPrice,2)),
+                h("td",{style:{textAlign:"right"}},num(r.totalInv,2)),
+                h("td",{style:{fontWeight:700,textAlign:"right"}},num(r.totalValVAT,2)),
+                h("td",null,r.currency),h("td",{style:{textAlign:"right"}},num(r.rate,2)),
+                h("td",{style:{color:B.muted,fontSize:11}},r.salesManager),
+                h("td",{style:{color:B.muted,fontSize:11}},r.salesperson),
+                h("td",null,r.market),h("td",null,r.tawjeh)
+              );
+            })
+          )
+        )
+      )
+    )
+  );
+}
+
+function PendingTab(props){
+  var user=props.user,pendingData=props.pendingData;
+  var base=useMemo(function(){return user.role==="manager"?pendingData:pendingData.filter(function(r){return r.salesManager===user.rep_name||r.salesMan===user.rep_name;});},[user,pendingData]);
+  var f0=useState([]);var fCust=f0[0];var setFCust=f0[1];
+  var f1=useState([]);var fF=f1[0];var setFF=f1[1];
+  var f2=useState([]);var fP=f2[0];var setFP=f2[1];
+  var f3=useState([]);var fS=f3[0];var setFS=f3[1];
+  var f4=useState([]);var fMkt=f4[0];var setFMkt=f4[1];
+  function applyF(rows,skip){return rows.filter(function(r){
+    if(skip!=="cust"&&fCust.length&&fCust.indexOf(r.customer)===-1)return false;
+    if(skip!=="f"&&fF.length&&fF.indexOf(r.family)===-1)return false;
+    if(skip!=="p"&&fP.length&&fP.indexOf(r.product)===-1)return false;
+    if(skip!=="s"&&fS.length&&fS.indexOf(r.status)===-1)return false;
+    if(skip!=="mkt"&&fMkt.length&&fMkt.indexOf(r.market)===-1)return false;
+    return true;
+  });}
+  var rows=useMemo(function(){return applyF(base,null);},[base,fCust,fF,fP,fS,fMkt]);
+  var custOpts=useMemo(function(){return Array.from(new Set(applyF(base,"cust").map(function(r){return r.customer;}).filter(Boolean))).sort();},[base,fF,fP,fS,fMkt]);
+  var fOpts=useMemo(function(){return Array.from(new Set(applyF(base,"f").map(function(r){return r.family;}).filter(Boolean))).sort();},[base,fCust,fP,fS,fMkt]);
+  var pOpts=useMemo(function(){return Array.from(new Set(applyF(base,"p").map(function(r){return r.product;}).filter(Boolean))).sort();},[base,fCust,fF,fS,fMkt]);
+  var sOpts=useMemo(function(){return Array.from(new Set(applyF(base,"s").map(function(r){return r.status;}).filter(Boolean))).sort();},[base,fCust,fF,fP,fMkt]);
+  var mktOpts=useMemo(function(){return Array.from(new Set(applyF(base,"mkt").map(function(r){return r.market;}).filter(Boolean))).sort();},[base,fCust,fF,fP,fS]);
+  var kpi=useMemo(function(){return calcPKPI(rows,fS.length===1?fS[0]:"all");},[rows,fS]);
+  var cd=useMemo(function(){return getPCustData(rows);},[rows]);
+  var fd=useMemo(function(){return getPFamData(rows);},[rows]);
+  var scMap={"Pending Approval":B.amber,"In Production":B.blue2,"Ready to Ship":B.green,"Partial Delivery":"#0891B2","On Hold":B.red2,"Awaiting Payment":"#7C3AED"};
+  return h("div",null,
+    h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
+      h("div",null,h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:26,color:B.text}},"Pending Sales Orders"),h("p",{style:{fontSize:12,color:B.muted,marginTop:3}},"Live from Google Drive \u00b7 Pending Sales workbook"))
+    ),
+    h("div",{className:"card",style:{marginBottom:14,padding:"14px 18px"}},
+      h("div",{style:{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center"}},
+        h("span",{style:{fontSize:10,fontWeight:700,color:B.subtle,letterSpacing:".08em"}},"FILTERS"),
+        h(MultiSelect,{allLabel:"All Customers",options:custOpts,selected:fCust,onChange:setFCust}),
+        h(MultiSelect,{allLabel:"All Families",options:fOpts,selected:fF,onChange:setFF}),
+        h(MultiSelect,{allLabel:"All Products",options:pOpts,selected:fP,onChange:setFP}),
+        h(MultiSelect,{allLabel:"All Statuses",options:sOpts,selected:fS,onChange:setFS}),
+        h(MultiSelect,{allLabel:"All Markets",options:mktOpts,selected:fMkt,onChange:setFMkt}),
+        h("button",{className:"btn bg",style:{fontSize:11},onClick:function(){setFCust([]);setFF([]);setFP([]);setFS([]);setFMkt([]);}},"Reset")
+      )
+    ),
+    h("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}},
+      h("div",{className:"kpi",style:{"--kpi-color":B.red2}},
+        h("div",{className:"kpi-label"},"Total Remaining Amount"),
+        h("div",{className:"kpi-val",style:{fontSize:22}},num(Math.round(kpi.remAmt))+" EGP"),
+        h("div",{className:"kpi-sub"}," ")),
+      h("div",{className:"kpi",style:{"--kpi-color":B.blue2}},
+        h("div",{className:"kpi-label"},"Total Remaining Qty"),
+        h("div",{className:"kpi-val",style:{fontSize:22}},num(Math.round(kpi.remQty))+" KG"),
+        h("div",{className:"kpi-sub"}," ")),
+      h("div",{className:"kpi",style:{"--kpi-color":B.green}},
+        h("div",{className:"kpi-label"},"Avg Price / KG"),
+        h("div",{className:"kpi-val",style:{fontSize:22}},num(kpi.avgPrice,2)+" EGP"),
+        h("div",{className:"kpi-sub"}," ")),
+      h("div",{className:"kpi",style:{"--kpi-color":"#7C3AED"}},
+        h("div",{className:"kpi-label"},"Open Orders"),
+        h("div",{className:"kpi-val"},num(kpi.openOrders)),
+        h("div",{className:"kpi-sub"}," "))
+    ),
+    h("div",{className:"card",style:{marginBottom:14}},
+      h("div",{className:"st"},"Customer \u2014 Remaining Qty & Amount"),
+      h(RC.ResponsiveContainer,{width:"100%",height:420},
+        h(RC.ComposedChart,{data:cd,margin:{top:5,right:16,bottom:60,left:0}},
+          h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),
+          h(RC.XAxis,{dataKey:"name",tick:{fill:B.subtle,fontSize:9.5},axisLine:false,tickLine:false,angle:-40,textAnchor:"end",interval:0,height:80}),
+          h(RC.YAxis,{yAxisId:"l",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),
+          h(RC.YAxis,{yAxisId:"r",orientation:"right",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),
+          h(RC.Tooltip,{content:h(TipComp)}),
+          h(RC.Bar,{yAxisId:"r",dataKey:"remAmt",name:"Rem. Amount EGP",fill:B.red2,fillOpacity:.85,radius:[5,5,0,0],barSize:16}),
+          h(RC.Bar,{yAxisId:"l",dataKey:"remQty",name:"Rem. Qty KG",fill:B.blue2,fillOpacity:.7,radius:[5,5,0,0],barSize:11})
+        )
+      )
+    ),
+    h("div",{style:{display:"grid",gridTemplateColumns:"1fr",gap:14,marginBottom:14}},
+      h("div",{className:"card"},h("div",{className:"st"},"Family \u2014 Remaining Qty & Amount"),h(RC.ResponsiveContainer,{width:"100%",height:250},h(RC.ComposedChart,{data:fd,margin:{top:5,right:16,bottom:5,left:0}},h(RC.CartesianGrid,{strokeDasharray:"3 3",stroke:B.border,vertical:false}),h(RC.XAxis,{dataKey:"family",tick:{fill:B.subtle,fontSize:10},axisLine:false,tickLine:false}),h(RC.YAxis,{yAxisId:"l",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),h(RC.YAxis,{yAxisId:"r",orientation:"right",tickFormatter:fK,tick:{fill:B.subtle,fontSize:9},axisLine:false,tickLine:false,width:44}),h(RC.Tooltip,{content:h(TipComp)}),h(RC.Bar,{yAxisId:"r",dataKey:"remAmt",name:"Rem. Amount EGP",fill:B.red2,fillOpacity:.85,radius:[5,5,0,0],barSize:20}),h(RC.Bar,{yAxisId:"l",dataKey:"remQty",name:"Rem. Qty KG",fill:B.blue2,fillOpacity:.7,radius:[5,5,0,0],barSize:14}))))
+    ),
+    h("div",{className:"cf"},
+      h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 20px",borderBottom:"1px solid "+B.border}},
+        h("div",{className:"st",style:{marginBottom:0}},"Pending Orders Detail"),
+        h("span",{style:{background:B.redL,color:B.red2,padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}},num(rows.length)+" open")),
+      h("div",{style:{overflowX:"auto"}},
+        h("table",{className:"tbl"},
+          h("thead",null,h("tr",null,["Ser No","Order Date","Customer","Country","Product","Family","Req Qty","Del Qty","Rem Qty","Price ex-VAT","Rem Amt EGP","Status","Payment","Incoterm"].map(function(c){return h("th",{key:c},c);}))),
+          h("tbody",null,
+            rows.length===0?h("tr",null,h("td",{colSpan:14,style:{textAlign:"center",padding:40,color:B.subtle}},"No pending orders match filters")):
+            rows.map(function(r,i){var sc=scMap[r.status]||B.muted;return h("tr",{key:i},
+              h("td",{style:{color:B.muted,fontSize:11}},r.serNo),h("td",null,fD(r.orderDate)),
+              h("td",{style:{fontWeight:600}},r.customer),h("td",null,r.country),h("td",null,r.product),
+              h("td",null,h("span",{style:{background:B.blueL,color:B.blue2,padding:"2px 7px",borderRadius:8,fontSize:10,fontWeight:700}},r.family)),
+              h("td",{style:{textAlign:"right",color:B.muted}},num(r.reqQty)),
+              h("td",{style:{textAlign:"right",color:B.green,fontWeight:600}},num(r.delQty)),
+              h("td",{style:{textAlign:"right",color:B.red2,fontWeight:700}},num(r.remQty)),
+              h("td",{style:{textAlign:"right"}},num(r.priceExVAT,2)+" "+r.currency),
+              h("td",{style:{textAlign:"right",fontWeight:700}},num(r.remAmt)),
+              h("td",null,h("span",{style:{background:sc+"18",color:sc,padding:"3px 8px",borderRadius:20,fontSize:10,fontWeight:700,whiteSpace:"nowrap"}},r.status)),
+              h("td",{style:{color:B.muted,fontSize:11}},r.paymentTerms),h("td",{style:{color:B.muted}},r.incoterm));})
+          )
+        )
+      )
+    )
+  );
+}
+
+function AITab(props){
+  var user=props.user,salesData=props.salesData,pendingData=props.pendingData;
+  var sR=useMemo(function(){return user.role==="manager"?salesData:salesData.filter(function(r){return r.salesManager===user.rep_name||r.salesperson===user.rep_name;});},[user,salesData]);
+  var pR=useMemo(function(){return user.role==="manager"?pendingData:pendingData.filter(function(r){return r.salesManager===user.rep_name||r.salesMan===user.rep_name;});},[user,pendingData]);
+  var sk=useMemo(function(){return calcSKPI(sR);},[sR]);
+  var pk=useMemo(function(){return calcPKPI(pR);},[pR]);
+  var a1=useState("");var sum=a1[0];var setSum=a1[1];var a2=useState(false);var sumL=a2[0];var setSumL=a2[1];
+  var a3=useState([]);var alts=a3[0];var setAlts=a3[1];var a4=useState(false);var altL=a4[0];var setAltL=a4[1];
+  var a5=useState([]);var rsks=a5[0];var setRsks=a5[1];var a6=useState(false);var rskL=a6[0];var setRskL=a6[1];
+  var a7=useState(null);var fore=a7[0];var setFore=a7[1];var a8=useState(false);var forL=a8[0];var setForL=a8[1];
+  var a9=useState("");var dig=a9[0];var setDig=a9[1];var a10=useState(false);var digL=a10[0];var setDigL=a10[1];
+  var a11=useState(false);var copied=a11[0];var setCopied=a11[1];
+  var a12=useState([]);var msgs=a12[0];var setMsgs=a12[1];var a13=useState(false);var chatL=a13[0];var setChatL=a13[1];
+  var a14=useState("");var cin=a14[0];var setCin=a14[1];
+  var chatRef=useRef(null);
+  var hasKey=CONFIG.ANTHROPIC_KEY&&CONFIG.ANTHROPIC_KEY!=="YOUR_ANTHROPIC_KEY";
+  var fams=Array.from(new Set(sR.map(function(r){return r.family;}))).join(", ");
+  var ctx="Egyptian British Co - Specialty Chemicals. Sales: "+sR.length+" rows, "+sk.totalOrders+" unique orders. Total Qty: "+fK(sk.totalQty)+" KG. Total Val(EGP+VAT): "+fK(sk.totalVal)+" EGP. AvgPrice/KG: "+num(sk.avgPrice,2)+" EGP. Best product: "+sk.bestProd+" ("+fK(sk.bestQty)+" KG). Pending: "+pR.length+" orders, Rem: "+fK(pk.remAmt)+" EGP, "+fK(pk.remQty)+" KG. Families: "+fams+". Customers: "+Array.from(new Set(sR.map(function(r){return r.customer;}))).slice(0,6).join(", ")+".";
+  async function callAI(p,sys){if(!hasKey)return "Add Anthropic API key to CONFIG.ANTHROPIC_KEY to enable AI.";try{var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":CONFIG.ANTHROPIC_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:sys||"Senior sales analyst for Egyptian British Co, specialty chemicals. Be precise and professional.",messages:[{role:"user",content:p}]})});var d=await r.json();if(d.error)return "Error: "+d.error.message;return(d.content&&d.content[0]&&d.content[0].text)||"No response.";}catch(e){return "Error: "+e.message;}}
+  function pa(text){var lines=text.split("\n").filter(function(l){return l.indexOf("|")>=0;});var p=lines.map(function(l){var pts=l.split("|");return{type:pts[0].trim().toLowerCase(),msg:pts.slice(1).join("|").trim()};});return p.length?p:[{type:"info",msg:text}];}
+  async function genSum(){setSumL(true);setSum(await callAI("Write a 4-sentence performance summary with specific numbers.\nData:\n"+ctx));setSumL(false);}
+  async function genAlts(){setAltL(true);setAlts(pa(await callAI("Identify 4 anomalies. Format: TYPE|MESSAGE (TYPE=warn/danger/info/good)\nData:\n"+ctx,"Return only formatted lines.")));setAltL(false);}
+  async function genRsks(){setRskL(true);setRsks(pa(await callAI("Identify 4 pending risks. Format: TYPE|MESSAGE (TYPE=warn/danger/info/good)\nData: "+pR.length+" orders, "+fK(pk.remAmt)+" EGP rem.","Return only formatted lines.")));setRskL(false);}
+  async function genFore(){setForL(true);var r=await callAI("Forecast next month revenue. Return ONLY JSON: {\"value\":\"XXM\",\"confidence\":\"XX%\",\"trend\":\"up/flat/down\",\"notes\":\"2 sentences\"}\nData:\n"+ctx,"Return only valid JSON.");try{setFore(JSON.parse(r.replace(/```json|```/g,"").trim()));}catch(e){setFore({value:"N/A",confidence:"--",trend:"flat",notes:r.slice(0,150)});}setForL(false);}
+  async function genDig(){setDigL(true);setDig(await callAI("Write a weekly digest under 180 words for email/WhatsApp. Key metrics, highlights, 2 action points.\nData:\n"+ctx,"Plain text only."));setDigL(false);}
+  async function sendChat(){var msg=cin.trim();if(!msg||chatL)return;setCin("");setMsgs(function(p){return p.concat([{role:"user",content:msg}]);});setChatL(true);var reply=await callAI("Answer in max 3 sentences with specific numbers.\nQuestion: "+msg+"\nData:\n"+ctx,"You are a sales analyst for Egyptian British Co. Answer concisely in max 3 sentences with numbers.");setMsgs(function(p){return p.concat([{role:"ai",content:reply}]);});setChatL(false);}
+  useEffect(function(){if(chatRef.current)chatRef.current.scrollTop=chatRef.current.scrollHeight;},[msgs,chatL]);
+  function Panel(pp){return h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},h("div",null,h("div",{className:"st",style:{marginBottom:2}},pp.title),h("p",{style:{fontSize:11,color:B.muted}},pp.sub)),h("button",{className:"btn bo",onClick:pp.onGen,disabled:pp.loading,style:{fontSize:11,minWidth:90}},pp.loading?h("span",{style:{display:"flex",alignItems:"center",gap:6}},h("span",{className:"spin"}),"..."):pp.label||"Generate"));}
+  return h("div",null,
+    h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
+      h("div",null,h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:26}},"AI Insights"),h("p",{style:{fontSize:12,color:B.muted,marginTop:3}},"Powered by Claude AI \u00b7 Analyzing your live EBC data")),
+      h("button",{className:"btn bb",onClick:function(){genSum();genAlts();genRsks();genFore();}},"Refresh All")
+    ),
+    h("div",{className:"card",style:{marginBottom:14}},h(Panel,{title:"Performance Summary",sub:"Auto-generated narrative from your data",onGen:genSum,loading:sumL}),h("div",{style:{minHeight:72,background:B.blueLL,borderRadius:10,border:"1px solid "+B.border,padding:"14px 16px",fontSize:13,lineHeight:1.8,color:B.text}},sumL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted}},h("span",{className:"spin"}),"Generating..."):sum||h("span",{style:{color:B.subtle}},"Click Generate to create a performance summary."))),
+    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}},
+      h("div",{className:"card"},h(Panel,{title:"Anomaly Detection",sub:"Unusual patterns in your sales",onGen:genAlts,loading:altL,label:"Detect"}),altL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Scanning..."):alts.length?h("div",null,alts.map(function(a,i){return h("div",{key:i,className:"aia ai"+a.type.charAt(0)},a.msg);})):h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Detect to scan for anomalies.")),
+      h("div",{className:"card"},h(Panel,{title:"Pending Orders Risk",sub:"High-priority items",onGen:genRsks,loading:rskL,label:"Analyze"}),rskL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Analyzing..."):rsks.length?h("div",null,rsks.map(function(r,i){return h("div",{key:i,className:"aia ai"+r.type.charAt(0)},r.msg);})):h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Analyze to flag urgent pending items."))
+    ),
+    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}},
+      h("div",{className:"card"},h(Panel,{title:"Next Month Forecast",sub:"AI-driven revenue projection",onGen:genFore,loading:forL,label:"Forecast"}),forL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Building forecast..."):fore?h("div",null,h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:12}},h("div",{style:{background:B.blueL,borderRadius:10,padding:"12px",textAlign:"center"}},h("div",{style:{fontSize:10,fontWeight:700,color:B.blue2,letterSpacing:".07em",marginBottom:4}},"FORECAST"),h("div",{style:{fontSize:22,fontWeight:800,color:B.blue2,fontFamily:"'DM Serif Display',serif"}},fore.value)),h("div",{style:{background:B.greenL,borderRadius:10,padding:"12px",textAlign:"center"}},h("div",{style:{fontSize:10,fontWeight:700,color:B.green,letterSpacing:".07em",marginBottom:4}},"CONFIDENCE"),h("div",{style:{fontSize:22,fontWeight:800,color:B.green,fontFamily:"'DM Serif Display',serif"}},fore.confidence)),h("div",{style:{background:B.blueLL,borderRadius:10,padding:"12px",textAlign:"center"}},h("div",{style:{fontSize:10,fontWeight:700,color:B.muted,letterSpacing:".07em",marginBottom:4}},"TREND"),h("div",{style:{fontSize:22,fontWeight:800}},fore.trend==="up"?"\u2191":fore.trend==="down"?"\u2193":"\u2192"))),h("p",{style:{fontSize:12.5,color:B.muted,lineHeight:1.7}},fore.notes)):h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Forecast to project next month revenue.")),
+      h("div",{className:"card"},h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},h("div",null,h("div",{className:"st",style:{marginBottom:2}},"Weekly Digest"),h("p",{style:{fontSize:11,color:B.muted}},"Copy & paste into email or WhatsApp")),h("div",{style:{display:"flex",gap:6}},dig&&h("button",{className:"btn bg",onClick:function(){navigator.clipboard.writeText(dig);setCopied(true);setTimeout(function(){setCopied(false);},2000);},style:{fontSize:11}},copied?"Copied!":"Copy"),h("button",{className:"btn bo",onClick:genDig,disabled:digL,style:{fontSize:11}},digL?h("span",{style:{display:"flex",alignItems:"center",gap:6}},h("span",{className:"spin"}),"..."):"Generate"))),h("div",{style:{minHeight:130,background:"#FAFBFD",borderRadius:10,border:"1px solid "+B.border,padding:"13px 15px",fontSize:12.5,lineHeight:1.8,color:B.text,whiteSpace:"pre-wrap",overflowY:"auto",maxHeight:200}},digL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted}},h("span",{className:"spin"}),"Drafting..."):dig||h("span",{style:{color:B.subtle}},"Click Generate to draft a weekly summary.")))
+    ),
+    h("div",{className:"card"},
+      h("div",{className:"st",style:{marginBottom:4}},"Ask Your Data"),
+      h("p",{style:{fontSize:11.5,color:B.muted,marginBottom:14}},'Ask anything in plain language — "Who is our top customer this month?" \u00b7 "Which family has the best avg price?"'),
+      h("div",{ref:chatRef,style:{maxHeight:280,overflowY:"auto",marginBottom:12,padding:"4px 0"}},
+        msgs.length===0&&!chatL&&h("div",{style:{textAlign:"center",padding:"28px 0",color:B.subtle,fontSize:13}},"Ask a question below to get instant answers from your data"),
+        msgs.map(function(m,i){return h("div",{key:i,className:"cbbl",style:m.role==="user"?{marginLeft:"auto",background:B.blue2,color:"#fff"}:{background:"#F1F5F9",color:B.text}},m.content);}),
+        chatL&&h("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"10px 0",color:B.muted,fontSize:13}},h("span",{className:"spin"}),"Analyzing your data...")
+      ),
+      h("div",{style:{display:"flex",gap:8,marginBottom:10}},
+        h("input",{value:cin,onChange:function(e){setCin(e.target.value);},onKeyDown:function(e){if(e.key==="Enter")sendChat();},placeholder:"e.g. What is our total qty sold in April?",style:{flex:1,padding:"10px 14px",border:"1.5px solid "+B.border,borderRadius:10,fontSize:13,color:B.text,outline:"none"}}),
+        h("button",{className:"btn bb",onClick:sendChat,disabled:chatL||!cin.trim(),style:{whiteSpace:"nowrap",padding:"10px 18px"}},"Send")
+      ),
+      h("div",{style:{display:"flex",flexWrap:"wrap",gap:6}},
+        ["Top salesperson?","Best avg price family?","Largest pending customer?","Best selling product?"].map(function(q){return h("button",{key:q,onClick:function(){setCin(q);},style:{padding:"5px 12px",borderRadius:7,border:"1px solid "+B.border,background:B.blueLL,color:B.blue2,fontSize:11,cursor:"pointer",fontWeight:600}},q);})
+      )
+    )
+  );
+}
+
+function PrintArea(){
+  return h("div",{id:"pa",style:{display:"none",padding:24,fontFamily:"'Plus Jakarta Sans',sans-serif"}},
+    h("div",{style:{display:"flex",alignItems:"center",gap:14,marginBottom:20,borderBottom:"2px solid #E0E7EF",paddingBottom:16}},
+      h("div",{style:{width:40,height:40,borderRadius:10,background:"linear-gradient(135deg,#1565C0,#C62828)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:18,fontWeight:800}},"E"),
+      h("div",null,h("div",{style:{fontSize:17,fontWeight:800}},h("span",{style:{color:"#1565C0"}},"Egyptian "),h("span",{style:{color:"#C62828"}},"British Co.")),h("div",{style:{fontSize:11,color:"#8898AA"}},"Specialty Chemicals & Auxiliaries \u00b7 Pending Orders Report \u00b7 "+new Date().toLocaleDateString("en-GB")))
+    ),
+    h("h2",{style:{fontSize:16,fontWeight:700,marginBottom:16}},"Pending Sales Orders"),
+    h("table",{style:{width:"100%",borderCollapse:"collapse",fontSize:11}},
+      h("thead",null,h("tr",{style:{background:"#E3F2FD"}},["Order Date","Customer","Country","Product","Family","Req Qty KG","Del Qty KG","Rem Qty KG","Price ex-VAT","Rem Amt EGP","Status","Payment Terms"].map(function(c){return h("th",{key:c,style:{padding:"7px 8px",textAlign:"left",color:"#1565C0",fontWeight:700,border:"1px solid #E0E7EF",fontSize:10}},c);}))),
+      h("tbody",{id:"ptb"})
+    ),
+    h("div",{style:{marginTop:18,fontSize:10,color:"#8898AA",borderTop:"1px solid #E0E7EF",paddingTop:10}},"Generated: "+new Date().toLocaleString("en-GB")+" \u00b7 Egyptian British Co. Confidential")
+  );
+}
+
+function App(){
+  var s1=useState(null);    var user=s1[0];        var setUser=s1[1];
+  var s2=useState("sales"); var tab=s2[0];         var setTab=s2[1];
+  var s3=useState(true);    var loading=s3[0];     var setLoading=s3[1];
+  var s4=useState("Connecting to Google Drive..."); var loadMsg=s4[0]; var setLoadMsg=s4[1];
+  var s5=useState(null);    var error=s5[0];       var setError=s5[1];
+  var s6=useState([]);      var salesData=s6[0];   var setSalesData=s6[1];
+  var s7=useState([]);      var pendingData=s7[0]; var setPendingData=s7[1];
+  var s8=useState([]);      var rlsUsers=s8[0];    var setRlsUsers=s8[1];
+  var s9=useState(null);    var lastSync=s9[0];    var setLastSync=s9[1];
+
+  useEffect(function(){
+    var show = !user && !loading && !error;
+    if(show){ if(window.showMol) window.showMol(); }
+    else     { if(window.hideMol) window.hideMol(); }
+  }, [user, loading, error]);
+
+  useEffect(function(){
+    var ok = CONFIG.GOOGLE_API_KEY && CONFIG.GOOGLE_API_KEY !== "YOUR_GOOGLE_API_KEY";
+    if(!ok){ setError("SETUP"); setLoading(false); return; }
+    async function load(){
+      try{
+        setLoadMsg("Loading Sales View...");
+        var sr = await fetchSheet(CONFIG.SALES_SHEET_ID, "Sales View");
+        setSalesData(sr.map(normS));
+        setLoadMsg("Loading Pending Sales...");
+        var pr = await fetchSheet(CONFIG.PENDING_SHEET_ID, "Pending Sales");
+        setPendingData(pr.map(normP));
+        setLoadMsg("Loading RLS config...");
+        var rr = await fetchSheet(CONFIG.RLS_SHEET_ID, "RLS Config");
+        setRlsUsers(rr.map(normR));
+        setLastSync(new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}));
+        setLoading(false);
+      } catch(e){ setError(e.message); setLoading(false); }
+    }
+    load();
+  }, []);
+
+  // LOADING SCREEN
+  if(loading){
+    return h("div",{className:"ls"},
+      h(Logo,{size:"lg",center:true}),
+      h("div",{className:"bs",style:{marginTop:16}}),
+      h("p",{style:{color:B.muted,fontSize:14,fontWeight:500,marginTop:8}},loadMsg)
+    );
+  }
+
+  // SETUP SCREEN - keys not filled in
+  if(error === "SETUP"){
+    return h("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:B.bg,padding:20}},
+      h("div",{style:{background:"#fff",border:"2px solid #FDE68A",borderRadius:18,padding:"40px 36px",maxWidth:520,textAlign:"center",boxShadow:"0 12px 48px rgba(0,0,0,.08)"}},
+        h(Logo,{size:"lg"}),
+        h("div",{style:{fontSize:28,margin:"20px 0",fontWeight:700,color:B.amber}},"Setup Required"),
+        h("p",{style:{fontSize:13.5,color:B.muted,lineHeight:1.8,marginBottom:20}},
+          "Open index.html in Notepad and fill in your 5 API keys in the CONFIG block at the top of the file, then re-upload to GitHub."),
+        h("div",{style:{background:"#0F1C2E",color:"#E2E8F0",borderRadius:10,padding:"16px 20px",textAlign:"left",fontSize:12,fontFamily:"monospace",lineHeight:2.2}},
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"GOOGLE_API_KEY"),":   your key from Google Cloud Console"),
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"SALES_SHEET_ID"),":  your Sales View sheet ID"),
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"PENDING_SHEET_ID"),": your Pending Sales sheet ID"),
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"RLS_SHEET_ID"),":    your RLS Config sheet ID"),
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"ANTHROPIC_KEY"),":   your key from console.anthropic.com")
+        )
+      )
+    );
+  }
+
+  // CONNECTION ERROR SCREEN
+  if(error){
+    return h("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:B.bg,padding:20}},
+      h("div",{style:{background:"#fff",border:"2px solid #FECACA",borderRadius:18,padding:"40px 36px",maxWidth:540,textAlign:"center",boxShadow:"0 8px 32px rgba(0,0,0,.08)"}},
+        h(Logo,{size:"lg"}),
+        h("div",{style:{fontSize:22,fontWeight:700,color:B.red2,margin:"20px 0"}},"Connection Error"),
+        h("p",{style:{color:B.red2,fontSize:13.5,marginBottom:16,fontWeight:600,lineHeight:1.6}},error),
+        h("div",{style:{background:B.blueLL,borderRadius:10,padding:"14px 16px",fontSize:13,color:B.muted,textAlign:"left",lineHeight:2}},
+          h("div",null,"1. Check all 3 Sheet IDs are correct"),
+          h("div",null,"2. All 3 sheets shared as Anyone with link can view"),
+          h("div",null,"3. Google API key valid and Sheets API enabled"),
+          h("div",null,"4. Tab names match exactly: Sales View / Pending Sales / RLS Config")
+        )
+      )
+    );
+  }
+
+  // LOGIN
+  if(!user){
+    return h("div",null,
+      h(LoginPage,{rlsUsers:rlsUsers, onLogin:function(u){setUser(u);setTab("sales");}}),
+      h(PrintArea)
+    );
+  }
+
+  // MAIN DASHBOARD
+  var TABS = user.role==="manager"
+    ? [["sales","Sales Dashboard"],["pending","Pending Orders"],["ai","AI Insights"]]
+    : [["sales","Sales Dashboard"],["pending","Pending Orders"]];
+  return h("div",{id:"app"},
+    h(Header,{user:user, onLogout:function(){setUser(null);}, lastSync:lastSync}),
+    h("div",{style:{background:"#fff",borderBottom:"1px solid "+B.border}},
+      h("div",{style:{maxWidth:1480,margin:"0 auto",padding:"0 16px",display:"flex",gap:2,overflowX:"auto"}},
+        TABS.map(function(t){
+          return h("button",{key:t[0], className:"tab"+(tab===t[0]?" on":""), onClick:function(){setTab(t[0]);}}, t[1]);
+        })
+      )
+    ),
+    h("div",{className:"page"},
+      tab==="sales"   && h(SalesTab,  {user:user, salesData:salesData}),
+      tab==="pending" && h(PendingTab, {user:user, pendingData:pendingData}),
+      tab==="ai"      && h(AITab,     {user:user, salesData:salesData, pendingData:pendingData})
+    ),
+    h("div",{style:{textAlign:"center",padding:"12px 0 20px",color:B.subtle,fontSize:11,borderTop:"1px solid "+B.border,marginTop:8}},
+      h("span",{style:{fontWeight:700}},
+        h("span",{style:{color:B.blue2}},"Egyptian "),
+        h("span",{style:{color:B.red2}},"British Co.")),
+      " - Sales Intelligence Portal - ",
+      user.role==="rep" ? "RLS Active: "+user.rep_name+" view only" : "Full Manager Access - All Data Visible"
+    ),
+    h(PrintArea)
+  );
+}
+
+ReactDOM.render(h(App), document.getElementById("root"));
+
+} // end startApp
+</script>
+</body>
+</html>
