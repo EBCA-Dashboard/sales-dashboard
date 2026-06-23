@@ -930,22 +930,34 @@ function App(){
   useEffect(function(){
     var ok = CONFIG.GOOGLE_API_KEY && CONFIG.GOOGLE_API_KEY !== "YOUR_GOOGLE_API_KEY";
     if(!ok){ setError("SETUP"); setLoading(false); return; }
-    async function load(){
+
+    async function load(isBackground){
       try{
-        setLoadMsg("Loading Sales View...");
+        if(!isBackground) setLoadMsg("Loading Sales View...");
         var sr = await fetchSheet(CONFIG.SALES_SHEET_ID, "Sales View");
         setSalesData(sr.map(normS));
-        setLoadMsg("Loading Pending Sales...");
+        if(!isBackground) setLoadMsg("Loading Pending Sales...");
         var pr = await fetchSheet(CONFIG.PENDING_SHEET_ID, "Pending Sales");
         setPendingData(pr.map(normP));
-        setLoadMsg("Loading RLS config...");
+        if(!isBackground) setLoadMsg("Loading RLS config...");
         var rr = await fetchSheet(CONFIG.RLS_SHEET_ID, "RLS Config");
         setRlsUsers(rr.map(normR));
         setLastSync(new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}));
-        setLoading(false);
-      } catch(e){ setError(e.message); setLoading(false); }
+        if(!isBackground) setLoading(false);
+      } catch(e){
+        if(!isBackground){ setError(e.message); setLoading(false); }
+        /* background refresh failures stay silent — keep showing last good data, try again next interval */
+      }
     }
-    load();
+
+    load(false); /* initial load — shows the loading screen */
+
+    /* Silent background auto-refresh every 5 minutes — re-fetches Sheets
+       data without showing the loading screen, so the dashboard updates
+       itself live without anyone needing to reload the page. */
+    var REFRESH_MS = 5 * 60 * 1000;
+    var intervalId = setInterval(function(){ load(true); }, REFRESH_MS);
+    return function(){ clearInterval(intervalId); };
   }, []);
 
   // LOADING SCREEN
