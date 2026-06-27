@@ -179,8 +179,7 @@ const CONFIG = {
   GOOGLE_API_KEY:   "AIzaSyD9F3cdkBs4274bmJgcaUSRmrsDHx5abRk",
   SALES_SHEET_ID:   "1jGy9ixB9HMQn-_4MsZGDxkS427BxXH0sdqfkqHrm99o",
   PENDING_SHEET_ID: "1JHmxkiazFuBDJqLwkyJxImnxHBM7UqxxNhDqqZH6ao4",
-  RLS_SHEET_ID:     "14XfbVf4Bw93NdnYrqSM3-eOWllWzUKXvtO0jGE1gH6Y",
-  ANTHROPIC_KEY:    "YOUR_ANTHROPIC_KEY"
+  RLS_SHEET_ID:     "14XfbVf4Bw93NdnYrqSM3-eOWllWzUKXvtO0jGE1gH6Y"
 };
 </script>
 <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
@@ -353,16 +352,18 @@ function calcSKPI(rows){
   Object.keys(prodQty).forEach(function(p){if(prodQty[p]>bestQty){bestQty=prodQty[p];bestProd=p;}});
   return{totalQty:tQty,totalVal:tVal,avgPrice:avg,totalOrders:orderKeys.size,bestProd:bestProd,bestQty:bestQty};
 }
-function calcPKPI(rows,activeStatus){
+function calcPKPI(rows,activeStatuses){
+  /* activeStatuses: array of currently-selected status filter values (empty = no filter / "all") */
+  var OPEN=["pending","annual pending","in process"]; /* outside/unfiltered view only counts these statuses */
+  var hasStatusFilter = activeStatuses && activeStatuses.length>0;
+
+  var baseRows = hasStatusFilter ? rows : rows.filter(function(r){return OPEN.indexOf((r.status||"").toLowerCase().trim())>=0;});
+
   var rQ=0,rA=0,tRQ=0,tRV=0;
-  rows.forEach(function(r){rQ+=r.remQty;rA+=r.remAmt;tRQ+=r.reqQty;tRV+=r.totNoVAT;});
-  var OPEN=["pending","annual pending","on hold","in process"];
-  var openOrders;
-  if(!activeStatus||activeStatus==="all"){
-    openOrders=rows.filter(function(r){return OPEN.indexOf((r.status||"").toLowerCase().trim())>=0;}).length;
-  }else{
-    openOrders=rows.length;
-  }
+  baseRows.forEach(function(r){rQ+=r.remQty;rA+=r.remAmt;tRQ+=r.reqQty;tRV+=r.totNoVAT;});
+
+  var openOrders = hasStatusFilter ? rows.length : baseRows.length;
+
   return{remQty:rQ,remAmt:rA,avgPrice:tRQ>0?tRV/tRQ:0,total:rows.length,openOrders:openOrders};
 }
 
@@ -753,7 +754,7 @@ function PendingTab(props){
   var pOpts=useMemo(function(){return Array.from(new Set(applyF(base,"p").map(function(r){return r.product;}).filter(Boolean))).sort();},[base,fCust,fF,fS,fMkt]);
   var sOpts=useMemo(function(){return Array.from(new Set(applyF(base,"s").map(function(r){return r.status;}).filter(Boolean))).sort();},[base,fCust,fF,fP,fMkt]);
   var mktOpts=useMemo(function(){return Array.from(new Set(applyF(base,"mkt").map(function(r){return r.market;}).filter(Boolean))).sort();},[base,fCust,fF,fP,fS]);
-  var kpi=useMemo(function(){return calcPKPI(rows,fS.length===1?fS[0]:"all");},[rows,fS]);
+  var kpi=useMemo(function(){return calcPKPI(rows,fS);},[rows,fS]);
   var cd=useMemo(function(){return getPCustData(rows);},[rows]);
   var fd=useMemo(function(){return getPFamData(rows);},[rows]);
   var scMap={"Pending Approval":B.amber,"In Production":B.blue2,"Ready to Ship":B.green,"Partial Delivery":"#0891B2","On Hold":B.red2,"Awaiting Payment":"#7C3AED"};
@@ -829,67 +830,6 @@ function PendingTab(props){
               h("td",{style:{color:B.muted,fontSize:11}},r.paymentTerms),h("td",{style:{color:B.muted}},r.incoterm));})
           )
         )
-      )
-    )
-  );
-}
-
-function AITab(props){
-  var user=props.user,salesData=props.salesData,pendingData=props.pendingData;
-  var sR=useMemo(function(){return user.role==="manager"?salesData:salesData.filter(function(r){return r.salesManager===user.rep_name||r.salesperson===user.rep_name;});},[user,salesData]);
-  var pR=useMemo(function(){return user.role==="manager"?pendingData:pendingData.filter(function(r){return r.salesManager===user.rep_name||r.salesMan===user.rep_name;});},[user,pendingData]);
-  var sk=useMemo(function(){return calcSKPI(sR);},[sR]);
-  var pk=useMemo(function(){return calcPKPI(pR);},[pR]);
-  var a1=useState("");var sum=a1[0];var setSum=a1[1];var a2=useState(false);var sumL=a2[0];var setSumL=a2[1];
-  var a3=useState([]);var alts=a3[0];var setAlts=a3[1];var a4=useState(false);var altL=a4[0];var setAltL=a4[1];
-  var a5=useState([]);var rsks=a5[0];var setRsks=a5[1];var a6=useState(false);var rskL=a6[0];var setRskL=a6[1];
-  var a7=useState(null);var fore=a7[0];var setFore=a7[1];var a8=useState(false);var forL=a8[0];var setForL=a8[1];
-  var a9=useState("");var dig=a9[0];var setDig=a9[1];var a10=useState(false);var digL=a10[0];var setDigL=a10[1];
-  var a11=useState(false);var copied=a11[0];var setCopied=a11[1];
-  var a12=useState([]);var msgs=a12[0];var setMsgs=a12[1];var a13=useState(false);var chatL=a13[0];var setChatL=a13[1];
-  var a14=useState("");var cin=a14[0];var setCin=a14[1];
-  var chatRef=useRef(null);
-  var hasKey=CONFIG.ANTHROPIC_KEY&&CONFIG.ANTHROPIC_KEY!=="YOUR_ANTHROPIC_KEY";
-  var fams=Array.from(new Set(sR.map(function(r){return r.family;}))).join(", ");
-  var ctx="Egyptian British Co - Specialty Chemicals. Sales: "+sR.length+" rows, "+sk.totalOrders+" unique orders. Total Qty: "+fK(sk.totalQty)+" KG. Total Val(EGP+VAT): "+fK(sk.totalVal)+" EGP. AvgPrice/KG: "+num(sk.avgPrice,2)+" EGP. Best product: "+sk.bestProd+" ("+fK(sk.bestQty)+" KG). Pending: "+pR.length+" orders, Rem: "+fK(pk.remAmt)+" EGP, "+fK(pk.remQty)+" KG. Families: "+fams+". Customers: "+Array.from(new Set(sR.map(function(r){return r.customer;}))).slice(0,6).join(", ")+".";
-  async function callAI(p,sys){if(!hasKey)return "Add Anthropic API key to CONFIG.ANTHROPIC_KEY to enable AI.";try{var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":CONFIG.ANTHROPIC_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:sys||"Senior sales analyst for Egyptian British Co, specialty chemicals. Be precise and professional.",messages:[{role:"user",content:p}]})});var d=await r.json();if(d.error)return "Error: "+d.error.message;return(d.content&&d.content[0]&&d.content[0].text)||"No response.";}catch(e){return "Error: "+e.message;}}
-  function pa(text){var lines=text.split("\n").filter(function(l){return l.indexOf("|")>=0;});var p=lines.map(function(l){var pts=l.split("|");return{type:pts[0].trim().toLowerCase(),msg:pts.slice(1).join("|").trim()};});return p.length?p:[{type:"info",msg:text}];}
-  async function genSum(){setSumL(true);setSum(await callAI("Write a 4-sentence performance summary with specific numbers.\nData:\n"+ctx));setSumL(false);}
-  async function genAlts(){setAltL(true);setAlts(pa(await callAI("Identify 4 anomalies. Format: TYPE|MESSAGE (TYPE=warn/danger/info/good)\nData:\n"+ctx,"Return only formatted lines.")));setAltL(false);}
-  async function genRsks(){setRskL(true);setRsks(pa(await callAI("Identify 4 pending risks. Format: TYPE|MESSAGE (TYPE=warn/danger/info/good)\nData: "+pR.length+" orders, "+fK(pk.remAmt)+" EGP rem.","Return only formatted lines.")));setRskL(false);}
-  async function genFore(){setForL(true);var r=await callAI("Forecast next month revenue. Return ONLY JSON: {\"value\":\"XXM\",\"confidence\":\"XX%\",\"trend\":\"up/flat/down\",\"notes\":\"2 sentences\"}\nData:\n"+ctx,"Return only valid JSON.");try{setFore(JSON.parse(r.replace(/```json|```/g,"").trim()));}catch(e){setFore({value:"N/A",confidence:"--",trend:"flat",notes:r.slice(0,150)});}setForL(false);}
-  async function genDig(){setDigL(true);setDig(await callAI("Write a weekly digest under 180 words for email/WhatsApp. Key metrics, highlights, 2 action points.\nData:\n"+ctx,"Plain text only."));setDigL(false);}
-  async function sendChat(){var msg=cin.trim();if(!msg||chatL)return;setCin("");setMsgs(function(p){return p.concat([{role:"user",content:msg}]);});setChatL(true);var reply=await callAI("Answer in max 3 sentences with specific numbers.\nQuestion: "+msg+"\nData:\n"+ctx,"You are a sales analyst for Egyptian British Co. Answer concisely in max 3 sentences with numbers.");setMsgs(function(p){return p.concat([{role:"ai",content:reply}]);});setChatL(false);}
-  useEffect(function(){if(chatRef.current)chatRef.current.scrollTop=chatRef.current.scrollHeight;},[msgs,chatL]);
-  function Panel(pp){return h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},h("div",null,h("div",{className:"st",style:{marginBottom:2}},pp.title),h("p",{style:{fontSize:11,color:B.muted}},pp.sub)),h("button",{className:"btn bo",onClick:pp.onGen,disabled:pp.loading,style:{fontSize:11,minWidth:90}},pp.loading?h("span",{style:{display:"flex",alignItems:"center",gap:6}},h("span",{className:"spin"}),"..."):pp.label||"Generate"));}
-  return h("div",null,
-    h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}},
-      h("div",null,h("h1",{style:{fontFamily:"'DM Serif Display',serif",fontSize:26}},"AI Insights"),h("p",{style:{fontSize:12,color:B.muted,marginTop:3}},"Powered by Claude AI \u00b7 Analyzing your live EBC data")),
-      h("button",{className:"btn bb",onClick:function(){genSum();genAlts();genRsks();genFore();}},"Refresh All")
-    ),
-    h("div",{className:"card",style:{marginBottom:14}},h(Panel,{title:"Performance Summary",sub:"Auto-generated narrative from your data",onGen:genSum,loading:sumL}),h("div",{style:{minHeight:72,background:B.blueLL,borderRadius:10,border:"1px solid "+B.border,padding:"14px 16px",fontSize:13,lineHeight:1.8,color:B.text}},sumL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted}},h("span",{className:"spin"}),"Generating..."):sum||h("span",{style:{color:B.subtle}},"Click Generate to create a performance summary."))),
-    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}},
-      h("div",{className:"card"},h(Panel,{title:"Anomaly Detection",sub:"Unusual patterns in your sales",onGen:genAlts,loading:altL,label:"Detect"}),altL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Scanning..."):alts.length?h("div",null,alts.map(function(a,i){return h("div",{key:i,className:"aia ai"+a.type.charAt(0)},a.msg);})):h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Detect to scan for anomalies.")),
-      h("div",{className:"card"},h(Panel,{title:"Pending Orders Risk",sub:"High-priority items",onGen:genRsks,loading:rskL,label:"Analyze"}),rskL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Analyzing..."):rsks.length?h("div",null,rsks.map(function(r,i){return h("div",{key:i,className:"aia ai"+r.type.charAt(0)},r.msg);})):h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Analyze to flag urgent pending items."))
-    ),
-    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}},
-      h("div",{className:"card"},h(Panel,{title:"Next Month Forecast",sub:"AI-driven revenue projection",onGen:genFore,loading:forL,label:"Forecast"}),forL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted,padding:"16px 0"}},h("span",{className:"spin"}),"Building forecast..."):fore?h("div",null,h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:12}},h("div",{style:{background:B.blueL,borderRadius:10,padding:"12px",textAlign:"center"}},h("div",{style:{fontSize:10,fontWeight:700,color:B.blue2,letterSpacing:".07em",marginBottom:4}},"FORECAST"),h("div",{style:{fontSize:22,fontWeight:800,color:B.blue2,fontFamily:"'DM Serif Display',serif"}},fore.value)),h("div",{style:{background:B.greenL,borderRadius:10,padding:"12px",textAlign:"center"}},h("div",{style:{fontSize:10,fontWeight:700,color:B.green,letterSpacing:".07em",marginBottom:4}},"CONFIDENCE"),h("div",{style:{fontSize:22,fontWeight:800,color:B.green,fontFamily:"'DM Serif Display',serif"}},fore.confidence)),h("div",{style:{background:B.blueLL,borderRadius:10,padding:"12px",textAlign:"center"}},h("div",{style:{fontSize:10,fontWeight:700,color:B.muted,letterSpacing:".07em",marginBottom:4}},"TREND"),h("div",{style:{fontSize:22,fontWeight:800}},fore.trend==="up"?"\u2191":fore.trend==="down"?"\u2193":"\u2192"))),h("p",{style:{fontSize:12.5,color:B.muted,lineHeight:1.7}},fore.notes)):h("div",{style:{color:B.subtle,fontSize:12.5,padding:"10px 0"}},"Click Forecast to project next month revenue.")),
-      h("div",{className:"card"},h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},h("div",null,h("div",{className:"st",style:{marginBottom:2}},"Weekly Digest"),h("p",{style:{fontSize:11,color:B.muted}},"Copy & paste into email or WhatsApp")),h("div",{style:{display:"flex",gap:6}},dig&&h("button",{className:"btn bg",onClick:function(){navigator.clipboard.writeText(dig);setCopied(true);setTimeout(function(){setCopied(false);},2000);},style:{fontSize:11}},copied?"Copied!":"Copy"),h("button",{className:"btn bo",onClick:genDig,disabled:digL,style:{fontSize:11}},digL?h("span",{style:{display:"flex",alignItems:"center",gap:6}},h("span",{className:"spin"}),"..."):"Generate"))),h("div",{style:{minHeight:130,background:"#FAFBFD",borderRadius:10,border:"1px solid "+B.border,padding:"13px 15px",fontSize:12.5,lineHeight:1.8,color:B.text,whiteSpace:"pre-wrap",overflowY:"auto",maxHeight:200}},digL?h("div",{style:{display:"flex",alignItems:"center",gap:8,color:B.muted}},h("span",{className:"spin"}),"Drafting..."):dig||h("span",{style:{color:B.subtle}},"Click Generate to draft a weekly summary.")))
-    ),
-    h("div",{className:"card"},
-      h("div",{className:"st",style:{marginBottom:4}},"Ask Your Data"),
-      h("p",{style:{fontSize:11.5,color:B.muted,marginBottom:14}},'Ask anything in plain language — "Who is our top customer this month?" \u00b7 "Which family has the best avg price?"'),
-      h("div",{ref:chatRef,style:{maxHeight:280,overflowY:"auto",marginBottom:12,padding:"4px 0"}},
-        msgs.length===0&&!chatL&&h("div",{style:{textAlign:"center",padding:"28px 0",color:B.subtle,fontSize:13}},"Ask a question below to get instant answers from your data"),
-        msgs.map(function(m,i){return h("div",{key:i,className:"cbbl",style:m.role==="user"?{marginLeft:"auto",background:B.blue2,color:"#fff"}:{background:"#F1F5F9",color:B.text}},m.content);}),
-        chatL&&h("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"10px 0",color:B.muted,fontSize:13}},h("span",{className:"spin"}),"Analyzing your data...")
-      ),
-      h("div",{style:{display:"flex",gap:8,marginBottom:10}},
-        h("input",{value:cin,onChange:function(e){setCin(e.target.value);},onKeyDown:function(e){if(e.key==="Enter")sendChat();},placeholder:"e.g. What is our total qty sold in April?",style:{flex:1,padding:"10px 14px",border:"1.5px solid "+B.border,borderRadius:10,fontSize:13,color:B.text,outline:"none"}}),
-        h("button",{className:"btn bb",onClick:sendChat,disabled:chatL||!cin.trim(),style:{whiteSpace:"nowrap",padding:"10px 18px"}},"Send")
-      ),
-      h("div",{style:{display:"flex",flexWrap:"wrap",gap:6}},
-        ["Top salesperson?","Best avg price family?","Largest pending customer?","Best selling product?"].map(function(q){return h("button",{key:q,onClick:function(){setCin(q);},style:{padding:"5px 12px",borderRadius:7,border:"1px solid "+B.border,background:B.blueLL,color:B.blue2,fontSize:11,cursor:"pointer",fontWeight:600}},q);})
       )
     )
   );
@@ -976,13 +916,12 @@ function App(){
         h(Logo,{size:"lg"}),
         h("div",{style:{fontSize:28,margin:"20px 0",fontWeight:700,color:B.amber}},"Setup Required"),
         h("p",{style:{fontSize:13.5,color:B.muted,lineHeight:1.8,marginBottom:20}},
-          "Open index.html in Notepad and fill in your 5 API keys in the CONFIG block at the top of the file, then re-upload to GitHub."),
+          "Open index.html in Notepad and fill in your 4 API keys in the CONFIG block at the top of the file, then re-upload to GitHub."),
         h("div",{style:{background:"#0F1C2E",color:"#E2E8F0",borderRadius:10,padding:"16px 20px",textAlign:"left",fontSize:12,fontFamily:"monospace",lineHeight:2.2}},
           h("div",null,h("span",{style:{color:"#90CAF9"}},"GOOGLE_API_KEY"),":   your key from Google Cloud Console"),
           h("div",null,h("span",{style:{color:"#90CAF9"}},"SALES_SHEET_ID"),":  your Sales View sheet ID"),
           h("div",null,h("span",{style:{color:"#90CAF9"}},"PENDING_SHEET_ID"),": your Pending Sales sheet ID"),
-          h("div",null,h("span",{style:{color:"#90CAF9"}},"RLS_SHEET_ID"),":    your RLS Config sheet ID"),
-          h("div",null,h("span",{style:{color:"#90CAF9"}},"ANTHROPIC_KEY"),":   your key from console.anthropic.com")
+          h("div",null,h("span",{style:{color:"#90CAF9"}},"RLS_SHEET_ID"),":    your RLS Config sheet ID")
         )
       )
     );
@@ -1014,9 +953,7 @@ function App(){
   }
 
   // MAIN DASHBOARD
-  var TABS = user.role==="manager"
-    ? [["sales","Sales Dashboard"],["pending","Pending Orders"],["ai","AI Insights"]]
-    : [["sales","Sales Dashboard"],["pending","Pending Orders"]];
+  var TABS = [["sales","Sales Dashboard"],["pending","Pending Orders"]];
   return h("div",{id:"app"},
     h(Header,{user:user, onLogout:function(){setUser(null);}, lastSync:lastSync}),
     h("div",{style:{background:"#fff",borderBottom:"1px solid "+B.border}},
@@ -1028,8 +965,7 @@ function App(){
     ),
     h("div",{className:"page"},
       tab==="sales"   && h(SalesTab,  {user:user, salesData:salesData}),
-      tab==="pending" && h(PendingTab, {user:user, pendingData:pendingData}),
-      tab==="ai"      && h(AITab,     {user:user, salesData:salesData, pendingData:pendingData})
+      tab==="pending" && h(PendingTab, {user:user, pendingData:pendingData})
     ),
     h("div",{style:{textAlign:"center",padding:"12px 0 20px",color:B.subtle,fontSize:11,borderTop:"1px solid "+B.border,marginTop:8}},
       h("span",{style:{fontWeight:700}},
